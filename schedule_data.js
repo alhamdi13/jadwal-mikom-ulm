@@ -301,9 +301,32 @@ const ACADEMIC_DATA = {
       matkul: ["Perspektif Psikologi Komunikasi"]
     },
     {
-      nama: "Atika Rusli, S.IP., M.Si.",
-      no_hp: "6281341510487",
-      matkul: ["Sekretariat / Pengelola Akademik"]
+      nama: "Ibu Rina",
+      no_hp: "6282155540055",
+      matkul: ["Sekretariat / Pengelola Akademik FISIP ULM"]
+    },
+    {
+      nama: "Samsul Azis",
+      no_hp: "6282157226624",
+      matkul: ["Ketua Kelas MIKOM Angkatan 2026"]
+    }
+  ],
+  daftar_tugas: [
+    {
+      id: 'task-1',
+      matkul: 'Filsafat Ilmu Komunikasi',
+      title: 'Mempelajari Silabus & Rangkuman Epistemologi Ilmu Komunikasi',
+      deadline: "Jum'at, 18 September 2026 (14.00 WITA)",
+      notes: 'Pelajari konsep ontologi, epistemologi, dan aksiologi dalam tradisi keilmuan komunikasi.',
+      completed: false
+    },
+    {
+      id: 'task-2',
+      matkul: 'Perspektif Komunikasi Organisasi',
+      title: 'Analisis Studi Kasus Komunikasi Korporasi Modern',
+      deadline: 'Sabtu, 19 September 2026 (16.00 WITA)',
+      notes: 'Kelompok 3-4 orang, analisis dinamika komunikasi internal sektor publik atau swasta.',
+      completed: false
     }
   ]
 };
@@ -311,3 +334,4 @@ const ACADEMIC_DATA = {
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = ACADEMIC_DATA;
 }
+

@@ -194,9 +194,14 @@
                 Catatan tugas, PR, dan instruksi perkuliahan MIKOM Angkatan 2026.
               </p>
             </div>
-            <button class="quick-action-btn btn-blue" onclick="openTaskModal()">
-              ➕ Tambah Tugas
-            </button>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+              <button class="quick-action-btn btn-green" onclick="shareTasksToWAG()" title="Kirim rekap catatan tugas ke grup WhatsApp kelas">
+                📢 Bagikan ke WAG
+              </button>
+              <button class="quick-action-btn btn-blue" onclick="openTaskModal()">
+                ➕ Tambah Tugas
+              </button>
+            </div>
           </div>
 
           <div class="tasks-container" id="tasksContainer">
@@ -246,9 +251,20 @@
               <span class="location-icon">👩‍💼</span>
               <div>
                 <strong>Sekretariat / Pengelola Akademik:</strong>
-                <p>Ibu Atika Rusli, S.IP., M.Si. (+62 813-4151-0487)</p>
-                <a href="https://wa.me/6281341510487?text=Assalamu%27alaikum%20Ibu%20Atika%20Rusli%2C%20mohon%20izin%20bertanya%20mengenai%20informasi%20akademik%20MIKOM%20FISIP%20ULM..." target="_blank" class="quick-action-btn btn-green" style="margin-top: 8px; display: inline-flex; font-size: 0.78rem; padding: 6px 12px;">
+                <p>Ibu Rina (+62 821-5554-0055)</p>
+                <a href="https://wa.me/6282155540055?text=Assalamu%27alaikum%20Ibu%20Rina%2C%20mohon%20izin%20bertanya%20mengenai%20informasi%20akademik%20MIKOM%20FISIP%20ULM..." target="_blank" class="quick-action-btn btn-green" style="margin-top: 8px; display: inline-flex; font-size: 0.78rem; padding: 6px 12px;">
                   💬 Chat Sekretariat via WhatsApp
+                </a>
+              </div>
+            </div>
+
+            <div class="location-item">
+              <span class="location-icon">👨‍🎓</span>
+              <div>
+                <strong>Ketua Kelas MIKOM 2026:</strong>
+                <p>Samsul Azis (+62 821-5722-6624)</p>
+                <a href="https://wa.me/6282157226624?text=Assalamu%27alaikum%20Ketua%20Kelas%20Samsul%20Azis%2C%20izin%20konfirmasi%20mengenai%20perkuliahan%20MIKOM%202026..." target="_blank" class="quick-action-btn btn-blue" style="margin-top: 8px; display: inline-flex; font-size: 0.78rem; padding: 6px 12px;">
+                  💬 Hubungi Ketua Kelas via WhatsApp
                 </a>
               </div>
             </div>

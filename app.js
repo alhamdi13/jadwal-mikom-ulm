@@ -585,20 +585,59 @@ const DEFAULT_INITIAL_TASKS = [
 ];
 
 function getTasks() {
+  const masterTasks = (ACADEMIC_DATA && ACADEMIC_DATA.daftar_tugas) ? ACADEMIC_DATA.daftar_tugas : DEFAULT_INITIAL_TASKS;
   const saved = localStorage.getItem('sijadwal_tasks');
   if (saved) {
     try {
-      return JSON.parse(saved);
+      const parsed = JSON.parse(saved);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed;
+      }
     } catch (e) {
       console.error('Gagal parsing sijadwal_tasks:', e);
     }
   }
-  return DEFAULT_INITIAL_TASKS;
+  return masterTasks;
 }
 
 function saveTasks(tasks) {
   localStorage.setItem('sijadwal_tasks', JSON.stringify(tasks));
 }
+
+window.shareTasksToWAG = function() {
+  const tasks = getTasks();
+  const activeTasks = tasks.filter(t => !t.completed);
+  
+  if (tasks.length === 0) {
+    showToast('ℹ️ Belum ada catatan tugas untuk dibagikan.');
+    return;
+  }
+
+  let text = `📝 *CATATAN TUGAS & DEADLINE PERKULIAHAN*\n🎓 *Magister Ilmu Komunikasi FISIP ULM (Angkatan 2026)*\n━━━━━━━━━━━━━━━━━━━━\n\n`;
+
+  if (activeTasks.length > 0) {
+    text += `⏳ *TUGAS AKTIF / DEADLINE:* \n\n`;
+    activeTasks.forEach((t, i) => {
+      text += `${i + 1}️⃣ *[${t.matkul}]*\n📌 *Judul:* ${t.title}\n⏰ *Deadline:* ${t.deadline || '-'}\n📝 *Catatan:* ${t.notes || '-'}\n\n`;
+    });
+  } else {
+    text += `🎉 *Semua tugas perkuliahan saat ini telah selesai!* ✨\n\n`;
+  }
+
+  const completedTasks = tasks.filter(t => t.completed);
+  if (completedTasks.length > 0) {
+    text += `━━━━━━━━━━━━━━━━━━━━\n✅ *Tugas Selesai:*\n`;
+    completedTasks.forEach((t, i) => {
+      text += `~${i + 1}. [${t.matkul}] ${t.title}~\n`;
+    });
+    text += `\n`;
+  }
+
+  text += `━━━━━━━━━━━━━━━━━━━━\nSemangat dan sukses selalu rekan-rekan MIKOM 2026! ✨📚`;
+
+  const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
+  window.open(url, '_blank');
+};
 
 function renderTasks() {
   const container = document.getElementById('tasksContainer');
