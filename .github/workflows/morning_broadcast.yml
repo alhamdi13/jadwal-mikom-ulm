@@ -2,8 +2,9 @@ name: Broadcast Jadwal Kuliah Pagi
 
 on:
   schedule:
-    # 22:30 UTC = 06:30 WITA
-    - cron: '30 22 * * 3,4,5'
+    # 22:15 UTC = 06:15 WITA (05:15 WIB)
+    # Menit :15 berada di jalur sepi (off-peak) untuk membypass antrean padat server GitHub
+    - cron: '15 22 * * *'
   workflow_dispatch: # Memungkinkan tombol "Run workflow" manual di GitHub UI
 
 jobs:
