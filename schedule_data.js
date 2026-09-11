@@ -205,7 +205,7 @@ const ACADEMIC_DATA = {
           peran: "Koordinator Tim"
         },
         {
-          nama: "DR. Novaria Maulina, S.I Kom., M.IKom",
+          nama: "Dr. Novaria Maulina, S.I.Kom., M.I.Kom",
           no_hp: "6281351997788",
           peran: "Anggota Tim"
         }
@@ -241,6 +241,11 @@ const ACADEMIC_DATA = {
         {
           nama: "Dr. Muhammad Alif, M.Si",
           no_hp: "6281294901982",
+          peran: "Anggota Tim"
+        },
+        {
+          nama: "Dr. Atika, S.I.Kom., M.Si",
+          no_hp: "6281341510487",
           peran: "Anggota Tim"
         }
       ],
@@ -296,9 +301,14 @@ const ACADEMIC_DATA = {
       matkul: ["Perspektif Psikologi Komunikasi", "Media dan Teknologi Komunikasi"]
     },
     {
-      nama: "DR. Novaria Maulina, S.I Kom., M.IKom",
+      nama: "Dr. Novaria Maulina, S.I.Kom., M.I.Kom",
       no_hp: "6281351997788",
       matkul: ["Perspektif Psikologi Komunikasi"]
+    },
+    {
+      nama: "Dr. Atika, S.I.Kom., M.Si",
+      no_hp: "6281341510487",
+      matkul: ["Media dan Teknologi Komunikasi"]
     },
     {
       nama: "Ibu Rina",
