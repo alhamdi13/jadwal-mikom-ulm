@@ -28,8 +28,8 @@
       </div>
 
       <div class="top-actions">
-        <button class="quick-action-btn btn-blue" onclick="openZoomSettingsModal()" title="Ubah atau sesuaikan Link Zoom Meeting">
-          ⚙️ Edit Zoom
+        <button class="quick-action-btn btn-blue" onclick="openSettingsModal()" title="Ubah Ruangan Kuliah atau Link Zoom">
+          ⚙️ Edit Ruang & Zoom
         </button>
         <div class="wita-clock" id="witaClock">--:--:-- WITA</div>
         <button class="theme-toggle-btn" id="themeToggle" title="Ganti Tema">🌙</button>
@@ -45,7 +45,7 @@
           <div class="hero-tags">
             <span class="tag tag-primary">🎓 Semester I (Ganjil 2026/2027)</span>
             <span class="tag">👥 Angkatan 2026</span>
-            <span class="tag">📍 Ruang G1.103 & Zoom Meeting</span>
+            <span class="tag" id="heroLocationTag">📍 Ruang G1.103 & Zoom Meeting</span>
           </div>
         </div>
 
@@ -66,7 +66,8 @@
         <button class="tab-btn" data-tab="all">📚 Semua Matkul</button>
         <button class="tab-btn" data-tab="calendar">📅 Kalender Semester</button>
         <button class="tab-btn" data-tab="lecturers">👨‍🏫 Daftar Dosen</button>
-        <button class="tab-btn" data-tab="bot">🤖 Panduan Bot WA</button>
+        <button class="tab-btn" data-tab="broadcast">📢 Aksi Broadcast WAG</button>
+        <button class="tab-btn" data-tab="info-tugas">📌 Info & Tugas</button>
       </div>
 
       <div class="search-box">
@@ -92,7 +93,7 @@
         <div class="calendar-legend">
           <div class="legend-item">
             <span class="legend-dot offline"></span>
-            <span>🟢 Tatap Muka (Ruang G1.103)</span>
+            <span id="calendarLegendOffline">🟢 Tatap Muka (Ruang G1.103)</span>
           </div>
           <div class="legend-item">
             <span class="legend-dot online"></span>
@@ -117,207 +118,256 @@
       </div>
     </section>
 
-    <!-- Section 4: Panduan & Layanan Bot WhatsApp -->
-    <section id="botHubSection" class="bot-hub-section" style="display: none;">
-      <div style="margin-bottom: 24px;">
+    <!-- Section 4: Aksi Pengumuman WAG & Reminder Dosen -->
+    <section id="broadcastSection" style="display: none;">
+      <div style="margin-bottom: 22px;">
         <h2 style="font-size: 1.35rem; font-weight: 800; margin-bottom: 6px; display: flex; align-items: center; gap: 8px;">
-          <span>🤖</span> Layanan & Panduan Perintah Bot WhatsApp
+          <span>📢</span> Aksi Pengumuman Kelas & Reminder Dosen
         </h2>
         <p style="font-size: 0.88rem; color: var(--text-secondary);">
-          Bot pengingat jadwal otomatis aktif di grup WhatsApp <strong>Beranda Group Mikom</strong> dan siap merespons perintah Anda kapan saja.
+          Kirim pengumuman perkuliahan hari ini ke grup WhatsApp kelas atau hubungi dosen pengampu dengan template pesan santun siap kirim.
         </p>
       </div>
 
-      <div class="bot-hub-grid">
-        <!-- Kolom Kiri: Cheatsheet Perintah WhatsApp -->
-        <div class="bot-guide-card">
-          <div class="bot-guide-header">
+      <div class="broadcast-hub-grid">
+        <!-- Card 1: Broadcast WAG Hari Ini -->
+        <div class="hub-card">
+          <div class="hub-card-header">
             <div style="display: flex; align-items: center; gap: 8px;">
-              <span style="font-size: 1.25rem;">💬</span>
-              <h3 style="font-size: 1.1rem; font-weight: 700;">Daftar Perintah Cepat di Grup WA</h3>
+              <span style="font-size: 1.25rem;">📢</span>
+              <h3 style="font-size: 1.05rem; font-weight: 700;">Format Pengumuman WAG Hari Ini</h3>
             </div>
-            <span class="bot-badge-live">⚡ Respon Instan</span>
+            <span class="badge-mode mode-online" id="broadcastStatusBadge">🌐 Otomatis Terdeteksi</span>
           </div>
-          <p style="font-size: 0.83rem; color: var(--text-secondary); margin-bottom: 16px;">
-            Ketik salah satu perintah berikut di grup WhatsApp atau chat pribadi:
+
+          <p style="font-size: 0.82rem; color: var(--text-secondary); margin-bottom: 12px;">
+            Pesan di bawah ini otomatis disesuaikan dengan jadwal kuliah hari ini (Online Zoom / Ruang Tatap Muka):
           </p>
 
-          <div class="command-list">
-            <div class="command-item" onclick="copyCommandText('!jadwal')">
-              <div class="command-code-wrap">
-                <code class="command-code">!jadwal</code>
-                <span class="command-desc">Melihat status kuliah hari ini (Online Zoom / Offline Ruang G1.103)</span>
-              </div>
-              <button class="command-copy-btn" title="Salin Perintah">📋 Salin</button>
-            </div>
+          <div class="broadcast-preview-box" id="broadcastPreviewBox">
+            <!-- Rendered by app.js -->
+          </div>
 
-            <div class="command-item" onclick="copyCommandText('!jadwal besok')">
-              <div class="command-code-wrap">
-                <code class="command-code">!jadwal besok</code>
-                <span class="command-desc">Melihat jadwal mata kuliah untuk esok hari</span>
-              </div>
-              <button class="command-copy-btn" title="Salin Perintah">📋 Salin</button>
-            </div>
-
-            <div class="command-item" onclick="copyCommandText('!jadwal jumat')">
-              <div class="command-code-wrap">
-                <code class="command-code">!jadwal jumat</code>
-                <span class="command-desc">Rincian seluruh mata kuliah di hari Jum'at</span>
-              </div>
-              <button class="command-copy-btn" title="Salin Perintah">📋 Salin</button>
-            </div>
-
-            <div class="command-item" onclick="copyCommandText('!jadwal sabtu')">
-              <div class="command-code-wrap">
-                <code class="command-code">!jadwal sabtu</code>
-                <span class="command-desc">Rincian seluruh mata kuliah di hari Sabtu</span>
-              </div>
-              <button class="command-copy-btn" title="Salin Perintah">📋 Salin</button>
-            </div>
-
-            <div class="command-item" onclick="copyCommandText('!zoom')">
-              <div class="command-code-wrap">
-                <code class="command-code">!zoom</code>
-                <span class="command-desc">Mendapatkan Link Zoom resmi ULM, Meeting ID & Passcode</span>
-              </div>
-              <button class="command-copy-btn" title="Salin Perintah">📋 Salin</button>
-            </div>
-
-            <div class="command-item" onclick="copyCommandText('!cari Novaria')">
-              <div class="command-code-wrap">
-                <code class="command-code">!cari [nama/matkul]</code>
-                <span class="command-desc">Mencari dosen pengampu atau mata kuliah spesifik</span>
-              </div>
-              <button class="command-copy-btn" title="Salin Perintah">📋 Salin</button>
-            </div>
-
-            <div class="command-item" onclick="copyCommandText('!ping')">
-              <div class="command-code-wrap">
-                <code class="command-code">!ping</code>
-                <span class="command-desc">Mengecek keaktifan sistem bot dan kecepatan respon</span>
-              </div>
-              <button class="command-copy-btn" title="Salin Perintah">📋 Salin</button>
-            </div>
+          <div class="broadcast-actions">
+            <button class="quick-action-btn" onclick="copyFullBroadcastWAG()" style="flex: 1; justify-content: center;">
+              📋 Salin Teks Pengumuman
+            </button>
+            <button class="quick-action-btn btn-green" onclick="shareBroadcastToWA()" style="flex: 1; justify-content: center;">
+              💬 Buka & Kirim ke WhatsApp
+            </button>
           </div>
         </div>
 
-        <!-- Kolom Kanan: Status Otomatisasi & Aksi Komti -->
-        <div style="display: flex; flex-direction: column; gap: 20px;">
-          <!-- Status Sistem Otomatisasi -->
-          <div class="bot-guide-card">
-            <div class="bot-guide-header">
-              <div style="display: flex; align-items: center; gap: 8px;">
-                <span style="font-size: 1.25rem;">⏰</span>
-                <h3 style="font-size: 1.1rem; font-weight: 700;">Sistem Pengingat Otomatis</h3>
-              </div>
-              <span class="bot-status-badge">🟢 06:30 WITA</span>
+        <!-- Card 2: Japri Reminder ke Dosen Hari Ini -->
+        <div class="hub-card">
+          <div class="hub-card-header">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-size: 1.25rem;">📱</span>
+              <h3 style="font-size: 1.05rem; font-weight: 700;">Pengingat Japri Dosen Hari Ini</h3>
             </div>
-
-            <div class="feature-list">
-              <div class="feature-item">
-                <span class="feature-icon">📢</span>
-                <div>
-                  <strong style="color: var(--text-primary); font-size: 0.9rem;">Broadcast Harian Grup Kelas</strong>
-                  <p style="color: var(--text-secondary); font-size: 0.82rem; margin-top: 2px;">
-                    Otomatis terbit setiap pagi pukul 06:30 WITA ke <strong>Beranda Group Mikom</strong> dengan format rapi dan mendeteksi status Online/Offline.
-                  </p>
-                </div>
-              </div>
-
-              <div class="feature-item">
-                <span class="feature-icon">📱</span>
-                <div>
-                  <strong style="color: var(--text-primary); font-size: 0.9rem;">Notifikasi Japri Santun ke Dosen</strong>
-                  <p style="color: var(--text-secondary); font-size: 0.82rem; margin-top: 2px;">
-                    Mengirimkan pesan pengingat personal dan santun ke dosen pengampu yang memiliki jadwal mengajar pada hari tersebut.
-                  </p>
-                </div>
-              </div>
-
-              <div class="feature-item">
-                <span class="feature-icon">☁️</span>
-                <div>
-                  <strong style="color: var(--text-primary); font-size: 0.9rem;">Otomatisasi Cloud GitHub Actions</strong>
-                  <p style="color: var(--text-secondary); font-size: 0.82rem; margin-top: 2px;">
-                    Sistem bekerja di server cloud GitHub sehingga jadwal tetap terkirim tepat waktu tanpa perlu menyalakan laptop.
-                  </p>
-                </div>
-              </div>
-            </div>
+            <span class="tag tag-primary">1-Click WhatsApp</span>
           </div>
 
-          <!-- Aksi Cepat Komti / Mahasiswa -->
-          <div class="bot-guide-card">
-            <h3 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
-              <span>📋</span> Aksi Cepat Pengumuman
-            </h3>
-            <p style="font-size: 0.83rem; color: var(--text-secondary); margin-bottom: 16px;">
-              Salin pesan pengumuman jadwal hari ini dalam format teks rapi untuk dibagikan secara manual jika diperlukan:
-            </p>
+          <p style="font-size: 0.82rem; color: var(--text-secondary); margin-bottom: 14px;">
+            Klik tombol pada dosen yang bertugas hari ini untuk membuka WhatsApp dengan template pesan santun resmi yang sudah otomatis terisi:
+          </p>
 
-            <button class="quick-action-btn" onclick="copyFullBroadcastWAG()" style="width: 100%; justify-content: center; padding: 12px 16px; font-size: 0.9rem;">
-              📋 Salin Format Pesan Pengumuman Hari Ini
-            </button>
+          <div class="today-lecturers-list" id="todayLecturersList">
+            <!-- Rendered dynamically by app.js -->
           </div>
         </div>
       </div>
     </section>
 
+    <!-- Section 5: Info Penting, Mading & Papan Tugas -->
+    <section id="infoTugasSection" style="display: none;">
+      <div class="info-tugas-grid">
+        
+        <!-- Papan Tugas & Deadline (Assignment Tracker) -->
+        <div class="mading-card">
+          <div class="mading-header">
+            <div>
+              <h2 style="font-size: 1.25rem; font-weight: 800; display: flex; align-items: center; gap: 8px;">
+                <span>📝</span> Papan Tugas & Deadline Perkuliahan
+              </h2>
+              <p style="font-size: 0.83rem; color: var(--text-secondary); margin-top: 2px;">
+                Catatan tugas, PR, dan instruksi perkuliahan MIKOM Angkatan 2026.
+              </p>
+            </div>
+            <button class="quick-action-btn btn-blue" onclick="openTaskModal()">
+              ➕ Tambah Tugas
+            </button>
+          </div>
+
+          <div class="tasks-container" id="tasksContainer">
+            <!-- Rendered dynamically by app.js -->
+          </div>
+        </div>
+
+        <!-- Informasi Lokasi & Fasilitas Kampus -->
+        <div class="mading-card">
+          <div class="mading-header">
+            <div>
+              <h2 style="font-size: 1.25rem; font-weight: 800; display: flex; align-items: center; gap: 8px;">
+                <span>📍</span> Informasi Lokasi & Ruang Kuliah
+              </h2>
+              <p style="font-size: 0.83rem; color: var(--text-secondary); margin-top: 2px;">
+                Panduan tempat perkuliahan tatap muka dan kontak pengelola prodi.
+              </p>
+            </div>
+          </div>
+
+          <div class="location-details-card">
+            <div class="location-item">
+              <span class="location-icon">🏛️</span>
+              <div>
+                <strong>Gedung Pascasarjana FISIP ULM</strong>
+                <p>Jl. Brigjen H. Hasan Basry, Kayu Tangi, Banjarmasin, Kalimantan Selatan.</p>
+              </div>
+            </div>
+
+            <div class="location-item">
+              <span class="location-icon">🚪</span>
+              <div>
+                <strong>Ruang Kuliah Tatap Muka:</strong>
+                <p id="infoCurrentRoom">Ruang G1.103 (Lantai 1)</p>
+              </div>
+            </div>
+
+            <div class="location-item">
+              <span class="location-icon">📶</span>
+              <div>
+                <strong>Fasilitas Ruang Kelas:</strong>
+                <p>Full AC, Smart TV / Projector, Sound System, Wi-Fi Eduroam & ULM-Hotspot, Stopkontak Listrik.</p>
+              </div>
+            </div>
+
+            <div class="location-item">
+              <span class="location-icon">👩‍💼</span>
+              <div>
+                <strong>Sekretariat / Pengelola Akademik:</strong>
+                <p>Ibu Atika Rusli, S.IP., M.Si. (+62 813-4151-0487)</p>
+                <a href="https://wa.me/6281341510487?text=Assalamu%27alaikum%20Ibu%20Atika%20Rusli%2C%20mohon%20izin%20bertanya%20mengenai%20informasi%20akademik%20MIKOM%20FISIP%20ULM..." target="_blank" class="quick-action-btn btn-green" style="margin-top: 8px; display: inline-flex; font-size: 0.78rem; padding: 6px 12px;">
+                  💬 Chat Sekretariat via WhatsApp
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
   </div>
 
-  <!-- Modal Pengaturan & Edit Link Zoom -->
-  <div class="modal-overlay" id="zoomModalOverlay" onclick="closeZoomModal(event)">
+  <!-- Modal 1: Pengaturan & Edit Ruangan + Link Zoom -->
+  <div class="modal-overlay" id="settingsModalOverlay" onclick="closeSettingsModal(event)">
     <div class="modal-content" onclick="event.stopPropagation()">
       <div class="modal-header">
         <div style="display: flex; align-items: center; gap: 8px;">
-          <span style="font-size: 1.3rem;">🌐</span>
-          <h3 style="font-size: 1.15rem; font-weight: 800;">Pengaturan & Edit Link Zoom Meeting</h3>
+          <span style="font-size: 1.3rem;">⚙️</span>
+          <h3 style="font-size: 1.15rem; font-weight: 800;">Pengaturan Ruang Kuliah & Zoom</h3>
         </div>
-        <button class="modal-close-btn" onclick="closeZoomModal()">&times;</button>
+        <button class="modal-close-btn" onclick="closeSettingsModal()">&times;</button>
       </div>
 
       <div class="modal-body">
         <p style="font-size: 0.82rem; color: var(--text-secondary); margin-bottom: 16px;">
-          Anda dapat memperbarui atau menyesuaikan link Zoom, Meeting ID, dan Passcode perkuliahan online MIKOM ULM kapan saja. Perubahan akan langsung aktif di web ini.
+          Jika terjadi perubahan ruang kelas tatap muka atau link Zoom dari dosen, Anda dapat memperbaruinya di sini. Perubahan langsung aktif di website.
         </p>
 
         <div class="form-group">
-          <label class="form-label">Topik Pertemuan</label>
+          <label class="form-label">🏢 Ruang Kuliah Tatap Muka (Offline)</label>
+          <input type="text" id="inputCustomRuangan" class="form-input" placeholder="G1.103">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">🌐 Topik Zoom Meeting</label>
           <input type="text" id="inputZoomTopik" class="form-input" placeholder="Zoom Meeting Ilmu Komunikasi FISIP ULM's">
         </div>
 
         <div class="form-group">
-          <label class="form-label">Tautan / URL Rapat Zoom</label>
+          <label class="form-label">🔗 Tautan / URL Rapat Zoom</label>
           <input type="text" id="inputZoomLink" class="form-input" placeholder="https://lambungmangkurat.zoom.us/j/...">
         </div>
 
         <div class="form-row">
           <div class="form-group" style="flex: 1;">
-            <label class="form-label">ID Rapat (Meeting ID)</label>
+            <label class="form-label">🔑 ID Rapat (Meeting ID)</label>
             <input type="text" id="inputZoomId" class="form-input" placeholder="921 9668 7315">
           </div>
           <div class="form-group" style="flex: 1;">
-            <label class="form-label">Kode Sandi (Passcode)</label>
+            <label class="form-label">🔐 Kode Sandi (Passcode)</label>
             <input type="text" id="inputZoomPass" class="form-input" placeholder="743342">
           </div>
         </div>
 
         <div class="form-group">
-          <label class="form-label">Instruksi / Tautan Tambahan (Opsional)</label>
-          <input type="text" id="inputZoomInstruksi" class="form-input" placeholder="https://lambungmangkurat.zoom.us/meetings/...">
+          <label class="form-label">📝 Catatan / Lokasi Tambahan (Opsional)</label>
+          <input type="text" id="inputZoomInstruksi" class="form-input" placeholder="Gedung Pascasarjana Lantai 1">
         </div>
       </div>
 
       <div class="modal-footer">
-        <button class="btn-icon" onclick="resetZoomToDefault()" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.3);">
+        <button class="btn-icon" onclick="resetSettingsToDefault()" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.3);">
           🔄 Reset Default ULM
         </button>
         <div style="display: flex; gap: 8px;">
-          <button class="btn-icon" onclick="closeZoomModal()">Batal</button>
-          <button class="quick-action-btn btn-blue" onclick="saveZoomSettings()">
+          <button class="btn-icon" onclick="closeSettingsModal()">Batal</button>
+          <button class="quick-action-btn btn-blue" onclick="saveCustomSettings()">
             💾 Simpan Perubahan
           </button>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 2: Tambah / Edit Catatan Tugas Kuliah -->
+  <div class="modal-overlay" id="taskModalOverlay" onclick="closeTaskModal(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 1.3rem;">📝</span>
+          <h3 style="font-size: 1.15rem; font-weight: 800;">Tambah Catatan Tugas Kuliah</h3>
+        </div>
+        <button class="modal-close-btn" onclick="closeTaskModal()">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Mata Kuliah</label>
+          <select id="inputTaskMatkul" class="form-input">
+            <option value="Filsafat Ilmu Komunikasi">Filsafat Ilmu Komunikasi</option>
+            <option value="Perspektif Komunikasi Organisasi">Perspektif Komunikasi Organisasi</option>
+            <option value="CSR dan Komunikasi Pemberdayaan">CSR dan Komunikasi Pemberdayaan</option>
+            <option value="Perspektif dan Teori Komunikasi">Perspektif dan Teori Komunikasi</option>
+            <option value="Perspektif Psikologi Komunikasi">Perspektif Psikologi Komunikasi</option>
+            <option value="Media dan Teknologi Komunikasi">Media dan Teknologi Komunikasi</option>
+            <option value="Tugas Umum / Prodi">Tugas Umum / Pengumuman Prodi</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Judul Tugas / PR</label>
+          <input type="text" id="inputTaskTitle" class="form-input" placeholder="Contoh: Review Jurnal Teori Komunikasi Bab 1-3">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Batas Waktu Pengumpulan (Deadline)</label>
+          <input type="text" id="inputTaskDeadline" class="form-input" placeholder="Contoh: Jum'at, 25 September 2026 (23.59 WITA)">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Keterangan / Instruksi Dosen</label>
+          <textarea id="inputTaskNotes" class="form-input" style="min-height: 80px; resize: vertical;" placeholder="Format PDF dikirim via email / Google Classroom..."></textarea>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-icon" onclick="closeTaskModal()">Batal</button>
+        <button class="quick-action-btn btn-blue" onclick="saveNewTask()">
+          ➕ Simpan Catatan Tugas
+        </button>
       </div>
     </div>
   </div>

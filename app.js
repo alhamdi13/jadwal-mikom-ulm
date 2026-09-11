@@ -1,19 +1,22 @@
 /**
  * SiJadwal - Web Dashboard Application Logic
- * Magister Ilmu Komunikasi FISIP ULM Angkatan 2026
+ * Magister Ilmu Komunikasi FISIP Universitas Lambung Mangkurat Angkatan 2026
  */
 
 document.addEventListener('DOMContentLoaded', () => {
+  initSettings();
   initClock();
   initTheme();
   initTodaySpotlight();
   renderScheduleCards('today');
   renderCalendar();
   renderLecturerDirectory();
+  renderBroadcastTab();
+  renderTasks();
   initEventListeners();
 });
 
-// Format YYYY-MM-DD
+// Utility: Format Date YYYY-MM-DD
 function formatDateISO(date) {
   const y = date.getFullYear();
   const m = String(date.getMonth() + 1).padStart(2, '0');
@@ -28,7 +31,6 @@ function initClock() {
 
   function update() {
     const now = new Date();
-    // Gunakan formatter WITA
     const timeStr = now.toLocaleTimeString('id-ID', {
       timeZone: 'Asia/Makassar',
       hour: '2-digit',
@@ -48,6 +50,7 @@ function initTheme() {
   document.documentElement.setAttribute('data-theme', savedTheme);
 
   if (toggleBtn) {
+    toggleBtn.innerHTML = savedTheme === 'dark' ? '🌙' : '☀️';
     toggleBtn.addEventListener('click', () => {
       const current = document.documentElement.getAttribute('data-theme');
       const next = current === 'dark' ? 'light' : 'dark';
@@ -58,14 +61,132 @@ function initTheme() {
   }
 }
 
-// 3. Status Spotlight Hari Ini
+// 3. Settings & Custom Room/Zoom Persistence
+function initSettings() {
+  const savedRoom = localStorage.getItem('sijadwal_custom_ruangan');
+  if (savedRoom) {
+    ACADEMIC_DATA.default_ruangan = savedRoom;
+  }
+
+  const savedZoom = localStorage.getItem('sijadwal_custom_zoom');
+  if (savedZoom) {
+    try {
+      ACADEMIC_DATA.default_zoom = { ...ACADEMIC_DATA.base_default_zoom, ...JSON.parse(savedZoom) };
+    } catch (e) {
+      console.error('Gagal parsing savedZoom:', e);
+    }
+  }
+
+  updateGlobalRoomLabels();
+}
+
+function updateGlobalRoomLabels() {
+  const heroLoc = document.getElementById('heroLocationTag');
+  if (heroLoc) {
+    heroLoc.textContent = `📍 Ruang ${ACADEMIC_DATA.default_ruangan} & Zoom Meeting`;
+  }
+
+  const calLegend = document.getElementById('calendarLegendOffline');
+  if (calLegend) {
+    calLegend.textContent = `🟢 Tatap Muka (Ruang ${ACADEMIC_DATA.default_ruangan})`;
+  }
+
+  const infoRoom = document.getElementById('infoCurrentRoom');
+  if (infoRoom) {
+    infoRoom.textContent = `Ruang ${ACADEMIC_DATA.default_ruangan} (Lantai 1)`;
+  }
+}
+
+window.openSettingsModal = function() {
+  const overlay = document.getElementById('settingsModalOverlay');
+  if (!overlay) return;
+
+  const currentZoom = ACADEMIC_DATA.default_zoom || {};
+  document.getElementById('inputCustomRuangan').value = ACADEMIC_DATA.default_ruangan || 'G1.103';
+  document.getElementById('inputZoomTopik').value = currentZoom.topik || '';
+  document.getElementById('inputZoomLink').value = currentZoom.link || '';
+  document.getElementById('inputZoomId').value = currentZoom.meeting_id || '';
+  document.getElementById('inputZoomPass').value = currentZoom.passcode || '';
+  document.getElementById('inputZoomInstruksi').value = currentZoom.instruksi_link || '';
+
+  overlay.classList.add('active');
+};
+
+window.closeSettingsModal = function(e) {
+  if (e && e.target !== e.currentTarget && !e.target.classList.contains('modal-close-btn')) return;
+  const overlay = document.getElementById('settingsModalOverlay');
+  if (overlay) overlay.classList.remove('active');
+};
+
+window.saveCustomSettings = function() {
+  const customRoom = document.getElementById('inputCustomRuangan').value.trim() || 'G1.103';
+  const topik = document.getElementById('inputZoomTopik').value.trim();
+  const link = document.getElementById('inputZoomLink').value.trim();
+  const meeting_id = document.getElementById('inputZoomId').value.trim();
+  const passcode = document.getElementById('inputZoomPass').value.trim();
+  const instruksi_link = document.getElementById('inputZoomInstruksi').value.trim();
+
+  if (!link) {
+    alert('Tautan / URL Zoom tidak boleh kosong!');
+    return;
+  }
+
+  // Simpan ruangan
+  ACADEMIC_DATA.default_ruangan = customRoom;
+  localStorage.setItem('sijadwal_custom_ruangan', customRoom);
+
+  // Simpan zoom
+  const updatedZoom = {
+    topik: topik || "Zoom Meeting Ilmu Komunikasi FISIP ULM's",
+    link,
+    meeting_id: meeting_id || "-",
+    passcode: passcode || "-",
+    instruksi_link
+  };
+
+  ACADEMIC_DATA.default_zoom = updatedZoom;
+  localStorage.setItem('sijadwal_custom_zoom', JSON.stringify(updatedZoom));
+
+  updateGlobalRoomLabels();
+  initTodaySpotlight();
+  renderScheduleCards('today');
+  renderCalendar();
+  renderBroadcastTab();
+  
+  const overlay = document.getElementById('settingsModalOverlay');
+  if (overlay) overlay.classList.remove('active');
+
+  showToast('✅ Pengaturan Ruang & Link Zoom berhasil disimpan!');
+};
+
+window.resetSettingsToDefault = function() {
+  if (confirm('Kembalikan pengaturan Ruang & Zoom ke default resmi Kampus FISIP ULM?')) {
+    localStorage.removeItem('sijadwal_custom_ruangan');
+    localStorage.removeItem('sijadwal_custom_zoom');
+
+    ACADEMIC_DATA.default_ruangan = ACADEMIC_DATA.base_default_ruangan || 'G1.103';
+    ACADEMIC_DATA.default_zoom = { ...ACADEMIC_DATA.base_default_zoom };
+
+    updateGlobalRoomLabels();
+    initTodaySpotlight();
+    renderScheduleCards('today');
+    renderCalendar();
+    renderBroadcastTab();
+
+    const overlay = document.getElementById('settingsModalOverlay');
+    if (overlay) overlay.classList.remove('active');
+
+    showToast('🔄 Pengaturan telah direset ke default resmi ULM.');
+  }
+};
+
+// 4. Status Perkuliahan Hari Ini (Today Spotlight)
 function initTodaySpotlight() {
   const spotlightEl = document.getElementById('todaySpotlight');
   if (!spotlightEl) return;
 
   const today = new Date();
   const todayISO = formatDateISO(today);
-  const dayIndex = today.getDay(); // 5 = Jumat, 6 = Sabtu
 
   // Cek apakah hari ini ada jadwal perkuliahan
   const todayClasses = ACADEMIC_DATA.jadwal.filter(item => {
@@ -83,29 +204,30 @@ function initTodaySpotlight() {
       </div>
       <div class="status-detail">
         ${isOnline 
-          ? `Tersedia di Zoom Meeting (${todayClasses.length} Mata Kuliah)` 
-          : `Gedung FISIP - Ruang ${ACADEMIC_DATA.default_ruangan} (${todayClasses.length} Mata Kuliah)`}
+          ? `Tersedia via Zoom Meeting (${todayClasses.length} Mata Kuliah Hari Ini)` 
+          : `Gedung FISIP ULM — Ruang ${ACADEMIC_DATA.default_ruangan} (${todayClasses.length} Mata Kuliah Hari Ini)`}
       </div>
       <div>
         ${isOnline 
           ? `<a href="${ACADEMIC_DATA.default_zoom.link}" target="_blank" class="quick-action-btn btn-blue" onclick="copyZoomInfo()">🚀 Buka Zoom Meeting</a>`
-          : `<button class="quick-action-btn" onclick="showToast('Lokasi: Ruang ${ACADEMIC_DATA.default_ruangan} FISIP ULM')">📍 Lokasi Ruang ${ACADEMIC_DATA.default_ruangan}</button>`}
+          : `<button class="quick-action-btn btn-green" onclick="showToast('📍 Lokasi: Ruang ${ACADEMIC_DATA.default_ruangan} Lantai 1 Gedung Pascasarjana FISIP ULM')">📍 Lokasi Ruang ${ACADEMIC_DATA.default_ruangan}</button>`}
       </div>
     `;
   } else {
     spotlightEl.className = 'status-spotlight';
     spotlightEl.innerHTML = `
       <div class="status-label">Status Hari Ini</div>
-      <div class="status-title">🎉 Tidak Ada Jadwal Kuliah</div>
-      <div class="status-detail">Perkuliahan MIKOM aktif setiap hari Jum'at & Sabtu.</div>
-      <div>
-        <button class="quick-action-btn" onclick="switchTab('jumat')">📅 Lihat Jadwal Jum'at</button>
+      <div class="status-title">🎉 Tidak Ada Jadwal Kuliah Hari Ini</div>
+      <div class="status-detail">Perkuliahan MIKOM Angkatan 2026 aktif setiap hari Jum'at & Sabtu.</div>
+      <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+        <button class="quick-action-btn" onclick="switchTab('jumat')">📅 Jadwal Jum'at</button>
+        <button class="quick-action-btn" onclick="switchTab('sabtu')">📅 Jadwal Sabtu</button>
       </div>
     `;
   }
 }
 
-// 4. Render Schedule Cards
+// 5. Render Schedule Cards Grid
 function renderScheduleCards(tab = 'today', searchQuery = '') {
   const container = document.getElementById('scheduleGrid');
   if (!container) return;
@@ -118,7 +240,7 @@ function renderScheduleCards(tab = 'today', searchQuery = '') {
     list = ACADEMIC_DATA.jadwal.filter(item => 
       (item.tanggal_offline || []).includes(todayISO) || (item.tanggal_online || []).includes(todayISO)
     );
-    // Jika hari ini tidak ada kuliah, tampilkan jadwal Jum'at sebagai default preview
+    // Jika hari ini tidak ada jadwal kuliah, tampilkan semua mata kuliah sebagai referensi
     if (list.length === 0) {
       list = ACADEMIC_DATA.jadwal;
     }
@@ -141,23 +263,22 @@ function renderScheduleCards(tab = 'today', searchQuery = '') {
 
   if (list.length === 0) {
     container.innerHTML = `
-      <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--text-secondary);">
+      <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--text-secondary); background: var(--bg-surface); border-radius: var(--radius-md); border: 1px dashed var(--border-subtle);">
         🔍 Tidak ditemukan mata kuliah yang sesuai dengan kata kunci "${searchQuery}".
       </div>
     `;
     return;
   }
 
-  container.innerHTML = list.map((item, idx) => {
-    // Tentukan apakah Online atau Offline
+  container.innerHTML = list.map((item) => {
     const isOnlineToday = (item.tanggal_online || []).includes(todayISO);
     const isOfflineToday = (item.tanggal_offline || []).includes(todayISO);
     
     let modeBadge = `<span class="badge-mode offline">🟢 Berselang Online/Offline</span>`;
     if (isOnlineToday) {
-      modeBadge = `<span class="badge-mode online">🌐 Hari Ini: ONLINE</span>`;
+      modeBadge = `<span class="badge-mode online">🌐 Hari Ini: ONLINE (Zoom)</span>`;
     } else if (isOfflineToday) {
-      modeBadge = `<span class="badge-mode offline">🟢 Hari Ini: OFFLINE</span>`;
+      modeBadge = `<span class="badge-mode offline">🟢 Hari Ini: OFFLINE (${ACADEMIC_DATA.default_ruangan})</span>`;
     }
 
     return `
@@ -169,7 +290,7 @@ function renderScheduleCards(tab = 'today', searchQuery = '') {
           </div>
 
           <h3 class="card-title">${item.mata_kuliah}</h3>
-          <p class="card-desc">${item.deskripsi || 'Mata kuliah inti Program Studi Magister Ilmu Komunikasi.'}</p>
+          <p class="card-desc">${item.deskripsi || 'Mata kuliah inti Program Studi Magister Ilmu Komunikasi FISIP ULM.'}</p>
 
           <div class="card-lecturers">
             <div class="lecturer-label">Tim Dosen Pengajar:</div>
@@ -177,7 +298,7 @@ function renderScheduleCards(tab = 'today', searchQuery = '') {
               <div class="lecturer-item">
                 <span class="lecturer-name">${d.nama}</span>
                 ${d.no_hp ? `
-                  <a href="https://wa.me/${d.no_hp}?text=${encodeURIComponent(`Assalamu'alaikum Wr. Wb. Selamat Pagi Bapak/Ibu ${d.nama}. Saya mahasiswa MIKOM ULM Angkatan 2026 ingin mengonfirmasi perkuliahan mata kuliah ${item.mata_kuliah}. Terima kasih.`)}" target="_blank" class="wa-lecturer-link">
+                  <a href="https://wa.me/${d.no_hp}?text=${encodeURIComponent(`Assalamu'alaikum Wr. Wb. Selamat Pagi Bapak/Ibu ${d.nama}.\n\nSaya mahasiswa Magister Ilmu Komunikasi FISIP ULM Angkatan 2026 ingin mengonfirmasi perkuliahan mata kuliah *${item.mata_kuliah}*. Terima kasih.`)}" target="_blank" class="wa-lecturer-link">
                     💬 Hubungi
                   </a>
                 ` : ''}
@@ -204,7 +325,7 @@ function renderScheduleCards(tab = 'today', searchQuery = '') {
   }).join('');
 }
 
-// 5. Render Kalender Semester Ganjil 2026
+// 6. Render Kalender Semester Ganjil 2026
 function renderCalendar() {
   const container = document.getElementById('calendarMonthsGrid');
   if (!container) return;
@@ -216,7 +337,6 @@ function renderCalendar() {
     { name: 'Desember 2026', key: '2026-12' }
   ];
 
-  // Kumpulkan seluruh tanggal unik dari data jadwal
   const allDatesMap = new Map();
   ACADEMIC_DATA.jadwal.forEach(matkul => {
     (matkul.tanggal_offline || []).forEach(date => {
@@ -245,7 +365,7 @@ function renderCalendar() {
               <div class="date-row ${isOnline ? 'is-online' : 'is-offline'}" onclick="showDateModal('${d}')">
                 <span><strong>${info.day}, ${dateNum} ${m.name.split(' ')[0]}</strong></span>
                 <span class="badge-mode ${isOnline ? 'online' : 'offline'}">
-                  ${isOnline ? '🌐 ONLINE (Zoom)' : '🟢 OFFLINE (G1.103)'}
+                  ${isOnline ? '🌐 ONLINE (Zoom)' : `🟢 OFFLINE (${ACADEMIC_DATA.default_ruangan})`}
                 </span>
               </div>
             `;
@@ -256,7 +376,7 @@ function renderCalendar() {
   }).join('');
 }
 
-// 6. Render Directory Dosen
+// 7. Render Directory Dosen
 function renderLecturerDirectory() {
   const container = document.getElementById('lecturerGrid');
   if (!container) return;
@@ -276,7 +396,7 @@ function renderLecturerDirectory() {
 
         <div>
           ${d.no_hp ? `
-            <a href="https://wa.me/${d.no_hp}?text=${encodeURIComponent(`Assalamu'alaikum Warahmatullahi Wabarakatuh,\nSelamat Pagi Bapak/Ibu ${d.nama}.\nSaya mahasiswa Magister Ilmu Komunikasi FISIP ULM Angkatan 2026 ingin mengonfirmasi jadwal perkuliahan. Terima kasih.`)}" target="_blank" class="lecturer-contact-btn">
+            <a href="https://wa.me/${d.no_hp}?text=${encodeURIComponent(`Assalamu'alaikum Warahmatullahi Wabarakatuh,\nSelamat Pagi Bapak/Ibu ${d.nama}.\n\nSaya mahasiswa Magister Ilmu Komunikasi FISIP ULM Angkatan 2026 ingin mengonfirmasi jadwal perkuliahan. Terima kasih.`)}" target="_blank" class="lecturer-contact-btn">
               💬 Chat WhatsApp (+${d.no_hp})
             </a>
           ` : `
@@ -290,30 +410,311 @@ function renderLecturerDirectory() {
   }).join('');
 }
 
-// 7. Salin Perintah Bot WhatsApp
-window.copyCommandText = function(cmd) {
-  if (navigator.clipboard) {
-    navigator.clipboard.writeText(cmd).then(() => {
-      showToast(`✅ Perintah "${cmd}" berhasil disalin! Silakan tempelkan di WhatsApp.`);
-    }).catch(() => {
-      fallbackCopyText(cmd);
+// 8. Section 4: Aksi Pengumuman WAG & Reminder Dosen
+function getTodayOrUpcomingClasses() {
+  const today = new Date();
+  const todayISO = formatDateISO(today);
+
+  let activeClasses = ACADEMIC_DATA.jadwal.filter(m => 
+    (m.tanggal_offline || []).includes(todayISO) || (m.tanggal_online || []).includes(todayISO)
+  );
+
+  let isTodayActive = true;
+  let targetDate = today;
+  let targetISO = todayISO;
+
+  if (activeClasses.length === 0) {
+    isTodayActive = false;
+    // Ambil jadwal Jum'at terdekat sebagai default preview
+    activeClasses = ACADEMIC_DATA.jadwal.filter(m => m.hari.includes('Jum'));
+  }
+
+  const isOnline = activeClasses.some(m => (m.tanggal_online || []).includes(targetISO));
+
+  return {
+    classes: activeClasses,
+    isToday: isTodayActive,
+    isOnline: isOnline,
+    targetDate: targetDate
+  };
+}
+
+function generateBroadcastMessageText() {
+  const data = getTodayOrUpcomingClasses();
+  const dateFormatted = data.targetDate.toLocaleDateString('id-ID', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  });
+
+  const zoom = ACADEMIC_DATA.default_zoom;
+  const ruangan = ACADEMIC_DATA.default_ruangan;
+
+  let headerNote = data.isToday 
+    ? `📢 *PENGUMUMAN PERKULIAHAN HARI INI*` 
+    : `📢 *JADWAL PERKULIAHAN (PRATINJAU JUM'AT)*`;
+
+  let modeText = data.isOnline 
+    ? `🌐 *Metode: KULIAH DARING (ONLINE ZOOM)*\n🔗 Link Zoom: ${zoom.link}\n🔑 Meeting ID: ${zoom.meeting_id}\n🔐 Passcode: ${zoom.passcode}`
+    : `🟢 *Metode: TATAP MUKA (OFFLINE KAMPUS)*\n🏢 Ruangan: Ruang ${ruangan} (Lantai 1)\n🏛️ Lokasi: Gedung Pascasarjana FISIP ULM`;
+
+  let matkulListText = data.classes.map((m, idx) => {
+    const lecturerNames = (m.tim_pengajar || []).map(d => d.nama).join(', ');
+    return `${idx + 1}️⃣ *${m.mata_kuliah}*\n   ⏰ ${m.jam_mulai} - ${m.jam_selesai} WITA\n   👥 Dosen: ${lecturerNames}`;
+  }).join('\n\n');
+
+  return `${headerNote}
+🎓 *Magister Ilmu Komunikasi FISIP ULM*
+👥 Angkatan 2026
+🗓️ ${dateFormatted}
+━━━━━━━━━━━━━━━━━━━━
+
+${matkulListText}
+
+━━━━━━━━━━━━━━━━━━━━
+${modeText}
+
+Selamat mengikuti perkuliahan rekan-rekan mahasiswa! Semoga sukses dan lancar selalu. ✨🎓`;
+}
+
+function renderBroadcastTab() {
+  const previewBox = document.getElementById('broadcastPreviewBox');
+  const badgeEl = document.getElementById('broadcastStatusBadge');
+  const lecturersList = document.getElementById('todayLecturersList');
+
+  const data = getTodayOrUpcomingClasses();
+  const text = generateBroadcastMessageText();
+
+  if (previewBox) {
+    previewBox.textContent = text;
+  }
+
+  if (badgeEl) {
+    if (data.isToday) {
+      badgeEl.className = data.isOnline ? 'badge-mode online' : 'badge-mode offline';
+      badgeEl.textContent = data.isOnline ? '🌐 Hari Ini: ONLINE (Zoom)' : `🟢 Hari Ini: OFFLINE (${ACADEMIC_DATA.default_ruangan})`;
+    } else {
+      badgeEl.className = 'badge-mode offline';
+      badgeEl.textContent = 'ℹ️ Pratinjau Jadwal Kuliah';
+    }
+  }
+
+  if (lecturersList) {
+    // Kumpulkan dosen unik yang mengajar di sesi ini
+    const lecturersMap = new Map();
+    data.classes.forEach(m => {
+      (m.tim_pengajar || []).forEach(d => {
+        if (!lecturersMap.has(d.nama)) {
+          lecturersMap.set(d.nama, { ...d, matkul: m.mata_kuliah, jam: m.jam_mulai, hari: m.hari });
+        }
+      });
     });
+
+    const lecturers = Array.from(lecturersMap.values());
+
+    if (lecturers.length === 0) {
+      lecturersList.innerHTML = `
+        <div style="text-align: center; color: var(--text-secondary); padding: 20px;">
+          Tidak ada daftar dosen untuk sesi ini.
+        </div>
+      `;
+      return;
+    }
+
+    lecturersList.innerHTML = lecturers.map(d => {
+      const modeDesc = data.isOnline ? 'Online via Zoom Meeting' : `Tatap Muka di Ruang ${ACADEMIC_DATA.default_ruangan}`;
+      const reminderText = `Assalamu'alaikum Warahmatullahi Wabarakatuh,\nSelamat Pagi Bapak/Ibu ${d.nama}.\n\nMohon izin mengonfirmasi dan mengingatkan perkuliahan Magister Ilmu Komunikasi FISIP ULM untuk mata kuliah *${d.matkul}* pada hari ini (${d.hari}, ${d.jam} WITA) yang dijadwalkan secara ${modeDesc}.\n\nApakah perkuliahan dapat dimulai sesuai jadwal? Terima kasih banyak Bapak/Ibu. 🙏`;
+
+      return `
+        <div class="lecturer-reminder-item">
+          <div class="lecturer-reminder-info">
+            <div class="lecturer-reminder-name">${d.nama}</div>
+            <div class="lecturer-reminder-sub">📚 ${d.matkul} (${d.jam} WITA)</div>
+          </div>
+          ${d.no_hp ? `
+            <a href="https://wa.me/${d.no_hp}?text=${encodeURIComponent(reminderText)}" target="_blank" class="lecturer-reminder-btn">
+              <span>💬</span> Ingatkan Dosen
+            </a>
+          ` : `
+            <span style="font-size: 0.75rem; color: var(--text-muted);">Kontak belum ada</span>
+          `}
+        </div>
+      `;
+    }).join('');
+  }
+}
+
+window.copyFullBroadcastWAG = function() {
+  const text = generateBroadcastMessageText();
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text).then(() => {
+      showToast('✅ Format Pesan Broadcast WAG berhasil disalin ke Clipboard!');
+    }).catch(() => fallbackCopyText(text));
   } else {
-    fallbackCopyText(cmd);
+    fallbackCopyText(text);
   }
 };
 
-function fallbackCopyText(text) {
-  const tempInput = document.createElement('textarea');
-  tempInput.value = text;
-  document.body.appendChild(tempInput);
-  tempInput.select();
-  document.execCommand('copy');
-  document.body.removeChild(tempInput);
-  showToast(`✅ Perintah "${text}" berhasil disalin!`);
+window.shareBroadcastToWA = function() {
+  const text = generateBroadcastMessageText();
+  const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
+  window.open(url, '_blank');
+};
+
+// 9. Section 5: Assignment Tracker (Info & Tugas)
+const DEFAULT_INITIAL_TASKS = [
+  {
+    id: 'task-1',
+    matkul: 'Filsafat Ilmu Komunikasi',
+    title: 'Mempelajari Silabus & Rangkuman Epistemologi Ilmu Komunikasi',
+    deadline: 'Jum\'at, 18 September 2026 (14.00 WITA)',
+    notes: 'Pelajari konsep ontologi, epistemologi, dan aksiologi dalam tradisi keilmuan komunikasi.',
+    completed: false,
+    createdAt: new Date().toISOString()
+  },
+  {
+    id: 'task-2',
+    matkul: 'Perspektif Komunikasi Organisasi',
+    title: 'Analisis Studi Kasus Komunikasi Korporasi Modern',
+    deadline: 'Sabtu, 19 September 2026 (16.00 WITA)',
+    notes: 'Kelompok 3-4 orang, analisis dinamika komunikasi internal sektor publik atau swasta.',
+    completed: false,
+    createdAt: new Date().toISOString()
+  }
+];
+
+function getTasks() {
+  const saved = localStorage.getItem('sijadwal_tasks');
+  if (saved) {
+    try {
+      return JSON.parse(saved);
+    } catch (e) {
+      console.error('Gagal parsing sijadwal_tasks:', e);
+    }
+  }
+  return DEFAULT_INITIAL_TASKS;
 }
 
-// 8. Event Listeners & Navigation
+function saveTasks(tasks) {
+  localStorage.setItem('sijadwal_tasks', JSON.stringify(tasks));
+}
+
+function renderTasks() {
+  const container = document.getElementById('tasksContainer');
+  if (!container) return;
+
+  const tasks = getTasks();
+
+  if (tasks.length === 0) {
+    container.innerHTML = `
+      <div class="empty-tasks-state">
+        <span style="font-size: 2rem; display: block; margin-bottom: 8px;">🎉</span>
+        <strong>Belum ada catatan tugas aktif</strong>
+        <p style="font-size: 0.82rem; margin-top: 4px;">Klik tombol "➕ Tambah Tugas" di atas untuk mencatat tugas baru.</p>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = tasks.map(t => {
+    return `
+      <div class="task-card ${t.completed ? 'completed' : ''}" id="${t.id}">
+        <div class="task-card-header">
+          <span class="task-matkul-tag">📚 ${t.matkul}</span>
+          <span class="task-badge ${t.completed ? 'done' : 'pending'}">
+            ${t.completed ? '✅ Selesai' : '⏳ Belum Selesai'}
+          </span>
+        </div>
+
+        <h4 class="task-title">${t.title}</h4>
+        ${t.deadline ? `<div class="task-deadline">⏰ Deadline: ${t.deadline}</div>` : ''}
+        ${t.notes ? `<div class="task-notes">${t.notes}</div>` : ''}
+
+        <div class="task-actions">
+          <button class="task-btn toggle-btn" onclick="toggleTaskStatus('${t.id}')">
+            ${t.completed ? '↩️ Tandai Belum Selesai' : '✔️ Tandai Selesai'}
+          </button>
+          <button class="task-btn delete-btn" onclick="deleteTask('${t.id}')">
+            🗑️ Hapus
+          </button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+window.openTaskModal = function() {
+  const overlay = document.getElementById('taskModalOverlay');
+  if (!overlay) return;
+
+  document.getElementById('inputTaskTitle').value = '';
+  document.getElementById('inputTaskDeadline').value = '';
+  document.getElementById('inputTaskNotes').value = '';
+
+  overlay.classList.add('active');
+};
+
+window.closeTaskModal = function(e) {
+  if (e && e.target !== e.currentTarget && !e.target.classList.contains('modal-close-btn')) return;
+  const overlay = document.getElementById('taskModalOverlay');
+  if (overlay) overlay.classList.remove('active');
+};
+
+window.saveNewTask = function() {
+  const matkul = document.getElementById('inputTaskMatkul').value;
+  const title = document.getElementById('inputTaskTitle').value.trim();
+  const deadline = document.getElementById('inputTaskDeadline').value.trim();
+  const notes = document.getElementById('inputTaskNotes').value.trim();
+
+  if (!title) {
+    alert('Judul Tugas tidak boleh kosong!');
+    return;
+  }
+
+  const tasks = getTasks();
+  const newTask = {
+    id: 'task-' + Date.now(),
+    matkul,
+    title,
+    deadline,
+    notes,
+    completed: false,
+    createdAt: new Date().toISOString()
+  };
+
+  tasks.unshift(newTask);
+  saveTasks(tasks);
+  renderTasks();
+
+  const overlay = document.getElementById('taskModalOverlay');
+  if (overlay) overlay.classList.remove('active');
+
+  showToast('✅ Catatan tugas baru berhasil ditambahkan!');
+};
+
+window.toggleTaskStatus = function(taskId) {
+  const tasks = getTasks();
+  const index = tasks.findIndex(t => t.id === taskId);
+  if (index !== -1) {
+    tasks[index].completed = !tasks[index].completed;
+    saveTasks(tasks);
+    renderTasks();
+    showToast(tasks[index].completed ? '✅ Tugas ditandai selesai!' : '↩️ Status tugas diubah menjadi aktif.');
+  }
+};
+
+window.deleteTask = function(taskId) {
+  if (confirm('Apakah Anda yakin ingin menghapus catatan tugas ini?')) {
+    let tasks = getTasks();
+    tasks = tasks.filter(t => t.id !== taskId);
+    saveTasks(tasks);
+    renderTasks();
+    showToast('🗑️ Catatan tugas berhasil dihapus.');
+  }
+};
+
+// 10. Event Listeners & Tab Navigation
 function initEventListeners() {
   const searchInput = document.getElementById('searchSchedule');
   if (searchInput) {
@@ -322,93 +723,36 @@ function initEventListeners() {
     });
   }
 
-  // Navigation Tab Buttons
   document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
       const target = e.currentTarget.getAttribute('data-tab');
       e.currentTarget.classList.add('active');
 
-      // Tampilkan atau sembunyikan section
       const scheduleSec = document.getElementById('scheduleSection');
       const calendarSec = document.getElementById('calendarSection');
       const lecturerSec = document.getElementById('lecturerSection');
-      const botSec = document.getElementById('botHubSection');
+      const broadcastSec = document.getElementById('broadcastSection');
+      const infoTugasSec = document.getElementById('infoTugasSection');
 
-      if (scheduleSec) scheduleSec.style.display = (target === 'calendar' || target === 'lecturers' || target === 'bot') ? 'none' : 'block';
+      if (scheduleSec) scheduleSec.style.display = (target === 'calendar' || target === 'lecturers' || target === 'broadcast' || target === 'info-tugas') ? 'none' : 'block';
       if (calendarSec) calendarSec.style.display = (target === 'calendar') ? 'block' : 'none';
       if (lecturerSec) lecturerSec.style.display = (target === 'lecturers') ? 'block' : 'none';
-      if (botSec) botSec.style.display = (target === 'bot') ? 'block' : 'none';
+      if (broadcastSec) broadcastSec.style.display = (target === 'broadcast') ? 'block' : 'none';
+      if (infoTugasSec) infoTugasSec.style.display = (target === 'info-tugas') ? 'block' : 'none';
 
-      if (target !== 'calendar' && target !== 'lecturers' && target !== 'bot') {
+      if (target === 'broadcast') {
+        renderBroadcastTab();
+      } else if (target === 'info-tugas') {
+        renderTasks();
+      } else if (target !== 'calendar' && target !== 'lecturers') {
         renderScheduleCards(target);
       }
     });
   });
 }
 
-// Global Actions & Modal Zoom Controllers
-window.openZoomSettingsModal = function() {
-  const overlay = document.getElementById('zoomModalOverlay');
-  if (!overlay) return;
-
-  const current = ACADEMIC_DATA.default_zoom || {};
-  document.getElementById('inputZoomTopik').value = current.topik || '';
-  document.getElementById('inputZoomLink').value = current.link || '';
-  document.getElementById('inputZoomId').value = current.meeting_id || '';
-  document.getElementById('inputZoomPass').value = current.passcode || '';
-  document.getElementById('inputZoomInstruksi').value = current.instruksi_link || '';
-
-  overlay.classList.add('active');
-};
-
-window.closeZoomModal = function(e) {
-  const overlay = document.getElementById('zoomModalOverlay');
-  if (overlay) overlay.classList.remove('active');
-};
-
-window.saveZoomSettings = function() {
-  const topik = document.getElementById('inputZoomTopik').value.trim();
-  const link = document.getElementById('inputZoomLink').value.trim();
-  const meeting_id = document.getElementById('inputZoomId').value.trim();
-  const passcode = document.getElementById('inputZoomPass').value.trim();
-  const instruksi_link = document.getElementById('inputZoomInstruksi').value.trim();
-
-  if (!link) {
-    alert('Tautan Zoom tidak boleh kosong!');
-    return;
-  }
-
-  const updated = {
-    topik: topik || "Zoom Meeting Ilmu Komunikasi FISIP ULM's",
-    link,
-    meeting_id: meeting_id || "-",
-    passcode: passcode || "-",
-    instruksi_link
-  };
-
-  localStorage.setItem('sijadwal_custom_zoom', JSON.stringify(updated));
-  ACADEMIC_DATA.default_zoom = updated;
-
-  // Re-render UI
-  initTodaySpotlight();
-  renderScheduleCards('all');
-  closeZoomModal();
-  showToast('✅ Pengaturan Link Zoom berhasil diperbarui & disimpan di browser!');
-};
-
-window.resetZoomToDefault = function() {
-  if (confirm('Apakah Anda yakin ingin mengembalikan link Zoom ke pengaturan default resmi ULM?')) {
-    localStorage.removeItem('sijadwal_custom_zoom');
-    ACADEMIC_DATA.default_zoom = { ...ACADEMIC_DATA.base_default_zoom };
-    
-    initTodaySpotlight();
-    renderScheduleCards('all');
-    closeZoomModal();
-    showToast('🔄 Link Zoom telah direset ke default resmi FISIP ULM.');
-  }
-};
-
+// 11. Helper Actions
 window.switchTab = function(tabName) {
   const btn = document.querySelector(`.tab-btn[data-tab="${tabName}"]`);
   if (btn) btn.click();
@@ -416,17 +760,13 @@ window.switchTab = function(tabName) {
 
 window.copyZoomInfo = function() {
   const text = `Zoom: ${ACADEMIC_DATA.default_zoom.link}\nID: ${ACADEMIC_DATA.default_zoom.meeting_id}\nPasscode: ${ACADEMIC_DATA.default_zoom.passcode}`;
-  navigator.clipboard.writeText(text).then(() => {
-    showToast('✅ Tautan, ID, dan Passcode Zoom berhasil disalin!');
-  });
-};
-
-window.copyFullBroadcastWAG = function() {
-  const today = new Date();
-  const text = `📢 *JADWAL KULIAH MAGISTER ILMU KOMUNIKASI FISIP ULM*\n🎓 Angkatan 2026\n🗓️ Tanggal: ${today.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}\n━━━━━━━━━━━━━━━━━━━━\n\n1️⃣ Filsafat Ilmu Komunikasi (14.00 WITA)\n2️⃣ Perspektif Komunikasi Organisasi (16.30 WITA)\n3️⃣ CSR dan Komunikasi Pemberdayaan (18.45 WITA)\n\n🌐 Metode: ONLINE (Zoom Meeting)\n🔗 Link: ${ACADEMIC_DATA.default_zoom.link}\n🔑 ID: ${ACADEMIC_DATA.default_zoom.meeting_id} | Pass: ${ACADEMIC_DATA.default_zoom.passcode}\n\nSelamat belajar & sukses! ✨`;
-  navigator.clipboard.writeText(text).then(() => {
-    showToast('✅ Format Pesan Broadcast WAG berhasil disalin ke Clipboard!');
-  });
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text).then(() => {
+      showToast('✅ Tautan, ID, dan Passcode Zoom berhasil disalin!');
+    }).catch(() => fallbackCopyText(text));
+  } else {
+    fallbackCopyText(text);
+  }
 };
 
 window.copyCourseBroadcast = function(courseId) {
@@ -434,9 +774,13 @@ window.copyCourseBroadcast = function(courseId) {
   if (!matkul) return;
 
   const text = `📚 *${matkul.mata_kuliah}*\n⏰ ${matkul.hari}, ${matkul.jam_mulai} - ${matkul.jam_selesai} WITA\n👥 Dosen: ${matkul.tim_pengajar.map(d => d.nama).join(', ')}\n🔗 Link Zoom: ${ACADEMIC_DATA.default_zoom.link}\n🏢 Ruang: ${ACADEMIC_DATA.default_ruangan}`;
-  navigator.clipboard.writeText(text).then(() => {
-    showToast(`✅ Jadwal ${matkul.mata_kuliah} berhasil disalin!`);
-  });
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text).then(() => {
+      showToast(`✅ Jadwal ${matkul.mata_kuliah} berhasil disalin!`);
+    }).catch(() => fallbackCopyText(text));
+  } else {
+    fallbackCopyText(text);
+  }
 };
 
 window.showDateModal = function(dateStr) {
@@ -448,13 +792,23 @@ window.showDateModal = function(dateStr) {
   const dateObj = new Date(dateStr);
   const formatted = dateObj.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
 
-  let msg = `📅 ${formatted}\nStatus: ${isOnline ? '🌐 ONLINE (Zoom)' : '🟢 OFFLINE (Ruang G1.103)'}\n\nDaftar Matkul:\n`;
+  let msg = `📅 ${formatted}\nStatus: ${isOnline ? '🌐 ONLINE (Zoom)' : `🟢 OFFLINE (Ruang ${ACADEMIC_DATA.default_ruangan})`}\n\nDaftar Matkul:\n`;
   matkulList.forEach((m, i) => {
     msg += `${i + 1}. ${m.mata_kuliah} (${m.jam_mulai} - ${m.jam_selesai} WITA)\n`;
   });
 
   alert(msg);
 };
+
+function fallbackCopyText(text) {
+  const tempInput = document.createElement('textarea');
+  tempInput.value = text;
+  document.body.appendChild(tempInput);
+  tempInput.select();
+  document.execCommand('copy');
+  document.body.removeChild(tempInput);
+  showToast(`✅ Berhasil disalin ke Clipboard!`);
+}
 
 window.showToast = function(message) {
   const container = document.getElementById('toastContainer');

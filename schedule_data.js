@@ -22,6 +22,15 @@ function getActiveZoomConfig() {
   return { ...DEFAULT_ZOOM_CONFIG };
 }
 
+// Cek apakah ada ruangan kustom yang disimpan di browser (localStorage)
+function getActiveRuangConfig() {
+  if (typeof localStorage !== 'undefined') {
+    const saved = localStorage.getItem('sijadwal_custom_ruangan');
+    if (saved) return saved;
+  }
+  return "G1.103";
+}
+
 const ACADEMIC_DATA = {
   kampus: "Universitas Lambung Mangkurat (ULM)",
   fakultas: "Fakultas Ilmu Sosial dan Ilmu Politik (FISIP)",
@@ -30,7 +39,8 @@ const ACADEMIC_DATA = {
   semester: "Semester Ganjil (Semester I) T.A 2026/2027",
   angkatan: "2026",
   lokasi_kampus: "Banjarmasin, Kalimantan Selatan",
-  default_ruangan: "G1.103",
+  default_ruangan: getActiveRuangConfig(),
+  base_default_ruangan: "G1.103",
   default_zoom: getActiveZoomConfig(),
   base_default_zoom: DEFAULT_ZOOM_CONFIG,
   jadwal: [
