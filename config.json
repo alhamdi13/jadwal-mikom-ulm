@@ -1,0 +1,29 @@
+{
+  "botName": "SiJadwal - MIKOM FISIP ULM",
+  "prefix": "!",
+  "timezone": "Asia/Makassar",
+  "scheduler": {
+    "enableMorningBroadcast": true,
+    "morningBroadcastCron": "30 6 * * *",
+    "enableLecturerDirectMessage": true,
+    "enableGroupBroadcast": true,
+    "reminderMinutesBeforeClass": 30,
+    "enableClassReminder": false
+  },
+  "targetGroups": [
+    {
+      "name": "Beranda Group Mikom",
+      "id": "120363427843779304@g.us",
+      "kelas": "MIKOM-2026"
+    }
+  ],
+  "dataSource": {
+    "type": "json",
+    "jsonFilePath": "./data/jadwal_kuliah.json",
+    "googleSheetCsvUrl": ""
+  },
+  "adminPhoneNumbers": [
+    "6281348013888",
+    "6281294901982"
+  ]
+}
