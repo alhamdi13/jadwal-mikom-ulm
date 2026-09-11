@@ -2,7 +2,6 @@ name: Broadcast Jadwal Kuliah Pagi
 
 on:
   schedule:
-    # 22:00 UTC = 06:00 WITA (05:00 WIB) - Kamis malam s.d Jum'at malam untuk kuliah Jum'at & Sabtu
     # 22:30 UTC = 06:30 WITA
     - cron: '30 22 * * 3,4,5'
   workflow_dispatch: # Memungkinkan tombol "Run workflow" manual di GitHub UI
@@ -17,14 +16,13 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
-          cache: 'npm'
+          node-version: 22
 
       - name: Install Dependencies
-        run: npm ci || npm install
+        run: npm install --no-audit --no-fund
 
       - name: Run Morning Broadcast
         env:
           SESSION_DATA_BASE64: ${{ secrets.SESSION_DATA_BASE64 }}
-          TZ: 'Asia/Jakarta'
+          TZ: 'Asia/Makassar'
         run: node broadcast_runner.js
