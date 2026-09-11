@@ -1,0 +1,243 @@
+{
+  "kampus": "Universitas Lambung Mangkurat (ULM)",
+  "fakultas": "Fakultas Ilmu Sosial dan Ilmu Politik (FISIP)",
+  "program_studi": "Magister Ilmu Komunikasi (MIKOM)",
+  "semester": "Semester Ganjil (Semester I) T.A 2026/2027",
+  "angkatan": "2026",
+  "default_zoom": {
+    "topik": "Zoom Meeting Ilmu Komunikasi FISIP ULM's",
+    "link": "https://lambungmangkurat.zoom.us/j/92196687315?pwd=afqgrBa43AILWMsBbalN3KwiXQCVij.1",
+    "meeting_id": "921 9668 7315",
+    "passcode": "743342",
+    "instruksi_link": "https://lambungmangkurat.zoom.us/meetings/92196687315/invitations?signature=3ElCfHYRu8r2Vrva50qf7m8cgkpxRAeUsn67teVuNMw"
+  },
+  "default_ruangan": "G1.103",
+  "jadwal_matkul": [
+    {
+      "hari": "Jum'at",
+      "jam_mulai": "14.00",
+      "jam_selesai": "16.30",
+      "mata_kuliah": "Filsafat Ilmu Komunikasi",
+      "tim_pengajar": [
+        {
+          "nama": "Prof. Dr. H. Bachruddin Ali Ahmad, M.Si",
+          "no_hp": "628125103033"
+        },
+        {
+          "nama": "Prof. Dr. H. Budi Suryadi, M.Si",
+          "no_hp": "6281349555937"
+        },
+        {
+          "nama": "Dr. Fahrianoor, S.IP., M.Si",
+          "no_hp": "6281223198491"
+        }
+      ],
+      "tanggal_offline": [
+        "2026-09-04", "2026-09-18",
+        "2026-10-02", "2026-10-16", "2026-10-30",
+        "2026-11-13", "2026-11-27",
+        "2026-12-11"
+      ],
+      "tanggal_online": [
+        "2026-09-11", "2026-09-25",
+        "2026-10-09", "2026-10-23",
+        "2026-11-06", "2026-11-20",
+        "2026-12-04", "2026-12-18"
+      ]
+    },
+    {
+      "hari": "Jum'at",
+      "jam_mulai": "16.30",
+      "jam_selesai": "18.00",
+      "mata_kuliah": "Perspektif Komunikasi Organisasi",
+      "tim_pengajar": [
+        {
+          "nama": "Prof. Dr. H. Bachruddin Ali Ahmad, M.Si",
+          "no_hp": "628125103033"
+        },
+        {
+          "nama": "Dr. Siswanto, S.Sos., M.Si",
+          "no_hp": "6281218591982"
+        }
+      ],
+      "tanggal_offline": [
+        "2026-09-04", "2026-09-18",
+        "2026-10-02", "2026-10-16", "2026-10-30",
+        "2026-11-13", "2026-11-27",
+        "2026-12-11"
+      ],
+      "tanggal_online": [
+        "2026-09-11", "2026-09-25",
+        "2026-10-09", "2026-10-23",
+        "2026-11-06", "2026-11-20",
+        "2026-12-04", "2026-12-18"
+      ]
+    },
+    {
+      "hari": "Jum'at",
+      "jam_mulai": "18.45",
+      "jam_selesai": "21.15",
+      "mata_kuliah": "CSR dan Komunikasi Pemberdayaan",
+      "tim_pengajar": [
+        {
+          "nama": "Dr. Irwansyah, S.Sos,. M.Si",
+          "no_hp": "6281348013888"
+        },
+        {
+          "nama": "Dr. Muhammad Alif, M.Si",
+          "no_hp": "6281294901982"
+        }
+      ],
+      "tanggal_offline": [
+        "2026-09-04", "2026-09-18",
+        "2026-10-02", "2026-10-16", "2026-10-30",
+        "2026-11-13", "2026-11-27",
+        "2026-12-11"
+      ],
+      "tanggal_online": [
+        "2026-09-11", "2026-09-25",
+        "2026-10-09", "2026-10-23",
+        "2026-11-06", "2026-11-20",
+        "2026-12-04", "2026-12-18"
+      ]
+    },
+    {
+      "hari": "Sabtu",
+      "jam_mulai": "08.00",
+      "jam_selesai": "10.30",
+      "mata_kuliah": "Perspektif dan Teori Komunikasi",
+      "tim_pengajar": [
+        {
+          "nama": "Prof. Dr. H. Bachruddin Ali Ahmad, M.Si",
+          "no_hp": "628125103033"
+        },
+        {
+          "nama": "Dr. Fahrianoor, S.IP., M.Si",
+          "no_hp": "6281223198491"
+        },
+        {
+          "nama": "Dr. Siswanto, S.Sos., M.Si",
+          "no_hp": "6281218591982"
+        }
+      ],
+      "tanggal_offline": [
+        "2026-09-05", "2026-09-19",
+        "2026-10-03", "2026-10-17", "2026-10-31",
+        "2026-11-14", "2026-11-28",
+        "2026-12-12"
+      ],
+      "tanggal_online": [
+        "2026-09-12", "2026-09-26",
+        "2026-10-10", "2026-10-24",
+        "2026-11-07", "2026-11-21",
+        "2026-12-05", "2026-12-19"
+      ]
+    },
+    {
+      "hari": "Sabtu",
+      "jam_mulai": "10.30",
+      "jam_selesai": "13.00",
+      "mata_kuliah": "Perspektif Psikologi Komunikasi",
+      "tim_pengajar": [
+        {
+          "nama": "Dr. Yuanita Setyastuti, S.IP., M.Si",
+          "no_hp": "6282153883264"
+        },
+        {
+          "nama": "Dr. Novaria Maulina, S.I.Kom., M.I.Kom",
+          "no_hp": "6281351997788"
+        }
+      ],
+      "tanggal_offline": [
+        "2026-09-05", "2026-09-19",
+        "2026-10-03", "2026-10-17", "2026-10-31",
+        "2026-11-14", "2026-11-28",
+        "2026-12-12"
+      ],
+      "tanggal_online": [
+        "2026-09-12", "2026-09-26",
+        "2026-10-10", "2026-10-24",
+        "2026-11-07", "2026-11-21",
+        "2026-12-05", "2026-12-19"
+      ]
+    },
+    {
+      "hari": "Sabtu",
+      "jam_mulai": "13.00",
+      "jam_selesai": "15.30",
+      "mata_kuliah": "Media dan Teknologi Komunikasi",
+      "tim_pengajar": [
+        {
+          "nama": "Dr. Yuanita Setyastuti, S.IP., M.Si",
+          "no_hp": "6282153883264"
+        },
+        {
+          "nama": "Dr. Muhammad Alif, M.Si",
+          "no_hp": "6281294901982"
+        },
+        {
+          "nama": "Dr. Atika, S.I.Kom., M.Si",
+          "no_hp": "6281341510487"
+        }
+      ],
+      "tanggal_offline": [
+        "2026-09-05", "2026-09-19",
+        "2026-10-03", "2026-10-17", "2026-10-31",
+        "2026-11-14", "2026-11-28",
+        "2026-12-12"
+      ],
+      "tanggal_online": [
+        "2026-09-12", "2026-09-26",
+        "2026-10-10", "2026-10-24",
+        "2026-11-07", "2026-11-21",
+        "2026-12-05", "2026-12-19"
+      ]
+    }
+  ],
+  "daftar_dosen": [
+    {
+      "nama": "Dr. Irwansyah, S.Sos,. M.Si",
+      "no_hp": "6281348013888"
+    },
+    {
+      "nama": "Dr. Muhammad Alif, M.Si",
+      "no_hp": "6281294901982"
+    },
+    {
+      "nama": "Prof. Dr. H. Bachruddin Ali Ahmad, M.Si",
+      "no_hp": "628125103033"
+    },
+    {
+      "nama": "Dr. Siswanto, S.Sos., M.Si",
+      "no_hp": "6281218591982"
+    },
+    {
+      "nama": "Prof. Dr. H. Budi Suryadi, M.Si",
+      "no_hp": "6281349555937"
+    },
+    {
+      "nama": "Dr. Fahrianoor, S.IP., M.Si",
+      "no_hp": "6281223198491"
+    },
+    {
+      "nama": "Dr. Yuanita Setyastuti, S.IP., M.Si",
+      "no_hp": "6282153883264"
+    },
+    {
+      "nama": "Dr. Novaria Maulina, S.I.Kom., M.I.Kom",
+      "no_hp": "6281351997788"
+    },
+    {
+      "nama": "Dr. Atika, S.I.Kom., M.Si",
+      "no_hp": "6281341510487"
+    },
+    {
+      "nama": "Ibu Masrina",
+      "no_hp": "6282155540055"
+    },
+    {
+      "nama": "Samsul Azis",
+      "no_hp": "6282157226624"
+    }
+  ]
+}
