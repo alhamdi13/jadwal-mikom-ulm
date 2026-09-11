@@ -196,7 +196,7 @@ const ACADEMIC_DATA = {
         },
         {
           nama: "DR. Novaria Maulina, S.I Kom., M.IKom",
-          no_hp: "",
+          no_hp: "6281351997788",
           peran: "Anggota Tim"
         }
       ],
@@ -287,7 +287,7 @@ const ACADEMIC_DATA = {
     },
     {
       nama: "DR. Novaria Maulina, S.I Kom., M.IKom",
-      no_hp: "",
+      no_hp: "6281351997788",
       matkul: ["Perspektif Psikologi Komunikasi"]
     },
     {
