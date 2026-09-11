@@ -1,6 +1,7 @@
 // Bypass SSL verification untuk mengatasi network certificate interception di Windows/Antivirus/Proxy
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
+import http from 'http';
 import {
   makeWASocket,
   DisconnectReason,
@@ -18,6 +19,30 @@ import readline from 'readline';
 import { config, rootDir } from './config.js';
 import { handleIncomingMessage } from './commandHandler.js';
 import { initScheduler } from './scheduler.js';
+
+// Web Server Health Check untuk Koyeb / Render / Cloud PaaS
+const PORT = process.env.PORT || 8000;
+const server = http.createServer((req, res) => {
+  res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+  res.end(`
+    <!DOCTYPE html>
+    <html lang="id">
+      <head>
+        <meta charset="UTF-8">
+        <title>SiJadwal WhatsApp Bot Status</title>
+      </head>
+      <body style="font-family: system-ui, sans-serif; background: #0b0f19; color: #f8fafc; text-align: center; padding: 60px 20px;">
+        <h1 style="font-size: 1.8rem; margin-bottom: 8px;">🤖 SiJadwal MIKOM FISIP ULM</h1>
+        <p style="color: #10b981; font-weight: bold; font-size: 1.15rem; margin-bottom: 12px;">🟢 Bot WhatsApp Aktif 24/7 di Cloud</p>
+        <p style="color: #94a3b8; font-size: 0.9rem;">Melayani pengingat jadwal harian & respon interaktif grup WhatsApp.</p>
+      </body>
+    </html>
+  `);
+});
+
+server.listen(PORT, () => {
+  console.log(`[HealthCheck] Web Server aktif di port ${PORT} untuk Koyeb / Cloud Hosting.`);
+});
 
 const sessionDir = path.resolve(rootDir, process.env.BOT_SESSION_DIR || './session_auth');
 const qrHtmlPath = path.join(rootDir, 'qr.html');
