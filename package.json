@@ -1,0 +1,39 @@
+{
+  "name": "wa-jadwal-kuliah-bot",
+  "version": "1.0.0",
+  "description": "Bot WhatsApp Otomatis untuk Jadwal Kuliah ke WAG & Notifikasi Dosen (Online/Zoom & Offline)",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "start:pairing": "node src/index.js --pairing",
+    "reset:session": "node clean_session.js",
+    "broadcast": "node broadcast_runner.js",
+    "export:session": "node export_session.js",
+    "test:dry-run": "node test_dry_run.js"
+  },
+  "keywords": [
+    "whatsapp-bot",
+    "baileys",
+    "jadwal-kuliah",
+    "notifikasi-dosen",
+    "cron-scheduler"
+  ],
+  "author": "Antigravity",
+  "license": "ISC",
+  "dependencies": {
+    "@whiskeysockets/baileys": "^6.7.24",
+    "axios": "^1.7.9",
+    "dotenv": "^16.4.7",
+    "node-cron": "^3.0.3",
+    "pino": "^9.6.0",
+    "pino-pretty": "^13.0.0",
+    "qrcode": "^1.5.4",
+    "qrcode-terminal": "^0.12.0"
+  },
+  "overrides": {
+    "@whiskeysockets/baileys": {
+      "libsignal": "https://github.com/whiskeysockets/libsignal-node/tarball/master"
+    }
+  }
+}
