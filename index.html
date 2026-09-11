@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SiJadwal - Magister Ilmu Komunikasi FISIP ULM Angkatan 2026</title>
+  <meta name="description" content="Dashboard Jadwal Perkuliahan Interaktif & Pengingat Otomatis Bot WhatsApp Magister Ilmu Komunikasi FISIP Universitas Lambung Mangkurat Angkatan 2026.">
+  
+  <!-- Google Fonts: Plus Jakarta Sans & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <div class="app-container">
+    
+    <!-- Top Navigation Bar -->
+    <header class="top-bar">
+      <div class="brand-badge">
+        <div class="icon-box">🎓</div>
+        <span>SiJadwal MIKOM ULM</span>
+      </div>
+
+      <div class="top-actions">
+        <button class="quick-action-btn btn-blue" onclick="openZoomSettingsModal()" title="Ubah atau sesuaikan Link Zoom Meeting">
+          ⚙️ Edit Zoom
+        </button>
+        <div class="wita-clock" id="witaClock">--:--:-- WITA</div>
+        <button class="theme-toggle-btn" id="themeToggle" title="Ganti Tema">🌙</button>
+      </div>
+    </header>
+
+    <!-- Hero Academic Card -->
+    <section class="hero-card">
+      <div class="hero-content">
+        <div class="hero-titles">
+          <h1>Magister Ilmu Komunikasi</h1>
+          <p class="hero-subtitle">Fakultas Ilmu Sosial dan Ilmu Politik — Universitas Lambung Mangkurat</p>
+          <div class="hero-tags">
+            <span class="tag tag-primary">🎓 Semester I (Ganjil 2026/2027)</span>
+            <span class="tag">👥 Angkatan 2026</span>
+            <span class="tag">📍 Ruang G1.103 & Zoom Meeting</span>
+          </div>
+        </div>
+
+        <!-- Real-time Today Status Spotlight -->
+        <div class="status-spotlight" id="todaySpotlight">
+          <div class="status-label">Status Perkuliahan Hari Ini</div>
+          <div class="status-title">Memuat status...</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Navigation Tabs & Search -->
+    <div class="nav-tabs-wrapper">
+      <div class="nav-tabs">
+        <button class="tab-btn active" data-tab="today">🔥 Hari Ini</button>
+        <button class="tab-btn" data-tab="jumat">🗓️ Jum'at</button>
+        <button class="tab-btn" data-tab="sabtu">🗓️ Sabtu</button>
+        <button class="tab-btn" data-tab="all">📚 Semua Matkul</button>
+        <button class="tab-btn" data-tab="calendar">📅 Kalender Semester</button>
+        <button class="tab-btn" data-tab="lecturers">👨‍🏫 Daftar Dosen</button>
+        <button class="tab-btn" data-tab="bot">🤖 WhatsApp Bot Hub</button>
+      </div>
+
+      <div class="search-box">
+        <span>🔍</span>
+        <input type="text" id="searchSchedule" placeholder="Cari matkul, dosen, topik...">
+      </div>
+    </div>
+
+    <!-- Section 1: Schedule Cards Grid -->
+    <section id="scheduleSection">
+      <div class="schedule-grid" id="scheduleGrid">
+        <!-- Generated dynamically via app.js -->
+      </div>
+    </section>
+
+    <!-- Section 2: Interactive Semester Calendar -->
+    <section id="calendarSection" class="calendar-section" style="display: none;">
+      <div class="calendar-header">
+        <div>
+          <h2 style="font-size: 1.3rem; font-weight: 800; margin-bottom: 4px;">Kalender Perkuliahan Semester Ganjil 2026</h2>
+          <p style="font-size: 0.85rem; color: var(--text-secondary);">Klik tanggal manapun untuk melihat rincian mata kuliah pada tanggal tersebut.</p>
+        </div>
+        <div class="calendar-legend">
+          <div class="legend-item">
+            <span class="legend-dot offline"></span>
+            <span>🟢 Tatap Muka (Ruang G1.103)</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-dot online"></span>
+            <span>🌐 Daring (Zoom Meeting)</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="months-grid" id="calendarMonthsGrid">
+        <!-- Rendered by app.js -->
+      </div>
+    </section>
+
+    <!-- Section 3: Lecturer Directory -->
+    <section id="lecturerSection" style="display: none;">
+      <div style="margin-bottom: 20px;">
+        <h2 style="font-size: 1.3rem; font-weight: 800; margin-bottom: 4px;">Daftar Dosen Pengampu & Pengelola MIKOM</h2>
+        <p style="font-size: 0.85rem; color: var(--text-secondary);">Klik tombol WhatsApp untuk langsung terhubung dengan dosen bersangkutan.</p>
+      </div>
+      <div class="lecturer-grid" id="lecturerGrid">
+        <!-- Rendered by app.js -->
+      </div>
+    </section>
+
+    <!-- Section 4: WhatsApp Bot Hub & Simulator -->
+    <section id="botHubSection" class="bot-hub-section" style="display: none;">
+      <div class="bot-hub-grid">
+        <!-- Simulator Terminal -->
+        <div>
+          <h3 style="font-size: 1.2rem; font-weight: 800; margin-bottom: 12px;">📱 WhatsApp Bot Simulator</h3>
+          <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 16px;">
+            Coba ketik perintah seperti <code style="color: var(--primary-light);">!jadwal</code>, <code style="color: var(--primary-light);">!jadwal besok</code>, <code style="color: var(--primary-light);">!zoom</code>, atau <code style="color: var(--primary-light);">!ping</code>:
+          </p>
+
+          <div class="terminal-box">
+            <div class="terminal-header">
+              <span class="terminal-dot red"></span>
+              <span class="terminal-dot yellow"></span>
+              <span class="terminal-dot green"></span>
+              <span style="margin-left: 8px; font-size: 0.75rem; color: #64748b;">SiJadwal WhatsApp Bot Terminal</span>
+            </div>
+
+            <div class="terminal-messages" id="simMessages">
+              <div class="chat-bubble bot">🤖 Halo! Saya bot pengingat jadwal kuliah MIKOM FISIP ULM. Ketik <b>!jadwal</b> untuk melihat jadwal hari ini.</div>
+            </div>
+
+            <div class="terminal-input-bar">
+              <input type="text" id="simInput" placeholder="Ketik !jadwal atau !zoom...">
+              <button id="simSendBtn">Kirim</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Deployment to GitHub Info -->
+        <div>
+          <h3 style="font-size: 1.2rem; font-weight: 800; margin-bottom: 12px;">☁️ Integrasi GitHub & Otomatisasi Cloud</h3>
+          <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 16px;">
+            Bot ini dapat berjalan otomatis di GitHub Actions setiap pagi pukul 06:00 WITA tanpa perlu laptop menyala.
+          </p>
+
+          <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 20px;">
+            <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--primary-light); margin-bottom: 8px;">🚀 Fitur GitHub yang Tersedia:</h4>
+            <ul style="font-size: 0.83rem; color: var(--text-secondary); line-height: 1.8; margin-left: 18px; margin-bottom: 16px;">
+              <li><strong>GitHub Pages:</strong> Menghosting web dashboard ini secara gratis.</li>
+              <li><strong>GitHub Actions Cron:</strong> Menjalankan bot WhatsApp setiap pagi untuk kirim jadwal ke WAG & Dosen.</li>
+              <li><strong>1-Click Broadcast:</strong> Salin format pengumuman siap kirim ke grup WA.</li>
+            </ul>
+
+            <button class="quick-action-btn" onclick="copyFullBroadcastWAG()" style="width: 100%; justify-content: center;">
+              📋 Salin Format Pesan WAG Hari Ini
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- Modal Pengaturan & Edit Link Zoom -->
+  <div class="modal-overlay" id="zoomModalOverlay" onclick="closeZoomModal(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 1.3rem;">🌐</span>
+          <h3 style="font-size: 1.15rem; font-weight: 800;">Pengaturan & Edit Link Zoom Meeting</h3>
+        </div>
+        <button class="modal-close-btn" onclick="closeZoomModal()">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <p style="font-size: 0.82rem; color: var(--text-secondary); margin-bottom: 16px;">
+          Anda dapat memperbarui atau menyesuaikan link Zoom, Meeting ID, dan Passcode perkuliahan online MIKOM ULM kapan saja. Perubahan akan langsung aktif di web ini.
+        </p>
+
+        <div class="form-group">
+          <label class="form-label">Topik Pertemuan</label>
+          <input type="text" id="inputZoomTopik" class="form-input" placeholder="Zoom Meeting Ilmu Komunikasi FISIP ULM's">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Tautan / URL Rapat Zoom</label>
+          <input type="text" id="inputZoomLink" class="form-input" placeholder="https://lambungmangkurat.zoom.us/j/...">
+        </div>
+
+        <div class="form-row">
+          <div class="form-group" style="flex: 1;">
+            <label class="form-label">ID Rapat (Meeting ID)</label>
+            <input type="text" id="inputZoomId" class="form-input" placeholder="921 9668 7315">
+          </div>
+          <div class="form-group" style="flex: 1;">
+            <label class="form-label">Kode Sandi (Passcode)</label>
+            <input type="text" id="inputZoomPass" class="form-input" placeholder="743342">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Instruksi / Tautan Tambahan (Opsional)</label>
+          <input type="text" id="inputZoomInstruksi" class="form-input" placeholder="https://lambungmangkurat.zoom.us/meetings/...">
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-icon" onclick="resetZoomToDefault()" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.3);">
+          🔄 Reset Default ULM
+        </button>
+        <div style="display: flex; gap: 8px;">
+          <button class="btn-icon" onclick="closeZoomModal()">Batal</button>
+          <button class="quick-action-btn btn-blue" onclick="saveZoomSettings()">
+            💾 Simpan Perubahan
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Scripts -->
+  <script src="schedule_data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
