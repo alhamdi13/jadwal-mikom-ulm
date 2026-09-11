@@ -10,7 +10,6 @@ document.addEventListener('DOMContentLoaded', () => {
   renderScheduleCards('today');
   renderCalendar();
   renderLecturerDirectory();
-  initBotSimulator();
   initEventListeners();
 });
 
@@ -291,60 +290,27 @@ function renderLecturerDirectory() {
   }).join('');
 }
 
-// 7. Interactive WhatsApp Bot Simulator
-function initBotSimulator() {
-  const input = document.getElementById('simInput');
-  const sendBtn = document.getElementById('simSendBtn');
-  const messagesBox = document.getElementById('simMessages');
-
-  if (!input || !sendBtn || !messagesBox) return;
-
-  function appendChat(text, sender) {
-    const div = document.createElement('div');
-    div.className = `chat-bubble ${sender}`;
-    div.textContent = text;
-    messagesBox.appendChild(div);
-    messagesBox.scrollTop = messagesBox.scrollHeight;
+// 7. Salin Perintah Bot WhatsApp
+window.copyCommandText = function(cmd) {
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(cmd).then(() => {
+      showToast(`✅ Perintah "${cmd}" berhasil disalin! Silakan tempelkan di WhatsApp.`);
+    }).catch(() => {
+      fallbackCopyText(cmd);
+    });
+  } else {
+    fallbackCopyText(cmd);
   }
+};
 
-  function handleCommand(cmd) {
-    const raw = cmd.trim().toLowerCase();
-    appendChat(cmd, 'user');
-
-    setTimeout(() => {
-      const zoomLink = ACADEMIC_DATA.default_zoom.link;
-      const zoomId = ACADEMIC_DATA.default_zoom.meeting_id;
-      const zoomPass = ACADEMIC_DATA.default_zoom.passcode;
-
-      if (raw === '!jadwal' || raw === '!jadwal hari ini') {
-        appendChat(`📢 *JADWAL KULIAH HARI INI*\n🏛️ Magister Ilmu Komunikasi FISIP ULM\nStatus: 🌐 ONLINE (Zoom Meeting)\n\n1️⃣ Filsafat Ilmu Komunikasi (14.00 - 16.30 WITA)\n2️⃣ Perspektif Komunikasi Organisasi (16.30 - 18.00 WITA)\n3️⃣ CSR dan Komunikasi Pemberdayaan (18.45 - 21.15 WITA)\n\n🔗 Link Zoom:\n${zoomLink}\n🔑 Meeting ID: ${zoomId}\n🔐 Passcode: ${zoomPass}`, 'bot');
-      } else if (raw === '!jadwal besok') {
-        appendChat(`📢 *JADWAL KULIAH BESOK*\n🏛️ Magister Ilmu Komunikasi FISIP ULM\nStatus: 🌐 ONLINE (Zoom Meeting)\n\n1️⃣ Perspektif dan Teori Komunikasi (08.00 - 10.30 WITA)\n2️⃣ Perspektif Psikologi Komunikasi (10.30 - 13.00 WITA)\n3️⃣ Media dan Teknologi Komunikasi (13.00 - 15.30 WITA)\n\n🔗 Link Zoom:\n${zoomLink}\n🔑 Meeting ID: ${zoomId}\n🔐 Passcode: ${zoomPass}`, 'bot');
-      } else if (raw.startsWith('!zoom') || raw === '!link') {
-        appendChat(`🔗 *LINK ZOOM MEETING RESMI FISIP ULM*\nTopik: ${ACADEMIC_DATA.default_zoom.topik || "Zoom Meeting Ilmu Komunikasi FISIP ULM's"}\nLink: ${zoomLink}\nMeeting ID: ${zoomId}\nPasscode: ${zoomPass}`, 'bot');
-      } else if (raw.startsWith('!dosen') || raw.startsWith('!cari')) {
-        appendChat(`👨‍🏫 *TIM DOSEN MIKOM FISIP ULM*\n1. Prof. Dr. H. Bachruddin Ali Ahmad, M.Si\n2. Prof. Dr. H. Budi Suryadi, M.Si\n3. Dr. Fahrianoor, S.IP., M.Si\n4. Dr. Siswanto, S.Sos., M.Si\n5. Dr. Irwansyah, S.Sos,. M.Si\n6. Dr. Muhammad Alif, M.Si\n7. Dr. Yuanita Setyastuti, S.IP., M.Si\n8. DR. Novaria Maulina, S.I Kom., M.IKom`, 'bot');
-      } else if (raw === '!ping') {
-        appendChat(`🏓 Pong! Bot SiJadwal MIKOM FISIP ULM aktif & responsif (12ms).`, 'bot');
-      } else {
-        appendChat(`🤖 *MENU BANTUAN BOT MIKOM ULM*\nPerintah:\n• !jadwal 👉 Cek jadwal kuliah hari ini\n• !jadwal besok 👉 Cek jadwal kuliah esok hari\n• !zoom 👉 Dapatkan link Zoom Meeting resmi\n• !dosen 👉 Daftar dosen pengampu\n• !ping 👉 Cek koneksi bot`, 'bot');
-      }
-    }, 350);
-  }
-
-  sendBtn.addEventListener('click', () => {
-    if (input.value.trim()) {
-      handleCommand(input.value);
-      input.value = '';
-    }
-  });
-
-  input.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter' && input.value.trim()) {
-      handleCommand(input.value);
-      input.value = '';
-    }
-  });
+function fallbackCopyText(text) {
+  const tempInput = document.createElement('textarea');
+  tempInput.value = text;
+  document.body.appendChild(tempInput);
+  tempInput.select();
+  document.execCommand('copy');
+  document.body.removeChild(tempInput);
+  showToast(`✅ Perintah "${text}" berhasil disalin!`);
 }
 
 // 8. Event Listeners & Navigation

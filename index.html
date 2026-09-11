@@ -63,7 +63,7 @@
         <button class="tab-btn" data-tab="all">📚 Semua Matkul</button>
         <button class="tab-btn" data-tab="calendar">📅 Kalender Semester</button>
         <button class="tab-btn" data-tab="lecturers">👨‍🏫 Daftar Dosen</button>
-        <button class="tab-btn" data-tab="bot">🤖 WhatsApp Bot Hub</button>
+        <button class="tab-btn" data-tab="bot">🤖 Panduan Bot WA</button>
       </div>
 
       <div class="search-box">
@@ -114,52 +114,146 @@
       </div>
     </section>
 
-    <!-- Section 4: WhatsApp Bot Hub & Simulator -->
+    <!-- Section 4: Panduan & Layanan Bot WhatsApp -->
     <section id="botHubSection" class="bot-hub-section" style="display: none;">
+      <div style="margin-bottom: 24px;">
+        <h2 style="font-size: 1.35rem; font-weight: 800; margin-bottom: 6px; display: flex; align-items: center; gap: 8px;">
+          <span>🤖</span> Layanan & Panduan Perintah Bot WhatsApp
+        </h2>
+        <p style="font-size: 0.88rem; color: var(--text-secondary);">
+          Bot pengingat jadwal otomatis aktif di grup WhatsApp <strong>Beranda Group Mikom</strong> dan siap merespons perintah Anda kapan saja.
+        </p>
+      </div>
+
       <div class="bot-hub-grid">
-        <!-- Simulator Terminal -->
-        <div>
-          <h3 style="font-size: 1.2rem; font-weight: 800; margin-bottom: 12px;">📱 WhatsApp Bot Simulator</h3>
-          <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 16px;">
-            Coba ketik perintah seperti <code style="color: var(--primary-light);">!jadwal</code>, <code style="color: var(--primary-light);">!jadwal besok</code>, <code style="color: var(--primary-light);">!zoom</code>, atau <code style="color: var(--primary-light);">!ping</code>:
+        <!-- Kolom Kiri: Cheatsheet Perintah WhatsApp -->
+        <div class="bot-guide-card">
+          <div class="bot-guide-header">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-size: 1.25rem;">💬</span>
+              <h3 style="font-size: 1.1rem; font-weight: 700;">Daftar Perintah Cepat di Grup WA</h3>
+            </div>
+            <span class="bot-badge-live">⚡ Respon Instan</span>
+          </div>
+          <p style="font-size: 0.83rem; color: var(--text-secondary); margin-bottom: 16px;">
+            Ketik salah satu perintah berikut di grup WhatsApp atau chat pribadi:
           </p>
 
-          <div class="terminal-box">
-            <div class="terminal-header">
-              <span class="terminal-dot red"></span>
-              <span class="terminal-dot yellow"></span>
-              <span class="terminal-dot green"></span>
-              <span style="margin-left: 8px; font-size: 0.75rem; color: #64748b;">SiJadwal WhatsApp Bot Terminal</span>
+          <div class="command-list">
+            <div class="command-item" onclick="copyCommandText('!jadwal')">
+              <div class="command-code-wrap">
+                <code class="command-code">!jadwal</code>
+                <span class="command-desc">Melihat status kuliah hari ini (Online Zoom / Offline Ruang G1.103)</span>
+              </div>
+              <button class="command-copy-btn" title="Salin Perintah">📋 Salin</button>
             </div>
 
-            <div class="terminal-messages" id="simMessages">
-              <div class="chat-bubble bot">🤖 Halo! Saya bot pengingat jadwal kuliah MIKOM FISIP ULM. Ketik <b>!jadwal</b> untuk melihat jadwal hari ini.</div>
+            <div class="command-item" onclick="copyCommandText('!jadwal besok')">
+              <div class="command-code-wrap">
+                <code class="command-code">!jadwal besok</code>
+                <span class="command-desc">Melihat jadwal mata kuliah untuk esok hari</span>
+              </div>
+              <button class="command-copy-btn" title="Salin Perintah">📋 Salin</button>
             </div>
 
-            <div class="terminal-input-bar">
-              <input type="text" id="simInput" placeholder="Ketik !jadwal atau !zoom...">
-              <button id="simSendBtn">Kirim</button>
+            <div class="command-item" onclick="copyCommandText('!jadwal jumat')">
+              <div class="command-code-wrap">
+                <code class="command-code">!jadwal jumat</code>
+                <span class="command-desc">Rincian seluruh mata kuliah di hari Jum'at</span>
+              </div>
+              <button class="command-copy-btn" title="Salin Perintah">📋 Salin</button>
+            </div>
+
+            <div class="command-item" onclick="copyCommandText('!jadwal sabtu')">
+              <div class="command-code-wrap">
+                <code class="command-code">!jadwal sabtu</code>
+                <span class="command-desc">Rincian seluruh mata kuliah di hari Sabtu</span>
+              </div>
+              <button class="command-copy-btn" title="Salin Perintah">📋 Salin</button>
+            </div>
+
+            <div class="command-item" onclick="copyCommandText('!zoom')">
+              <div class="command-code-wrap">
+                <code class="command-code">!zoom</code>
+                <span class="command-desc">Mendapatkan Link Zoom resmi ULM, Meeting ID & Passcode</span>
+              </div>
+              <button class="command-copy-btn" title="Salin Perintah">📋 Salin</button>
+            </div>
+
+            <div class="command-item" onclick="copyCommandText('!cari Novaria')">
+              <div class="command-code-wrap">
+                <code class="command-code">!cari [nama/matkul]</code>
+                <span class="command-desc">Mencari dosen pengampu atau mata kuliah spesifik</span>
+              </div>
+              <button class="command-copy-btn" title="Salin Perintah">📋 Salin</button>
+            </div>
+
+            <div class="command-item" onclick="copyCommandText('!ping')">
+              <div class="command-code-wrap">
+                <code class="command-code">!ping</code>
+                <span class="command-desc">Mengecek keaktifan sistem bot dan kecepatan respon</span>
+              </div>
+              <button class="command-copy-btn" title="Salin Perintah">📋 Salin</button>
             </div>
           </div>
         </div>
 
-        <!-- Deployment to GitHub Info -->
-        <div>
-          <h3 style="font-size: 1.2rem; font-weight: 800; margin-bottom: 12px;">☁️ Integrasi GitHub & Otomatisasi Cloud</h3>
-          <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 16px;">
-            Bot ini dapat berjalan otomatis di GitHub Actions setiap pagi pukul 06:00 WITA tanpa perlu laptop menyala.
-          </p>
+        <!-- Kolom Kanan: Status Otomatisasi & Aksi Komti -->
+        <div style="display: flex; flex-direction: column; gap: 20px;">
+          <!-- Status Sistem Otomatisasi -->
+          <div class="bot-guide-card">
+            <div class="bot-guide-header">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 1.25rem;">⏰</span>
+                <h3 style="font-size: 1.1rem; font-weight: 700;">Sistem Pengingat Otomatis</h3>
+              </div>
+              <span class="bot-status-badge">🟢 06:30 WITA</span>
+            </div>
 
-          <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 20px;">
-            <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--primary-light); margin-bottom: 8px;">🚀 Fitur GitHub yang Tersedia:</h4>
-            <ul style="font-size: 0.83rem; color: var(--text-secondary); line-height: 1.8; margin-left: 18px; margin-bottom: 16px;">
-              <li><strong>GitHub Pages:</strong> Menghosting web dashboard ini secara gratis.</li>
-              <li><strong>GitHub Actions Cron:</strong> Menjalankan bot WhatsApp setiap pagi untuk kirim jadwal ke WAG & Dosen.</li>
-              <li><strong>1-Click Broadcast:</strong> Salin format pengumuman siap kirim ke grup WA.</li>
-            </ul>
+            <div class="feature-list">
+              <div class="feature-item">
+                <span class="feature-icon">📢</span>
+                <div>
+                  <strong style="color: var(--text-primary); font-size: 0.9rem;">Broadcast Harian Grup Kelas</strong>
+                  <p style="color: var(--text-secondary); font-size: 0.82rem; margin-top: 2px;">
+                    Otomatis terbit setiap pagi pukul 06:30 WITA ke <strong>Beranda Group Mikom</strong> dengan format rapi dan mendeteksi status Online/Offline.
+                  </p>
+                </div>
+              </div>
 
-            <button class="quick-action-btn" onclick="copyFullBroadcastWAG()" style="width: 100%; justify-content: center;">
-              📋 Salin Format Pesan WAG Hari Ini
+              <div class="feature-item">
+                <span class="feature-icon">📱</span>
+                <div>
+                  <strong style="color: var(--text-primary); font-size: 0.9rem;">Notifikasi Japri Santun ke Dosen</strong>
+                  <p style="color: var(--text-secondary); font-size: 0.82rem; margin-top: 2px;">
+                    Mengirimkan pesan pengingat personal dan santun ke dosen pengampu yang memiliki jadwal mengajar pada hari tersebut.
+                  </p>
+                </div>
+              </div>
+
+              <div class="feature-item">
+                <span class="feature-icon">☁️</span>
+                <div>
+                  <strong style="color: var(--text-primary); font-size: 0.9rem;">Otomatisasi Cloud GitHub Actions</strong>
+                  <p style="color: var(--text-secondary); font-size: 0.82rem; margin-top: 2px;">
+                    Sistem bekerja di server cloud GitHub sehingga jadwal tetap terkirim tepat waktu tanpa perlu menyalakan laptop.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Aksi Cepat Komti / Mahasiswa -->
+          <div class="bot-guide-card">
+            <h3 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+              <span>📋</span> Aksi Cepat Pengumuman
+            </h3>
+            <p style="font-size: 0.83rem; color: var(--text-secondary); margin-bottom: 16px;">
+              Salin pesan pengumuman jadwal hari ini dalam format teks rapi untuk dibagikan secara manual jika diperlukan:
+            </p>
+
+            <button class="quick-action-btn" onclick="copyFullBroadcastWAG()" style="width: 100%; justify-content: center; padding: 12px 16px; font-size: 0.9rem;">
+              📋 Salin Format Pesan Pengumuman Hari Ini
             </button>
           </div>
         </div>

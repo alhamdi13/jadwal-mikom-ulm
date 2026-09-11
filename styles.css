@@ -737,97 +737,145 @@ body {
 .bot-hub-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 30px;
+  gap: 24px;
 }
 
-.terminal-box {
-  background: #090d16;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+@media (max-width: 868px) {
+  .bot-hub-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.bot-guide-card {
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
-  padding: 20px;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.83rem;
-  color: #a5f3fc;
-  min-height: 300px;
-  display: flex;
-  flex-direction: column;
+  padding: 24px;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition-normal);
 }
 
-.terminal-header {
+.bot-guide-card:hover {
+  border-color: var(--border-highlight);
+}
+
+.bot-guide-header {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 6px;
-  margin-bottom: 16px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.terminal-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: var(--radius-full);
-}
-.terminal-dot.red { background: #ef4444; }
-.terminal-dot.yellow { background: #f59e0b; }
-.terminal-dot.green { background: #10b981; }
-
-.terminal-messages {
-  flex: 1;
-  overflow-y: auto;
-  margin-bottom: 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  max-height: 240px;
-}
-
-.chat-bubble {
-  padding: 8px 12px;
-  border-radius: var(--radius-sm);
-  max-width: 85%;
-  line-height: 1.4;
-  white-space: pre-wrap;
-}
-
-.chat-bubble.user {
-  background: #1e3a8a;
-  color: white;
-  align-self: flex-end;
-}
-
-.chat-bubble.bot {
-  background: #132338;
-  color: #e2e8f0;
-  align-self: flex-start;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.terminal-input-bar {
-  display: flex;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
   gap: 8px;
 }
 
-.terminal-input-bar input {
-  flex: 1;
-  background: #111827;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: var(--radius-sm);
-  padding: 8px 12px;
-  color: white;
-  font-family: inherit;
-  font-size: 0.82rem;
-  outline: none;
+.bot-badge-live {
+  background: rgba(14, 165, 233, 0.15);
+  color: var(--primary-light);
+  border: 1px solid rgba(14, 165, 233, 0.3);
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-.terminal-input-bar button {
-  background: var(--primary);
-  color: white;
-  border: none;
-  padding: 8px 14px;
+.bot-status-badge {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.command-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.command-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
   border-radius: var(--radius-sm);
-  font-family: inherit;
+  padding: 10px 14px;
+  cursor: pointer;
+  transition: var(--transition-fast);
+  gap: 12px;
+}
+
+.command-item:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--primary);
+  transform: translateX(3px);
+}
+
+.command-code-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.command-code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--primary-light);
+  background: rgba(14, 165, 233, 0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+  align-self: flex-start;
+}
+
+.command-desc {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+}
+
+.command-copy-btn {
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  border-radius: var(--radius-sm);
+  padding: 4px 8px;
+  font-size: 0.75rem;
   font-weight: 600;
   cursor: pointer;
+  white-space: nowrap;
+  transition: var(--transition-fast);
+}
+
+.command-item:hover .command-copy-btn {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}
+
+.feature-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.feature-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 10px;
+  background: var(--bg-surface);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-subtle);
+}
+
+.feature-icon {
+  font-size: 1.3rem;
+  line-height: 1;
+  margin-top: 2px;
 }
 
 /* Modal Styles */
