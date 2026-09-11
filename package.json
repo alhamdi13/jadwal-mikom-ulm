@@ -6,21 +6,10 @@
   "type": "module",
   "scripts": {
     "start": "node src/index.js",
-    "start:pairing": "node src/index.js --pairing",
-    "reset:session": "node clean_session.js",
     "broadcast": "node broadcast_runner.js",
     "export:session": "node export_session.js",
     "test:dry-run": "node test_dry_run.js"
   },
-  "keywords": [
-    "whatsapp-bot",
-    "baileys",
-    "jadwal-kuliah",
-    "notifikasi-dosen",
-    "cron-scheduler"
-  ],
-  "author": "Antigravity",
-  "license": "ISC",
   "dependencies": {
     "@whiskeysockets/baileys": "^6.7.24",
     "axios": "^1.7.9",
