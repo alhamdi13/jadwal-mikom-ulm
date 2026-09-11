@@ -19,7 +19,7 @@ if (!fs.existsSync(sessionDir)) {
   fs.mkdirSync(sessionDir, { recursive: true });
 }
 
-// 1. Restore session dari GitHub Secrets (Environment Variable)
+// 1. Restore session dari GitHub Secrets
 if (process.env.SESSION_DATA_BASE64) {
   const credsPath = path.join(sessionDir, 'creds.json');
   try {
