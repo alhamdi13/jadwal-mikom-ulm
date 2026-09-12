@@ -120,13 +120,18 @@
 
     <!-- Section 4: Aksi Pengumuman WAG & Reminder Dosen -->
     <section id="broadcastSection" style="display: none;">
-      <div style="margin-bottom: 22px;">
-        <h2 style="font-size: 1.35rem; font-weight: 800; margin-bottom: 6px; display: flex; align-items: center; gap: 8px;">
-          <span>📢</span> Aksi Pengumuman Kelas & Reminder Dosen
-        </h2>
-        <p style="font-size: 0.88rem; color: var(--text-secondary);">
-          Kirim pengumuman perkuliahan hari ini ke grup WhatsApp kelas atau hubungi dosen pengampu dengan template pesan santun siap kirim.
-        </p>
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 22px; flex-wrap: wrap; gap: 12px;">
+        <div>
+          <h2 style="font-size: 1.35rem; font-weight: 800; margin-bottom: 6px; display: flex; align-items: center; gap: 8px;">
+            <span>📢</span> Aksi Pengumuman Kelas & Reminder Dosen
+          </h2>
+          <p style="font-size: 0.88rem; color: var(--text-secondary);">
+            Kirim pengumuman perkuliahan hari ini ke grup WhatsApp kelas atau hubungi dosen pengampu dengan template pesan santun siap kirim.
+          </p>
+        </div>
+        <button class="quick-action-btn" onclick="openRevisionModal()" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.35);">
+          ⚡ Generator Revisi WAG
+        </button>
       </div>
 
       <div class="broadcast-hub-grid">
@@ -251,7 +256,7 @@
               <span class="location-icon">👩‍💼</span>
               <div>
                 <strong>Sekretariat / Pengelola Akademik:</strong>
-                <p>Ibu Masrina M.I.P(+62 821-5554-0055)</p>
+                <p>Ibu Rina (+62 821-5554-0055)</p>
                 <a href="https://wa.me/6282155540055?text=Assalamu%27alaikum%20Ibu%20Rina%2C%20mohon%20izin%20bertanya%20mengenai%20informasi%20akademik%20MIKOM%20FISIP%20ULM..." target="_blank" class="quick-action-btn btn-green" style="margin-top: 8px; display: inline-flex; font-size: 0.78rem; padding: 6px 12px;">
                   💬 Chat Sekretariat via WhatsApp
                 </a>
@@ -384,6 +389,71 @@
         <button class="quick-action-btn btn-blue" onclick="saveNewTask()">
           ➕ Simpan Catatan Tugas
         </button>
+      </div>
+    </div>
+  <!-- Modal 3: Generator Pengumuman Revisi Jadwal Kuliah -->
+  <div class="modal-overlay" id="revisionModalOverlay" onclick="closeRevisionModal(event)">
+    <div class="modal-content" style="max-width: 600px;" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 1.3rem;">⚡</span>
+          <h3 style="font-size: 1.15rem; font-weight: 800;">Generator Pengumuman Revisi Jadwal</h3>
+        </div>
+        <button class="modal-close-btn" onclick="closeRevisionModal()">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <p style="font-size: 0.82rem; color: var(--text-secondary); margin-bottom: 16px;">
+          Gunakan formulir ini jika dosen mengonfirmasi ada perubahan dosen, jam kuliah, atau penundaan. Sistem otomatis menyusun format pengumuman WhatsApp resmi.
+        </p>
+
+        <div class="form-row">
+          <div class="form-group" style="flex: 1;">
+            <label class="form-label">Jenis Perubahan</label>
+            <select id="inputRevType" class="form-input" onchange="updateRevisionPreview()">
+              <option value="dosen">👨‍🏫 Pergantian Dosen Pengampu</option>
+              <option value="waktu">⏰ Pergeseran / Pertukaran Jam</option>
+              <option value="mode">🌐 Perubahan Ruang / Link Zoom</option>
+              <option value="reschedule">🗓️ Perkuliahan Ditunda / Reschedule</option>
+            </select>
+          </div>
+
+          <div class="form-group" style="flex: 1;">
+            <label class="form-label">Mata Kuliah</label>
+            <select id="inputRevMatkul" class="form-input" onchange="updateRevisionPreview()">
+              <!-- Populated dynamically by app.js -->
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" id="labelRevDetail">Detail Perubahan / Dosen Pengganti</label>
+          <input type="text" id="inputRevDetail" class="form-input" placeholder="Contoh: Digantikan oleh Dr. Siswanto, S.Sos., M.Si" oninput="updateRevisionPreview()">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Keterangan Tambahan / Pesan Dosen (Opsional)</label>
+          <input type="text" id="inputRevNotes" class="form-input" placeholder="Contoh: Perkuliahan via Zoom dimulai tepat waktu..." oninput="updateRevisionPreview()">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Pratinjau Pesan WhatsApp Revisi:</label>
+          <div class="broadcast-preview-box" id="revisionPreviewBox" style="max-height: 180px; font-size: 0.78rem; border-left-color: #f59e0b;">
+            <!-- Live Preview -->
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-icon" onclick="closeRevisionModal()">Batal</button>
+        <div style="display: flex; gap: 8px;">
+          <button class="quick-action-btn" onclick="copyRevisionText()">
+            📋 Salin Teks
+          </button>
+          <button class="quick-action-btn btn-green" onclick="shareRevisionToWA()">
+            💬 Kirim ke WAG
+          </button>
+        </div>
       </div>
     </div>
   </div>

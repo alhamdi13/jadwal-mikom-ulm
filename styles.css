@@ -850,6 +850,82 @@ body {
   transform: scale(1.03);
 }
 
+/* Lecturer Confirmation Status & Quick Revision */
+.lecturer-reminder-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--border-subtle);
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.status-pill-group {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.status-pill-btn {
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.status-pill-btn:hover {
+  color: var(--text-primary);
+  border-color: var(--border-highlight);
+}
+
+.status-pill-btn.active.status-ok {
+  background: rgba(16, 185, 129, 0.2);
+  color: #10b981;
+  border-color: #10b981;
+  font-weight: 700;
+}
+
+.status-pill-btn.active.status-changed {
+  background: rgba(245, 158, 11, 0.2);
+  color: #f59e0b;
+  border-color: #f59e0b;
+  font-weight: 700;
+}
+
+.status-pill-btn.active.status-postponed {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+  border-color: #ef4444;
+  font-weight: 700;
+}
+
+.btn-quick-rev {
+  background: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  border-radius: var(--radius-sm);
+  padding: 4px 10px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: var(--transition-fast);
+}
+
+.btn-quick-rev:hover {
+  background: #f59e0b;
+  color: white;
+}
+
 /* ==========================================================================
    Section 5: Info Penting, Mading & Papan Tugas (Assignment Tracker)
    ========================================================================== */

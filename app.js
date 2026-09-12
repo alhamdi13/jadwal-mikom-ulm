@@ -478,6 +478,39 @@ ${modeText}
 Selamat mengikuti perkuliahan rekan-rekan mahasiswa! Semoga sukses dan lancar selalu. ✨🎓`;
 }
 
+// Helper: Storage key for lecturer confirmation status
+function getLecturerStatusKey() {
+  const todayISO = formatDateISO(new Date());
+  return `sijadwal_lecturer_status_${todayISO}`;
+}
+
+function getLecturerStatusMap() {
+  const saved = localStorage.getItem(getLecturerStatusKey());
+  if (saved) {
+    try {
+      return JSON.parse(saved);
+    } catch (e) {
+      console.error('Gagal parsing status dosen:', e);
+    }
+  }
+  return {};
+}
+
+window.setLecturerStatus = function(lecturerName, status) {
+  const map = getLecturerStatusMap();
+  map[lecturerName] = status;
+  localStorage.setItem(getLecturerStatusKey(), JSON.stringify(map));
+  renderBroadcastTab();
+
+  if (status === 'changed') {
+    showToast(`🟡 Status ${lecturerName}: Ada Perubahan. Klik "⚡ Buat Revisi WAG" untuk membuat pengumuman.`);
+  } else if (status === 'postponed') {
+    showToast(`🔴 Status ${lecturerName}: Perkuliahan Ditunda.`);
+  } else {
+    showToast(`🟢 Status ${lecturerName}: Terkonfirmasi Bisa Hadir.`);
+  }
+};
+
 function renderBroadcastTab() {
   const previewBox = document.getElementById('broadcastPreviewBox');
   const badgeEl = document.getElementById('broadcastStatusBadge');
@@ -501,7 +534,6 @@ function renderBroadcastTab() {
   }
 
   if (lecturersList) {
-    // Kumpulkan dosen unik yang mengajar di sesi ini
     const lecturersMap = new Map();
     data.classes.forEach(m => {
       (m.tim_pengajar || []).forEach(d => {
@@ -512,6 +544,7 @@ function renderBroadcastTab() {
     });
 
     const lecturers = Array.from(lecturersMap.values());
+    const statusMap = getLecturerStatusMap();
 
     if (lecturers.length === 0) {
       lecturersList.innerHTML = `
@@ -525,20 +558,47 @@ function renderBroadcastTab() {
     lecturersList.innerHTML = lecturers.map(d => {
       const modeDesc = data.isOnline ? 'Online via Zoom Meeting' : `Tatap Muka di Ruang ${ACADEMIC_DATA.default_ruangan}`;
       const reminderText = `Assalamu'alaikum Warahmatullahi Wabarakatuh,\nSelamat Pagi Bapak/Ibu ${d.nama}.\n\nMohon izin mengonfirmasi dan mengingatkan perkuliahan Magister Ilmu Komunikasi FISIP ULM untuk mata kuliah *${d.matkul}* pada hari ini (${d.hari}, ${d.jam} WITA) yang dijadwalkan secara ${modeDesc}.\n\nApakah perkuliahan dapat dimulai sesuai jadwal? Terima kasih banyak Bapak/Ibu. 🙏`;
+      
+      const currentStatus = statusMap[d.nama] || 'ok';
 
       return `
         <div class="lecturer-reminder-item">
-          <div class="lecturer-reminder-info">
-            <div class="lecturer-reminder-name">${d.nama}</div>
-            <div class="lecturer-reminder-sub">📚 ${d.matkul} (${d.jam} WITA)</div>
+          <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; gap: 10px; flex-wrap: wrap;">
+            <div class="lecturer-reminder-info">
+              <div class="lecturer-reminder-name">${d.nama}</div>
+              <div class="lecturer-reminder-sub">📚 ${d.matkul} (${d.jam} WITA)</div>
+            </div>
+            ${d.no_hp ? `
+              <a href="https://wa.me/${d.no_hp}?text=${encodeURIComponent(reminderText)}" target="_blank" class="lecturer-reminder-btn">
+                <span>💬</span> Ingatkan Dosen
+              </a>
+            ` : `
+              <span style="font-size: 0.75rem; color: var(--text-muted);">Kontak belum ada</span>
+            `}
           </div>
-          ${d.no_hp ? `
-            <a href="https://wa.me/${d.no_hp}?text=${encodeURIComponent(reminderText)}" target="_blank" class="lecturer-reminder-btn">
-              <span>💬</span> Ingatkan Dosen
-            </a>
-          ` : `
-            <span style="font-size: 0.75rem; color: var(--text-muted);">Kontak belum ada</span>
-          `}
+
+          <div class="lecturer-reminder-bottom">
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <span style="font-size: 0.72rem; color: var(--text-secondary); font-weight: 600;">Konfirmasi:</span>
+              <div class="status-pill-group">
+                <button class="status-pill-btn ${currentStatus === 'ok' ? 'active status-ok' : ''}" onclick="setLecturerStatus('${d.nama}', 'ok')" title="Dosen bisa hadir">
+                  🟢 Hadir
+                </button>
+                <button class="status-pill-btn ${currentStatus === 'changed' ? 'active status-changed' : ''}" onclick="setLecturerStatus('${d.nama}', 'changed')" title="Ada perubahan dosen / jam">
+                  🟡 Berubah
+                </button>
+                <button class="status-pill-btn ${currentStatus === 'postponed' ? 'active status-postponed' : ''}" onclick="setLecturerStatus('${d.nama}', 'postponed')" title="Kuliah ditunda">
+                  🔴 Ditunda
+                </button>
+              </div>
+            </div>
+
+            ${currentStatus !== 'ok' ? `
+              <button class="btn-quick-rev" onclick="openRevisionModal({ matkul: '${d.matkul}', type: '${currentStatus === 'postponed' ? 'reschedule' : 'dosen'}', detail: '${currentStatus === 'postponed' ? 'Jadwal perkuliahan ditunda sementara' : `Digantikan oleh Dosen Pengganti (Semula: ${d.nama})`}' })">
+                ⚡ Buat Revisi WAG
+              </button>
+            ` : ''}
+          </div>
         </div>
       `;
     }).join('');
@@ -558,6 +618,129 @@ window.copyFullBroadcastWAG = function() {
 
 window.shareBroadcastToWA = function() {
   const text = generateBroadcastMessageText();
+  const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
+  window.open(url, '_blank');
+};
+
+// Revision Generator Functions
+window.openRevisionModal = function(prefill = null) {
+  const overlay = document.getElementById('revisionModalOverlay');
+  if (!overlay) return;
+
+  const matkulSelect = document.getElementById('inputRevMatkul');
+  const typeSelect = document.getElementById('inputRevType');
+  const detailInput = document.getElementById('inputRevDetail');
+  const notesInput = document.getElementById('inputRevNotes');
+
+  const allCourses = ACADEMIC_DATA.jadwal || [];
+  matkulSelect.innerHTML = allCourses.map(m => `
+    <option value="${m.mata_kuliah}">${m.mata_kuliah} (${m.hari})</option>
+  `).join('');
+
+  if (prefill) {
+    if (prefill.matkul) matkulSelect.value = prefill.matkul;
+    if (prefill.type) typeSelect.value = prefill.type;
+    if (prefill.detail) detailInput.value = prefill.detail;
+    if (prefill.notes) notesInput.value = prefill.notes;
+  } else {
+    detailInput.value = '';
+    notesInput.value = '';
+  }
+
+  updateRevisionPreview();
+  overlay.classList.add('active');
+};
+
+window.closeRevisionModal = function(e) {
+  if (e && e.target !== e.currentTarget && !e.target.classList.contains('modal-close-btn')) return;
+  const overlay = document.getElementById('revisionModalOverlay');
+  if (overlay) overlay.classList.remove('active');
+};
+
+window.updateRevisionPreview = function() {
+  const previewBox = document.getElementById('revisionPreviewBox');
+  const typeSelect = document.getElementById('inputRevType');
+  const matkulSelect = document.getElementById('inputRevMatkul');
+  const detailInput = document.getElementById('inputRevDetail');
+  const notesInput = document.getElementById('inputRevNotes');
+
+  if (!previewBox || !typeSelect || !matkulSelect) return;
+
+  const type = typeSelect.value;
+  const matkulName = matkulSelect.value;
+  const detail = detailInput.value.trim();
+  const notes = notesInput.value.trim();
+
+  const today = new Date();
+  const dateFormatted = today.toLocaleDateString('id-ID', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  });
+
+  const courseObj = (ACADEMIC_DATA.jadwal || []).find(m => m.mata_kuliah === matkulName) || {};
+  const timeInfo = courseObj.jam_mulai ? `${courseObj.jam_mulai} - ${courseObj.jam_selesai} WITA` : 'Sesuai Jadwal';
+  const origLecturers = courseObj.tim_pengajar ? courseObj.tim_pengajar.map(d => d.nama).join(', ') : '-';
+  const zoom = ACADEMIC_DATA.default_zoom || {};
+
+  let changeTitle = '';
+  let changeDetail = '';
+
+  if (type === 'dosen') {
+    changeTitle = '👨‍🏫 *PERGANTIAN DOSEN PENGAMPU HARI INI*';
+    changeDetail = `Dosen Pengampu dialihkan kepada:\n👉 *${detail || 'Dosen Pengganti (Konfirmasi Dosen)'}*`;
+  } else if (type === 'waktu') {
+    changeTitle = '⏰ *PENYESUAIAN / PERGESERAN JAM KULIAH*';
+    changeDetail = `Waktu Perkuliahan Berubah Menjadi:\n👉 *${detail || 'Jam Perkuliahan Baru (WITA)'}*`;
+  } else if (type === 'mode') {
+    changeTitle = '🌐 *PERUBAHAN RUANG / LINK ZOOM KULIAH*';
+    changeDetail = `Metode / Ruangan dialihkan ke:\n👉 *${detail || `Zoom Meeting / Ruang ${ACADEMIC_DATA.default_ruangan}`}*`;
+  } else if (type === 'reschedule') {
+    changeTitle = '🗓️ *PEMBERITAHUAN PENUNDAAN PERKULIAHAN*';
+    changeDetail = `Status Perkuliahan:\n👉 *${detail || 'DITUNDA / DIJADWALKAN ULANG (RESCHEDULE)'}*`;
+  }
+
+  let text = `⚠️ ${changeTitle} ⚠️
+🎓 *Magister Ilmu Komunikasi FISIP ULM*
+👥 Angkatan 2026
+🗓️ Hari/Tgl: ${dateFormatted}
+━━━━━━━━━━━━━━━━━━━━
+
+📚 *Mata Kuliah:* ${matkulName}
+⏰ *Jadwal Asli:* ${timeInfo}
+👥 *Tim Dosen:* ${origLecturers}
+
+📢 *Keterangan Perubahan:*
+${changeDetail}
+${notes ? `\n📝 *Pesan / Arahan Dosen:*\n"${notes}"\n` : ''}
+━━━━━━━━━━━━━━━━━━━━
+🔗 *Link Zoom Meeting:* ${zoom.link}
+🔑 Meeting ID: ${zoom.meeting_id} | Pass: ${zoom.passcode}
+
+Mohon perhatian seluruh rekan-rekan mahasiswa. Terima kasih. 🙏`;
+
+  previewBox.textContent = text;
+};
+
+window.copyRevisionText = function() {
+  const previewBox = document.getElementById('revisionPreviewBox');
+  if (!previewBox) return;
+  const text = previewBox.textContent;
+
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text).then(() => {
+      showToast('✅ Format Pesan Revisi WAG berhasil disalin!');
+    }).catch(() => fallbackCopyText(text));
+  } else {
+    fallbackCopyText(text);
+  }
+};
+
+window.shareRevisionToWA = function() {
+  const previewBox = document.getElementById('revisionPreviewBox');
+  if (!previewBox) return;
+  const text = previewBox.textContent;
   const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
   window.open(url, '_blank');
 };
