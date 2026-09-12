@@ -638,7 +638,13 @@ window.openRevisionModal = function(prefill = null) {
   `).join('');
 
   if (prefill) {
-    if (prefill.matkul) matkulSelect.value = prefill.matkul;
+    if (prefill.matkul) {
+      const matchOpt = Array.from(matkulSelect.options).find(opt => 
+        opt.value.toLowerCase().includes(prefill.matkul.toLowerCase()) ||
+        prefill.matkul.toLowerCase().includes(opt.value.toLowerCase())
+      );
+      if (matchOpt) matkulSelect.value = matchOpt.value;
+    }
     if (prefill.type) typeSelect.value = prefill.type;
     if (prefill.detail) detailInput.value = prefill.detail;
     if (prefill.notes) notesInput.value = prefill.notes;
@@ -663,6 +669,7 @@ window.updateRevisionPreview = function() {
   const matkulSelect = document.getElementById('inputRevMatkul');
   const detailInput = document.getElementById('inputRevDetail');
   const notesInput = document.getElementById('inputRevNotes');
+  const labelDetail = document.getElementById('labelRevDetail');
 
   if (!previewBox || !typeSelect || !matkulSelect) return;
 
@@ -670,6 +677,23 @@ window.updateRevisionPreview = function() {
   const matkulName = matkulSelect.value;
   const detail = detailInput.value.trim();
   const notes = notesInput.value.trim();
+
+  // Update dynamic label and placeholder
+  if (labelDetail) {
+    if (type === 'dosen') {
+      labelDetail.textContent = 'Dosen Pengganti Hari Ini';
+      detailInput.placeholder = 'Contoh: Digantikan oleh Dr. Siswanto, S.Sos., M.Si';
+    } else if (type === 'waktu') {
+      labelDetail.textContent = 'Waktu / Jam Kuliah Baru (WITA)';
+      detailInput.placeholder = 'Contoh: Digeser menjadi pukul 14.00 - 16.30 WITA';
+    } else if (type === 'mode') {
+      labelDetail.textContent = 'Ruang Baru / Tautan Zoom Baru';
+      detailInput.placeholder = 'Contoh: Dialihkan ke Tatap Muka Ruang G1.103';
+    } else if (type === 'reschedule') {
+      labelDetail.textContent = 'Status / Jadwal Pengganti';
+      detailInput.placeholder = 'Contoh: Ditiadakan hari ini, dijadwalkan ulang Sabtu depan';
+    }
+  }
 
   const today = new Date();
   const dateFormatted = today.toLocaleDateString('id-ID', {
