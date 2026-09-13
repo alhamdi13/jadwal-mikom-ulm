@@ -11,7 +11,11 @@ import pino from 'pino';
 import path from 'path';
 import fs from 'fs';
 import { config, rootDir } from './src/config.js';
-import { executeMorningBroadcast } from './src/scheduler.js';
+import {
+  executeMorningBroadcast,
+  executeHMinus1Broadcast,
+  executeCourseReminderBroadcast
+} from './src/scheduler.js';
 
 const sessionDir = path.resolve(rootDir, process.env.BOT_SESSION_DIR || './session_auth');
 
@@ -19,7 +23,7 @@ if (!fs.existsSync(sessionDir)) {
   fs.mkdirSync(sessionDir, { recursive: true });
 }
 
-// 1. Restore session dari GitHub Secrets
+// 1. Restore session dari GitHub Secrets (Environment Variable)
 if (process.env.SESSION_DATA_BASE64) {
   const credsPath = path.join(sessionDir, 'creds.json');
   try {
@@ -32,9 +36,13 @@ if (process.env.SESSION_DATA_BASE64) {
   }
 }
 
+// Ambil mode siaran dari argumen CLI (morning | h_minus_1 | course_reminder)
+const broadcastMode = (process.argv[2] || 'morning').toLowerCase();
+const courseIndexArg = process.argv[3] !== undefined && process.argv[3] !== '' ? parseInt(process.argv[3], 10) : null;
+
 async function runScheduledBroadcast() {
   console.log('====================================================');
-  console.log('⏰ MENJALANKAN BROADCAST JADWAL KULIAH PAGI HARI');
+  console.log(`⏰ MENJALANKAN SIARAN JADWAL KULIAH [MODE: ${broadcastMode.toUpperCase()}]`);
   console.log(`📍 Target Grup : ${config.targetGroups?.[0]?.name || 'Belum diatur'} (${config.targetGroups?.[0]?.id || '-'})`);
   console.log('====================================================');
 
@@ -81,14 +89,22 @@ async function runScheduledBroadcast() {
 
       if (connection === 'open') {
         clearTimeout(timeout);
-        console.log('✅ WhatsApp terhubung sukses! Memulai pengiriman pesan...');
+        console.log('✅ WhatsApp terhubung sukses! Memulai proses pengiriman pesan...');
 
         try {
-          // Beri jeda 3 detik agar koneksi socket stabil
+          // Beri jeda 3 detik agar socket stabil
           await new Promise(r => setTimeout(r, 3000));
 
-          await executeMorningBroadcast(sock);
-          console.log('\n🎉 Seluruh pesan broadcast pagi berhasil dikirim!');
+          if (broadcastMode === 'h_minus_1') {
+            await executeHMinus1Broadcast(sock);
+          } else if (broadcastMode === 'course_reminder') {
+            await executeCourseReminderBroadcast(sock, courseIndexArg);
+          } else {
+            // Default: 'morning'
+            await executeMorningBroadcast(sock);
+          }
+
+          console.log(`\n🎉 Seluruh tugas siaran [${broadcastMode.toUpperCase()}] berhasil diselesaikan!`);
 
           // Beri jeda 4 detik sebelum socket ditutup secara aman
           await new Promise(r => setTimeout(r, 4000));
