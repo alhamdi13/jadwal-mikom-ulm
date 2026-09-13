@@ -149,6 +149,44 @@
             Pesan di bawah ini otomatis disesuaikan dengan jadwal kuliah hari ini (Online Zoom / Ruang Tatap Muka):
           </p>
 
+          <!-- Panel Penyesuaian PJ / Ketua Kelas -->
+          <div class="pj-customizer-box" id="pjCustomizerContainer">
+            <div class="pj-customizer-header" onclick="togglePjCustomizer()">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 1.1rem;">🎛️</span>
+                <strong style="font-size: 0.88rem; color: var(--text-primary);">Opsi PJ Kelas: Pilih Dosen Masuk & Catatan Tambahan</strong>
+              </div>
+              <span id="pjCustomizerToggleIcon" class="pj-toggle-btn">⚙️ Sesuaikan</span>
+            </div>
+            
+            <div class="pj-customizer-body" id="pjCustomizerBody">
+              <!-- Rendered dynamically by app.js: Selector dosen per-matkul -->
+              <div class="pj-lecturer-selectors" id="pjLecturerSelectors">
+                <!-- Rendered by app.js -->
+              </div>
+
+              <!-- Input Catatan Tambahan -->
+              <div class="pj-note-group">
+                <label for="pjCustomNoteInput" class="pj-note-label">
+                  📝 <strong>Keterangan / Instruksi Tambahan untuk WAG (Opsional):</strong>
+                </label>
+                <input 
+                  type="text" 
+                  id="pjCustomNoteInput" 
+                  class="pj-note-input" 
+                  placeholder="Contoh: Dosen meminta mahasiswa bawa laptop / Mulai jam 14.15 WITA..."
+                  oninput="onPjCustomNoteChange()"
+                />
+              </div>
+
+              <div style="display: flex; justify-content: flex-end; margin-top: 8px;">
+                <button type="button" class="btn-reset-pj" onclick="resetPjCustomizer()">
+                  🔄 Reset ke Default Silabus
+                </button>
+              </div>
+            </div>
+          </div>
+
           <div class="broadcast-preview-box" id="broadcastPreviewBox">
             <!-- Rendered by app.js -->
           </div>

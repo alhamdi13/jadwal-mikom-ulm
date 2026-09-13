@@ -439,6 +439,133 @@ function getTodayOrUpcomingClasses() {
   };
 }
 
+// Helper: Storage key for PJ Customizer
+function getPjCustomizerKey() {
+  const todayISO = formatDateISO(new Date());
+  return `sijadwal_pj_customizer_${todayISO}`;
+}
+
+function getPjCustomizerData() {
+  const saved = localStorage.getItem(getPjCustomizerKey());
+  if (saved) {
+    try {
+      return JSON.parse(saved);
+    } catch (e) {
+      console.error('Gagal parsing customizer data:', e);
+    }
+  }
+  return {
+    selectedLecturers: {},
+    customNote: ''
+  };
+}
+
+function savePjCustomizerData(data) {
+  localStorage.setItem(getPjCustomizerKey(), JSON.stringify(data));
+}
+
+window.togglePjCustomizer = function() {
+  const container = document.getElementById('pjCustomizerContainer');
+  const toggleBtn = document.getElementById('pjCustomizerToggleIcon');
+  if (!container) return;
+
+  const isOpen = container.classList.toggle('open');
+  if (toggleBtn) {
+    toggleBtn.textContent = isOpen ? '▲ Sembunyikan' : '⚙️ Sesuaikan';
+  }
+};
+
+window.toggleCourseLecturer = function(matkulName, lecturerName) {
+  const data = getPjCustomizerData();
+  const currentClass = ACADEMIC_DATA.jadwal.find(m => m.mata_kuliah === matkulName);
+  const allLecturers = currentClass ? (currentClass.tim_pengajar || []).map(d => d.nama) : [];
+
+  if (!data.selectedLecturers[matkulName]) {
+    data.selectedLecturers[matkulName] = allLecturers.filter(n => n !== lecturerName);
+  } else {
+    const list = data.selectedLecturers[matkulName];
+    if (list.includes(lecturerName)) {
+      data.selectedLecturers[matkulName] = list.filter(n => n !== lecturerName);
+    } else {
+      data.selectedLecturers[matkulName] = [...list, lecturerName];
+    }
+  }
+
+  savePjCustomizerData(data);
+  renderPjCustomizer();
+  updateBroadcastPreviewOnly();
+};
+
+window.onPjCustomNoteChange = function() {
+  const noteInput = document.getElementById('pjCustomNoteInput');
+  if (!noteInput) return;
+
+  const data = getPjCustomizerData();
+  data.customNote = noteInput.value;
+  savePjCustomizerData(data);
+  updateBroadcastPreviewOnly();
+};
+
+window.resetPjCustomizer = function() {
+  localStorage.removeItem(getPjCustomizerKey());
+  const noteInput = document.getElementById('pjCustomNoteInput');
+  if (noteInput) noteInput.value = '';
+  renderPjCustomizer();
+  updateBroadcastPreviewOnly();
+  showToast('🔄 Pilihan dosen & catatan telah direset ke default silabus.');
+};
+
+function renderPjCustomizer() {
+  const container = document.getElementById('pjLecturerSelectors');
+  const noteInput = document.getElementById('pjCustomNoteInput');
+  if (!container) return;
+
+  const scheduleInfo = getTodayOrUpcomingClasses();
+  const customizerData = getPjCustomizerData();
+
+  if (noteInput && document.activeElement !== noteInput) {
+    noteInput.value = customizerData.customNote || '';
+  }
+
+  if (scheduleInfo.classes.length === 0) {
+    container.innerHTML = `<div style="font-size: 0.78rem; color: var(--text-muted);">Tidak ada mata kuliah aktif untuk disesuaikan.</div>`;
+    return;
+  }
+
+  container.innerHTML = scheduleInfo.classes.map((m, idx) => {
+    const allLecturers = (m.tim_pengajar || []).map(d => d.nama);
+    const selectedList = customizerData.selectedLecturers[m.mata_kuliah] || allLecturers;
+
+    return `
+      <div class="pj-course-selector-group">
+        <div class="pj-course-title">
+          <span>${idx + 1}️⃣</span>
+          <span>${m.mata_kuliah}</span>
+          <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 500;">(${m.jam_mulai} WITA)</span>
+        </div>
+        <div class="pj-lecturer-chips">
+          ${allLecturers.map(name => {
+            const isSelected = selectedList.includes(name);
+            return `
+              <div class="pj-lecturer-chip ${isSelected ? 'active' : ''}" onclick="toggleCourseLecturer('${m.mata_kuliah}', '${name}')" title="Klik untuk memilih dosen yang mengajar hari ini">
+                <span>${isSelected ? '✓' : '＋'}</span>
+                <span>${name}</span>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function updateBroadcastPreviewOnly() {
+  const previewBox = document.getElementById('broadcastPreviewBox');
+  if (previewBox) {
+    previewBox.textContent = generateBroadcastMessageText();
+  }
+}
+
 function generateBroadcastMessageText() {
   const data = getTodayOrUpcomingClasses();
   const dateFormatted = data.targetDate.toLocaleDateString('id-ID', {
@@ -450,6 +577,7 @@ function generateBroadcastMessageText() {
 
   const zoom = ACADEMIC_DATA.default_zoom;
   const ruangan = ACADEMIC_DATA.default_ruangan;
+  const customizerData = getPjCustomizerData();
 
   let headerNote = data.isToday 
     ? `📢 *PENGUMUMAN PERKULIAHAN HARI INI*` 
@@ -460,9 +588,18 @@ function generateBroadcastMessageText() {
     : `🟢 *Metode: TATAP MUKA (OFFLINE KAMPUS)*\n🏢 Ruangan: Ruang ${ruangan} (Lantai 1)\n🏛️ Lokasi: Gedung Pascasarjana FISIP ULM`;
 
   let matkulListText = data.classes.map((m, idx) => {
-    const lecturerNames = (m.tim_pengajar || []).map(d => d.nama).join(', ');
-    return `${idx + 1}️⃣ *${m.mata_kuliah}*\n   ⏰ ${m.jam_mulai} - ${m.jam_selesai} WITA\n   👥 Dosen: ${lecturerNames}`;
+    const allLecturers = (m.tim_pengajar || []).map(d => d.nama);
+    const selectedList = customizerData.selectedLecturers[m.mata_kuliah] || allLecturers;
+    const activeLecturers = selectedList.length > 0 ? selectedList : allLecturers;
+    const lecturerNames = activeLecturers.join(', ');
+
+    return `${idx + 1}️⃣ *${m.mata_kuliah}*\n   ⏰ ${m.jam_mulai} - ${m.jam_selesai} WITA\n   👥 Dosen Pengampu: ${lecturerNames}`;
   }).join('\n\n');
+
+  let customNoteText = '';
+  if (customizerData.customNote && customizerData.customNote.trim()) {
+    customNoteText = `\n\n📌 *Catatan Khusus dari Dosen / PJ Kelas:*\n_${customizerData.customNote.trim()}_`;
+  }
 
   return `${headerNote}
 🎓 *Magister Ilmu Komunikasi FISIP ULM*
@@ -471,7 +608,7 @@ function generateBroadcastMessageText() {
 ━━━━━━━━━━━━━━━━━━━━
 
 ${matkulListText}
-
+${customNoteText}
 ━━━━━━━━━━━━━━━━━━━━
 ${modeText}
 
@@ -518,6 +655,8 @@ function renderBroadcastTab() {
 
   const data = getTodayOrUpcomingClasses();
   const text = generateBroadcastMessageText();
+
+  renderPjCustomizer();
 
   if (previewBox) {
     previewBox.textContent = text;

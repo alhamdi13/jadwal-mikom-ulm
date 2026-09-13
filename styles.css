@@ -759,6 +759,156 @@ body {
   gap: 8px;
 }
 
+/* ==========================================================================
+   PJ / Ketua Kelas Customizer Box
+   ========================================================================== */
+.pj-customizer-box {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  margin-bottom: 14px;
+  overflow: hidden;
+  transition: var(--transition-fast);
+}
+
+.pj-customizer-box:hover {
+  border-color: var(--border-highlight);
+}
+
+.pj-customizer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  background: rgba(99, 102, 241, 0.05);
+  cursor: pointer;
+  user-select: none;
+  border-bottom: 1px solid transparent;
+}
+
+.pj-customizer-box.open .pj-customizer-header {
+  border-bottom-color: var(--border-subtle);
+}
+
+.pj-toggle-btn {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--primary);
+  background: rgba(99, 102, 241, 0.12);
+  padding: 4px 10px;
+  border-radius: 20px;
+  transition: var(--transition-fast);
+}
+
+.pj-customizer-body {
+  display: none;
+  padding: 14px;
+}
+
+.pj-customizer-box.open .pj-customizer-body {
+  display: block;
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+.pj-course-selector-group {
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px dashed var(--border-subtle);
+}
+
+.pj-course-selector-group:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.pj-course-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pj-lecturer-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.pj-lecturer-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 5px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-main);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: var(--transition-fast);
+  user-select: none;
+}
+
+.pj-lecturer-chip:hover {
+  border-color: var(--primary);
+  color: var(--text-primary);
+}
+
+.pj-lecturer-chip.active {
+  background: rgba(16, 185, 129, 0.12);
+  border-color: rgba(16, 185, 129, 0.4);
+  color: #10b981;
+}
+
+.pj-note-group {
+  margin-top: 14px;
+}
+
+.pj-note-label {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  display: block;
+  margin-bottom: 6px;
+}
+
+.pj-note-input {
+  width: 100%;
+  padding: 9px 12px;
+  font-size: 0.82rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-main);
+  color: var(--text-primary);
+  transition: var(--transition-fast);
+}
+
+.pj-note-input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+.btn-reset-pj {
+  background: transparent;
+  border: none;
+  font-size: 0.74rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-weight: 600;
+  transition: var(--transition-fast);
+  padding: 4px 8px;
+}
+
+.btn-reset-pj:hover {
+  color: var(--accent-danger);
+  text-decoration: underline;
+}
+
 .broadcast-preview-box {
   background: var(--bg-main);
   border: 1px solid var(--border-subtle);
