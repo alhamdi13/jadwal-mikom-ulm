@@ -16,12 +16,22 @@ export function getDateString(dateObj = new Date()) {
 }
 
 /**
- * Mendapatkan objek Date berdasarkan offset hari dari hari ini
+ * Mendapatkan objek Date berdasarkan offset hari dari hari ini atau string YYYY-MM-DD
  */
-export function getTargetDate(offsetDays = 0) {
+export function getTargetDate(input = 0) {
+  if (input instanceof Date) {
+    return new Date(input.getTime());
+  }
+  if (typeof input === 'string' && input.includes('-')) {
+    const parts = input.split('-');
+    if (parts.length === 3) {
+      return new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]), 12, 0, 0);
+    }
+    return new Date(input);
+  }
   const d = new Date();
-  if (offsetDays !== 0) {
-    d.setDate(d.getDate() + offsetDays);
+  if (typeof input === 'number' && input !== 0) {
+    d.setDate(d.getDate() + input);
   }
   return d;
 }
