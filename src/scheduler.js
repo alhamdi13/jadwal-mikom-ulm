@@ -60,6 +60,11 @@ export async function executeMorningBroadcast(sock, targetGroupOverride = null) 
   // 1. Ambil data jadwal hari ini (mengecek apakah hari ini ada kuliah, dan apakah Online/Offline)
   const scheduleData = await getScheduleForDate(0);
 
+  if (!scheduleData.schedules || scheduleData.schedules.length === 0) {
+    console.log(`[Broadcast MIKOM ULM] Hari ini (${formattedDate}) tidak ada jadwal perkuliahan. Broadcast otomatis dilewati.`);
+    return;
+  }
+
   // 2. Kirim Broadcast ke WhatsApp Group (WAG) Mahasiswa
   if (config.scheduler.enableGroupBroadcast) {
     const groupMessage = formatGroupScheduleMessage(scheduleData, formattedDate);
