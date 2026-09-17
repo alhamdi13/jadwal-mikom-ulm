@@ -81,7 +81,25 @@ const ACADEMIC_DATA = {
         "2026-11-06", "2026-11-20",
         "2026-12-04", "2026-12-18"
       ],
-      deskripsi: "Mengkaji landasan ontologi, epistemologi, dan aksiologi dalam tradisi keilmuan komunikasi kontemporer."
+      deskripsi: "Mengkaji landasan ontologi, epistemologi, dan aksiologi dalam tradisi keilmuan komunikasi kontemporer.",
+      pertemuan: [
+        { sesi: 1, tanggal: "2026-09-04", metode: "Offline", dosen_pengajar: "Prof. Dr. H. Bachruddin Ali Ahmad, M.Si", topik: "Pengantar & Kontrak Perkuliahan Filsafat Ilmu Komunikasi", tugas: "-" },
+        { sesi: 2, tanggal: "2026-09-11", metode: "Online", dosen_pengajar: "Prof. Dr. H. Bachruddin Ali Ahmad, M.Si", topik: "Hakikat Ilmu & Perkembangan Pemikiran Filsafat", tugas: "Membaca Referensi Bab 1" },
+        { sesi: 3, tanggal: "2026-09-18", metode: "Offline", dosen_pengajar: "Prof. Dr. H. Bachruddin Ali Ahmad, M.Si", topik: "Dimensi Ontologis dalam Ilmu Komunikasi", tugas: "-" },
+        { sesi: 4, tanggal: "2026-09-25", metode: "Online", dosen_pengajar: "Prof. Dr. H. Bachruddin Ali Ahmad, M.Si", topik: "Objek Formal dan Objek Material Ilmu Komunikasi", tugas: "Review Jurnal Epistemologi" },
+        { sesi: 5, tanggal: "2026-10-02", metode: "Offline", dosen_pengajar: "Prof. Dr. H. Bachruddin Ali Ahmad, M.Si", topik: "Paradigma Positivisme & Post-Positivisme Komunikasi", tugas: "-" },
+        { sesi: 6, tanggal: "2026-10-09", metode: "Online", dosen_pengajar: "Prof. Dr. H. Budi Suryadi, M.Si", topik: "Paradigma Konstruktivisme & Fenomenologi", tugas: "Resume Paradigma Kritis" },
+        { sesi: 7, tanggal: "2026-10-16", metode: "Offline", dosen_pengajar: "Prof. Dr. H. Budi Suryadi, M.Si", topik: "Paradigma Kritis dalam Kajian Komunikasi Kontemporer", tugas: "Persiapan Ujian Tengah Semester" },
+        { sesi: 8, tanggal: "2026-10-23", metode: "Online", dosen_pengajar: "Prof. Dr. H. Budi Suryadi, M.Si", topik: "Ujian Tengah Semester (UTS)", tugas: "Pengumpulan Paper UTS" },
+        { sesi: 9, tanggal: "2026-10-30", metode: "Offline", dosen_pengajar: "Dr. Fahrianoor, S.IP., M.Si", topik: "Dimensi Epistemologi: Metode Penemuan Kebenaran Ilmiah", tugas: "-" },
+        { sesi: 10, tanggal: "2026-11-06", metode: "Online", dosen_pengajar: "Dr. Fahrianoor, S.IP., M.Si", topik: "Logika, Teori Kebenaran, dan Validitas Ilmiah Komunikasi", tugas: "Tugas Analisis Kasus Logika" },
+        { sesi: 11, tanggal: "2026-11-13", metode: "Offline", dosen_pengajar: "Dr. Fahrianoor, S.IP., M.Si", topik: "Dimensi Aksiologi: Nilai, Moral, dan Etika Komunikasi", tugas: "-" },
+        { sesi: 12, tanggal: "2026-11-20", metode: "Online", dosen_pengajar: "Dr. Fahrianoor, S.IP., M.Si", topik: "Tanggung Jawab Sosial Ilmuwan & Praktisi Komunikasi", tugas: "Draft Artikel Filsafat" },
+        { sesi: 13, tanggal: "2026-11-27", metode: "Offline", dosen_pengajar: "Dr. Fahrianoor, S.IP., M.Si", topik: "Filsafat Komunikasi Era Post-Truth & Algoritma Digital", tugas: "-" },
+        { sesi: 14, tanggal: "2026-12-04", metode: "Online", dosen_pengajar: "Prof. Dr. H. Bachruddin Ali Ahmad, M.Si", topik: "Presentasi Review Pemikiran Tokoh Filsafat Komunikasi (Bag. 1)", tugas: "Slide Presentasi Kelompok" },
+        { sesi: 15, tanggal: "2026-12-11", metode: "Offline", dosen_pengajar: "Prof. Dr. H. Bachruddin Ali Ahmad, M.Si", topik: "Presentasi Makalah Akhir & Sintesis Keilmuan (Bag. 2)", tugas: "Finalisasi Naskah UAS" },
+        { sesi: 16, tanggal: "2026-12-18", metode: "Online", dosen_pengajar: "Prof. Dr. H. Bachruddin Ali Ahmad, M.Si", topik: "Ujian Akhir Semester (UAS)", tugas: "Submit Artikel Final UAS" }
+      ]
     },
     {
       id: "MK-02",
@@ -115,7 +133,25 @@ const ACADEMIC_DATA = {
         "2026-11-06", "2026-11-20",
         "2026-12-04", "2026-12-18"
       ],
-      deskripsi: "Dinamika komunikasi korporat, kepemimpinan organisasi, manajemen krisis, dan budaya kerja modern."
+      deskripsi: "Dinamika komunikasi korporat, kepemimpinan organisasi, manajemen krisis, dan budaya kerja modern.",
+      pertemuan: [
+        { sesi: 1, tanggal: "2026-09-04", metode: "Offline", dosen_pengajar: "Prof. Dr. H. Bachruddin Ali Ahmad, M.Si", topik: "Pengantar & Ruang Lingkup Komunikasi Organisasi S2", tugas: "-" },
+        { sesi: 2, tanggal: "2026-09-11", metode: "Online", dosen_pengajar: "Prof. Dr. H. Bachruddin Ali Ahmad, M.Si", topik: "Pendekatan Klasik & Hubungan Manusiawi dalam Organisasi", tugas: "Analisis Struktur Organisasi" },
+        { sesi: 3, tanggal: "2026-09-18", metode: "Offline", dosen_pengajar: "Prof. Dr. H. Bachruddin Ali Ahmad, M.Si", topik: "Teori Sistem & Budaya Organisasi Modern", tugas: "-" },
+        { sesi: 4, tanggal: "2026-09-25", metode: "Online", dosen_pengajar: "Prof. Dr. H. Bachruddin Ali Ahmad, M.Si", topik: "Iklim Komunikasi & Kepuasan Komunikasi Karyawan", tugas: "Studi Kasus Iklim Kerja" },
+        { sesi: 5, tanggal: "2026-10-02", metode: "Offline", dosen_pengajar: "Prof. Dr. H. Bachruddin Ali Ahmad, M.Si", topik: "Kepemimpinan & Gaya Komunikasi Manajerial", tugas: "-" },
+        { sesi: 6, tanggal: "2026-10-09", metode: "Online", dosen_pengajar: "Prof. Dr. H. Bachruddin Ali Ahmad, M.Si", topik: "Dinamika Konflik, Negosiasi, dan Pengambilan Keputusan", tugas: "Simulasi Negosiasi Krisis" },
+        { sesi: 7, tanggal: "2026-10-16", metode: "Offline", dosen_pengajar: "Prof. Dr. H. Bachruddin Ali Ahmad, M.Si", topik: "Review Komprehensif Teori Organisasi", tugas: "Persiapan Ujian Tengah Semester" },
+        { sesi: 8, tanggal: "2026-10-23", metode: "Online", dosen_pengajar: "Prof. Dr. H. Bachruddin Ali Ahmad, M.Si", topik: "Ujian Tengah Semester (UTS)", tugas: "Submit Lembar Jawaban UTS" },
+        { sesi: 9, tanggal: "2026-10-30", metode: "Offline", dosen_pengajar: "Dr. Siswanto, S.Sos., M.Si", topik: "Manajemen Komunikasi Krisis Korporasi", tugas: "-" },
+        { sesi: 10, tanggal: "2026-11-06", metode: "Online", dosen_pengajar: "Dr. Siswanto, S.Sos., M.Si", topik: "Komunikasi Perubahan Organisasi (Change Management)", tugas: "Analisis Kasus Transformasi Digital" },
+        { sesi: 11, tanggal: "2026-11-13", metode: "Offline", dosen_pengajar: "Dr. Siswanto, S.Sos., M.Si", topik: "Audit Komunikasi Organisasi & Metode Pengukurannya", tugas: "-" },
+        { sesi: 12, tanggal: "2026-11-20", metode: "Online", dosen_pengajar: "Dr. Siswanto, S.Sos., M.Si", topik: "Komunikasi Organisasi Virtual & Remote Working Culture", tugas: "Penyusunan Desain Audit" },
+        { sesi: 13, tanggal: "2026-11-27", metode: "Offline", dosen_pengajar: "Dr. Siswanto, S.Sos., M.Si", topik: "Strategi Reputasi & Relasi Pemangku Kepentingan (Stakeholders)", tugas: "-" },
+        { sesi: 14, tanggal: "2026-12-04", metode: "Online", dosen_pengajar: "Dr. Siswanto, S.Sos., M.Si", topik: "Presentasi Laporan Hasil Audit Komunikasi Perusahaan (Sesi 1)", tugas: "Laporan Hasil Lapangan" },
+        { sesi: 15, tanggal: "2026-12-11", metode: "Offline", dosen_pengajar: "Dr. Siswanto, S.Sos., M.Si", topik: "Presentasi Laporan Hasil Audit Komunikasi Perusahaan (Sesi 2)", tugas: "Revisi Laporan Final" },
+        { sesi: 16, tanggal: "2026-12-18", metode: "Online", dosen_pengajar: "Dr. Siswanto, S.Sos., M.Si", topik: "Ujian Akhir Semester (UAS)", tugas: "Pengumpulan Naskah UAS" }
+      ]
     },
     {
       id: "MK-03",
@@ -149,7 +185,25 @@ const ACADEMIC_DATA = {
         "2026-11-06", "2026-11-20",
         "2026-12-04", "2026-12-18"
       ],
-      deskripsi: "Konsep tanggung jawab sosial perusahaan, strategi komunikasi advokasi, dan pemberdayaan komunitas lokal."
+      deskripsi: "Konsep tanggung jawab sosial perusahaan, strategi komunikasi advokasi, dan pemberdayaan komunitas lokal.",
+      pertemuan: [
+        { sesi: 1, tanggal: "2026-09-04", metode: "Offline", dosen_pengajar: "Dr. Irwansyah, S.Sos,. M.Si", topik: "Pengantar Teori & Kebijakan CSR Kontemporer", tugas: "-" },
+        { sesi: 2, tanggal: "2026-09-11", metode: "Online", dosen_pengajar: "Dr. Irwansyah, S.Sos,. M.Si", topik: "Triple Bottom Line (People, Planet, Profit) & SDGs 2030", tugas: "Resume Regulasi CSR" },
+        { sesi: 3, tanggal: "2026-09-18", metode: "Offline", dosen_pengajar: "Dr. Irwansyah, S.Sos,. M.Si", topik: "Model Komunikasi Partisipatif dalam Pemberdayaan", tugas: "-" },
+        { sesi: 4, tanggal: "2026-09-25", metode: "Online", dosen_pengajar: "Dr. Irwansyah, S.Sos,. M.Si", topik: "Pemetaan Sosial (Social Mapping) & Stakeholder Engagement", tugas: "Instrumen Social Mapping" },
+        { sesi: 5, tanggal: "2026-10-02", metode: "Offline", dosen_pengajar: "Dr. Irwansyah, S.Sos,. M.Si", topik: "Desain Program CSR Berkelanjutan Sektor Industri", tugas: "-" },
+        { sesi: 6, tanggal: "2026-10-09", metode: "Online", dosen_pengajar: "Dr. Irwansyah, S.Sos,. M.Si", topik: "Komunikasi Risiko Lingkungan & Mitigasi Konflik Komunitas", tugas: "Analisis Dampak Lingkungan" },
+        { sesi: 7, tanggal: "2026-10-16", metode: "Offline", dosen_pengajar: "Dr. Irwansyah, S.Sos,. M.Si", topik: "Review Proposal Intervensi Komunitas", tugas: "Persiapan Ujian Tengah Semester" },
+        { sesi: 8, tanggal: "2026-10-23", metode: "Online", dosen_pengajar: "Dr. Irwansyah, S.Sos,. M.Si", topik: "Ujian Tengah Semester (UTS)", tugas: "Submit Proposal Program CSR" },
+        { sesi: 9, tanggal: "2026-10-30", metode: "Offline", dosen_pengajar: "Dr. Muhammad Alif, M.Si", topik: "Advokasi Kebijakan Publik & Gerakan Sosial Komunikasi", tugas: "-" },
+        { sesi: 10, tanggal: "2026-11-06", metode: "Online", dosen_pengajar: "Dr. Muhammad Alif, M.Si", topik: "Media Sosial & Kampanye Digital Pemberdayaan Publik", tugas: "Analisis Kampanye Digital" },
+        { sesi: 11, tanggal: "2026-11-13", metode: "Offline", dosen_pengajar: "Dr. Muhammad Alif, M.Si", topik: "Evaluasi Dampak Sosial (Social Return on Investment / SROI)", tugas: "-" },
+        { sesi: 12, tanggal: "2026-11-20", metode: "Online", dosen_pengajar: "Dr. Muhammad Alif, M.Si", topik: "Sustainability Reporting Berstandar GRI Standards", tugas: "Audit Laporan Keberlanjutan" },
+        { sesi: 13, tanggal: "2026-11-27", metode: "Offline", dosen_pengajar: "Dr. Muhammad Alif, M.Si", topik: "Studi Komparasi CSR Multinasional vs Lokal Kalsel", tugas: "-" },
+        { sesi: 14, tanggal: "2026-12-04", metode: "Online", dosen_pengajar: "Dr. Muhammad Alif, M.Si", topik: "Presentasi Riset Aksi Pemberdayaan Masyarakat (Sesi 1)", tugas: "Paper Publikasi Kelompok" },
+        { sesi: 15, tanggal: "2026-12-11", metode: "Offline", dosen_pengajar: "Dr. Muhammad Alif, M.Si", topik: "Presentasi Riset Aksi Pemberdayaan Masyarakat (Sesi 2)", tugas: "Revisi Naskah Jurnal" },
+        { sesi: 16, tanggal: "2026-12-18", metode: "Online", dosen_pengajar: "Dr. Muhammad Alif, M.Si", topik: "Ujian Akhir Semester (UAS)", tugas: "Pengumpulan Artikel Akhir UAS" }
+      ]
     },
     {
       id: "MK-04",
@@ -188,7 +242,25 @@ const ACADEMIC_DATA = {
         "2026-11-07", "2026-11-21",
         "2026-12-05", "2026-12-19"
       ],
-      deskripsi: "Evolusi teori komunikasi klasik hingga era jaringan digital (cybernetic, socio-cultural, critical)."
+      deskripsi: "Evolusi teori komunikasi klasik hingga era jaringan digital (cybernetic, socio-cultural, critical).",
+      pertemuan: [
+        { sesi: 1, tanggal: "2026-09-05", metode: "Offline", dosen_pengajar: "Prof. Dr. H. Bachruddin Ali Ahmad, M.Si", topik: "Taksonomi & Tradisi Besar Teori Komunikasi (Robert Craig)", tugas: "-" },
+        { sesi: 2, tanggal: "2026-09-12", metode: "Online", dosen_pengajar: "Prof. Dr. H. Bachruddin Ali Ahmad, M.Si", topik: "Tradisi Retorika & Semiotika dalam Komunikasi Massa", tugas: "Analisis Semiotika Media" },
+        { sesi: 3, tanggal: "2026-09-19", metode: "Offline", dosen_pengajar: "Prof. Dr. H. Bachruddin Ali Ahmad, M.Si", topik: "Tradisi Fenomenologi & Sibernetika Sistem Informasi", tugas: "-" },
+        { sesi: 4, tanggal: "2026-09-26", metode: "Online", dosen_pengajar: "Prof. Dr. H. Bachruddin Ali Ahmad, M.Si", topik: "Tradisi Sosio-Psikologis & Sosio-Kultural", tugas: "Studi Dinamika Kelompok" },
+        { sesi: 5, tanggal: "2026-10-03", metode: "Offline", dosen_pengajar: "Prof. Dr. H. Bachruddin Ali Ahmad, M.Si", topik: "Tradisi Kritis: Frankfurt School & Hegemoni Budaya", tugas: "-" },
+        { sesi: 6, tanggal: "2026-10-10", metode: "Online", dosen_pengajar: "Dr. Fahrianoor, S.IP., M.Si", topik: "Teori Komunikasi Politik: Agenda Setting, Framing, & Priming", tugas: "Analisis Framing Berita" },
+        { sesi: 7, tanggal: "2026-10-17", metode: "Offline", dosen_pengajar: "Dr. Fahrianoor, S.IP., M.Si", topik: "Ruang Publik (Public Sphere) & Demokrasi Deliberatif", tugas: "Persiapan Ujian Tengah Semester" },
+        { sesi: 8, tanggal: "2026-10-24", metode: "Online", dosen_pengajar: "Dr. Fahrianoor, S.IP., M.Si", topik: "Ujian Tengah Semester (UTS)", tugas: "Submit Naskah UTS" },
+        { sesi: 9, tanggal: "2026-10-31", metode: "Offline", dosen_pengajar: "Dr. Fahrianoor, S.IP., M.Si", topik: "Teori Spiral of Silence & Diskursus Opini Publik Digital", tugas: "-" },
+        { sesi: 10, tanggal: "2026-11-07", metode: "Online", dosen_pengajar: "Dr. Fahrianoor, S.IP., M.Si", topik: "Teori Konstruksi Sosial atas Realitas di Media Baru", tugas: "Resume Konstruksi Sosial" },
+        { sesi: 11, tanggal: "2026-11-14", metode: "Offline", dosen_pengajar: "Dr. Siswanto, S.Sos., M.Si", topik: "Network Society Theory (Manuel Castells) & Algoritma", tugas: "-" },
+        { sesi: 12, tanggal: "2026-11-21", metode: "Online", dosen_pengajar: "Dr. Siswanto, S.Sos., M.Si", topik: "Mediatization Theory & Ekologi Media Kontemporer", tugas: "Draft Artikel Teori" },
+        { sesi: 13, tanggal: "2026-11-28", metode: "Offline", dosen_pengajar: "Dr. Siswanto, S.Sos., M.Si", topik: "Teori Resepsi Audiens Aktif & Platformisasi Digital", tugas: "-" },
+        { sesi: 14, tanggal: "2026-12-05", metode: "Online", dosen_pengajar: "Dr. Siswanto, S.Sos., M.Si", topik: "Bedah Matriks Teori & Kerangka Analisis Skripsi/Tesis", tugas: "Slide Paparan Teori" },
+        { sesi: 15, tanggal: "2026-12-12", metode: "Offline", dosen_pengajar: "Dr. Siswanto, S.Sos., M.Si", topik: "Seminar Mini Proposal Teori Komunikasi", tugas: "Finalisasi Draft UAS" },
+        { sesi: 16, tanggal: "2026-12-19", metode: "Online", dosen_pengajar: "Dr. Siswanto, S.Sos., M.Si", topik: "Ujian Akhir Semester (UAS)", tugas: "Pengumpulan Artikel Akhir UAS" }
+      ]
     },
     {
       id: "MK-05",
@@ -222,7 +294,25 @@ const ACADEMIC_DATA = {
         "2026-11-07", "2026-11-21",
         "2026-12-05", "2026-12-19"
       ],
-      deskripsi: "Kognisi sosial, persepsi interpersonal, persuasi, dan perilaku khalayak dalam media baru."
+      deskripsi: "Kognisi sosial, persepsi interpersonal, persuasi, dan perilaku khalayak dalam media baru.",
+      pertemuan: [
+        { sesi: 1, tanggal: "2026-09-05", metode: "Offline", dosen_pengajar: "Dr. Yuanita Setyastuti, S.IP., M.Si", topik: "Karakteristik Manusia Komunikan & Pendekatan Psikologi", tugas: "-" },
+        { sesi: 2, tanggal: "2026-09-12", metode: "Online", dosen_pengajar: "Dr. Yuanita Setyastuti, S.IP., M.Si", topik: "Sensasi, Persepsi, Memori, dan Berpikir dalam Kognisi", tugas: "Eksperimen Kognisi Sederhana" },
+        { sesi: 3, tanggal: "2026-09-19", metode: "Offline", dosen_pengajar: "Dr. Yuanita Setyastuti, S.IP., M.Si", topik: "Psikologi Komunikasi Interpersonal: Konsep Diri & Atraksi", tugas: "-" },
+        { sesi: 4, tanggal: "2026-09-26", metode: "Online", dosen_pengajar: "Dr. Yuanita Setyastuti, S.IP., M.Si", topik: "Hubungan Interpersonal: Tahapan, Konflik & Resolusi", tugas: "Analisis Hubungan Interpersonal" },
+        { sesi: 5, tanggal: "2026-10-03", metode: "Offline", dosen_pengajar: "Dr. Yuanita Setyastuti, S.IP., M.Si", topik: "Psikologi Komunikasi Kelompok & Konformitas Sosial", tugas: "-" },
+        { sesi: 6, tanggal: "2026-10-10", metode: "Online", dosen_pengajar: "Dr. Yuanita Setyastuti, S.IP., M.Si", topik: "Sistem Komunikasi Massa & Pengaruh Psikologis Media", tugas: "Studi Dampak Emosional Media" },
+        { sesi: 7, tanggal: "2026-10-17", metode: "Offline", dosen_pengajar: "Dr. Yuanita Setyastuti, S.IP., M.Si", topik: "Review Psikologi Komunikasi & Persiapan Evaluasi", tugas: "Persiapan Ujian Tengah Semester" },
+        { sesi: 8, tanggal: "2026-10-24", metode: "Online", dosen_pengajar: "Dr. Yuanita Setyastuti, S.IP., M.Si", topik: "Ujian Tengah Semester (UTS)", tugas: "Submit Ujian Tengah Semester" },
+        { sesi: 9, tanggal: "2026-10-31", metode: "Offline", dosen_pengajar: "Dr. Novaria Maulina, S.I.Kom., M.I.Kom", topik: "Teori Sikap, Perubahan Sikap & Model Persuasi (ELM)", tugas: "-" },
+        { sesi: 10, tanggal: "2026-11-07", metode: "Online", dosen_pengajar: "Dr. Novaria Maulina, S.I.Kom., M.I.Kom", topik: "Psikologi Khalayak di Ruang Digital (FOMO, Doomscrolling)", tugas: "Analisis Perilaku Medsos" },
+        { sesi: 11, tanggal: "2026-11-14", metode: "Offline", dosen_pengajar: "Dr. Novaria Maulina, S.I.Kom., M.I.Kom", topik: "Identitas Diri Virtual, Avatar & Interaksi Parasosial", tugas: "-" },
+        { sesi: 12, tanggal: "2026-11-21", metode: "Online", dosen_pengajar: "Dr. Novaria Maulina, S.I.Kom., M.I.Kom", topik: "Psikologi Cyberbullying, Agresi Verbal & Disinhibisi Online", tugas: "Desain Riset Perilaku Cyber" },
+        { sesi: 13, tanggal: "2026-11-28", metode: "Offline", dosen_pengajar: "Dr. Novaria Maulina, S.I.Kom., M.I.Kom", topik: "Kesehatan Mental, Beban Informasi & Well-Being Digital", tugas: "-" },
+        { sesi: 14, tanggal: "2026-12-05", metode: "Online", dosen_pengajar: "Dr. Novaria Maulina, S.I.Kom., M.I.Kom", topik: "Presentasi Kajian Kasus Psikologi Komunikasi (Sesi 1)", tugas: "Slide Presentasi Paper" },
+        { sesi: 15, tanggal: "2026-12-12", metode: "Offline", dosen_pengajar: "Dr. Novaria Maulina, S.I.Kom., M.I.Kom", topik: "Presentasi Kajian Kasus Psikologi Komunikasi (Sesi 2)", tugas: "Revisi Final Paper" },
+        { sesi: 16, tanggal: "2026-12-19", metode: "Online", dosen_pengajar: "Dr. Novaria Maulina, S.I.Kom., M.I.Kom", topik: "Ujian Akhir Semester (UAS)", tugas: "Pengumpulan Artikel Akhir UAS" }
+      ]
     },
     {
       id: "MK-06",
@@ -261,7 +351,25 @@ const ACADEMIC_DATA = {
         "2026-11-07", "2026-11-21",
         "2026-12-05", "2026-12-19"
       ],
-      deskripsi: "Analisis dampak kecerdasan buatan, konvergensi media, data mining, dan platform digital dalam masyarakat."
+      deskripsi: "Analisis dampak kecerdasan buatan, konvergensi media, data mining, dan platform digital dalam masyarakat.",
+      pertemuan: [
+        { sesi: 1, tanggal: "2026-09-05", metode: "Offline", dosen_pengajar: "Dr. Yuanita Setyastuti, S.IP., M.Si", topik: "Evolusi Teknologi Komunikasi & Determinisme Teknologi", tugas: "-" },
+        { sesi: 2, tanggal: "2026-09-12", metode: "Online", dosen_pengajar: "Dr. Yuanita Setyastuti, S.IP., M.Si", topik: "Konvergensi Media & Transformasi Industri Informasi", tugas: "Studi Kasus Konvergensi Media" },
+        { sesi: 3, tanggal: "2026-09-19", metode: "Offline", dosen_pengajar: "Dr. Yuanita Setyastuti, S.IP., M.Si", topik: "Ekonomi Politik Media Baru & Monopoli Platform Global", tugas: "-" },
+        { sesi: 4, tanggal: "2026-09-26", metode: "Online", dosen_pengajar: "Dr. Yuanita Setyastuti, S.IP., M.Si", topik: "Budaya Partisipatif, Prosumer, dan Ekosistem Konten", tugas: "Analisis Pola Konsumsi Konten" },
+        { sesi: 5, tanggal: "2026-10-03", metode: "Offline", dosen_pengajar: "Dr. Yuanita Setyastuti, S.IP., M.Si", topik: "Literasi Digital Kritis & Kesenjangan Digital (Digital Divide)", tugas: "-" },
+        { sesi: 6, tanggal: "2026-10-10", metode: "Online", dosen_pengajar: "Dr. Muhammad Alif, M.Si", topik: "Kecerdasan Buatan (Generative AI) dalam Jurnalisme & PR", tugas: "Eksperimen Pemanfaatan AI" },
+        { sesi: 7, tanggal: "2026-10-17", metode: "Offline", dosen_pengajar: "Dr. Muhammad Alif, M.Si", topik: "Algoritma Media Sosial, Filter Bubble, & Ruang Gema", tugas: "Persiapan Ujian Tengah Semester" },
+        { sesi: 8, tanggal: "2026-10-24", metode: "Online", dosen_pengajar: "Dr. Muhammad Alif, M.Si", topik: "Ujian Tengah Semester (UTS)", tugas: "Submit Ujian Tengah Semester" },
+        { sesi: 9, tanggal: "2026-10-31", metode: "Offline", dosen_pengajar: "Dr. Muhammad Alif, M.Si", topik: "Big Data Analytics, Social Media Monitoring & Sentiment Analysis", tugas: "-" },
+        { sesi: 10, tanggal: "2026-11-07", metode: "Online", dosen_pengajar: "Dr. Muhammad Alif, M.Si", topik: "Komunikasi Imersif: Virtual Reality, AR, & Metaverse", tugas: "Studi Imersif Teknologi" },
+        { sesi: 11, tanggal: "2026-11-14", metode: "Offline", dosen_pengajar: "Dr. Atika, S.I.Kom., M.Si", topik: "Etika Teknologi Komunikasi, Privasi Data & Perlindungan Informasi", tugas: "-" },
+        { sesi: 12, tanggal: "2026-11-21", metode: "Online", dosen_pengajar: "Dr. Atika, S.I.Kom., M.Si", topik: "Regulasi Media Digital, UU ITE, & Tata Kelola AI Nasional", tugas: "Analisis Regulasi AI" },
+        { sesi: 13, tanggal: "2026-11-28", metode: "Offline", dosen_pengajar: "Dr. Atika, S.I.Kom., M.Si", topik: "Masa Depan Media, Otomasi Informasi, & Human-Computer Interaction", tugas: "-" },
+        { sesi: 14, tanggal: "2026-12-05", metode: "Online", dosen_pengajar: "Dr. Atika, S.I.Kom., M.Si", topik: "Presentasi Riset Dampak Sosial Teknologi Komunikasi (Sesi 1)", tugas: "Slide Paparan Riset" },
+        { sesi: 15, tanggal: "2026-12-12", metode: "Offline", dosen_pengajar: "Dr. Atika, S.I.Kom., M.Si", topik: "Presentasi Riset Dampak Sosial Teknologi Komunikasi (Sesi 2)", tugas: "Revisi Final Paper" },
+        { sesi: 16, tanggal: "2026-12-19", metode: "Online", dosen_pengajar: "Dr. Atika, S.I.Kom., M.Si", topik: "Ujian Akhir Semester (UAS)", tugas: "Pengumpulan Artikel Akhir UAS" }
+      ]
     }
   ],
   daftar_dosen: [
@@ -341,7 +449,33 @@ const ACADEMIC_DATA = {
   ]
 };
 
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = ACADEMIC_DATA;
+/**
+ * Helper function untuk mendapatkan detail pertemuan pada tanggal tertentu
+ */
+function getMeetingDetailsForDate(course, dateStr) {
+  if (!course || !course.pertemuan) return null;
+  return course.pertemuan.find(p => p.tanggal === dateStr) || null;
 }
 
+/**
+ * Helper function untuk mendapatkan pertemuan hari ini atau pertemuan terdekat berikutnya
+ */
+function getNearestMeeting(course, referenceDateStr) {
+  if (!course || !course.pertemuan || course.pertemuan.length === 0) return null;
+  const exact = course.pertemuan.find(p => p.tanggal === referenceDateStr);
+  if (exact) return { meeting: exact, isToday: true };
+
+  const upcoming = course.pertemuan.filter(p => p.tanggal >= referenceDateStr);
+  if (upcoming.length > 0) {
+    return { meeting: upcoming[0], isToday: false };
+  }
+  return { meeting: course.pertemuan[course.pertemuan.length - 1], isToday: false };
+}
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    ...ACADEMIC_DATA,
+    getMeetingDetailsForDate,
+    getNearestMeeting
+  };
+}

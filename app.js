@@ -281,6 +281,46 @@ function renderScheduleCards(tab = 'today', searchQuery = '') {
       modeBadge = `<span class="badge-mode offline">🟢 Hari Ini: OFFLINE (${ACADEMIC_DATA.default_ruangan})</span>`;
     }
 
+    // Deteksi Pertemuan Aktif Hari Ini atau Pertemuan Terdekat
+    const activeMeeting = (item.pertemuan || []).find(p => p.tanggal === todayISO);
+    const nextMeeting = !activeMeeting ? (item.pertemuan || []).find(p => p.tanggal >= todayISO) : null;
+    const currentMeeting = activeMeeting || nextMeeting;
+
+    let meetingBadgeHtml = '';
+    let topicPreviewHtml = '';
+
+    if (activeMeeting) {
+      meetingBadgeHtml = `
+        <div class="card-meeting-badge active">
+          <span>🎯</span>
+          <div>
+            <strong>Hari Ini: Pertemuan ke-${activeMeeting.sesi}</strong> (${activeMeeting.metode})<br>
+            <span style="font-size: 0.74rem;">👨‍🏫 Dosen Pengampu: <strong>${activeMeeting.dosen_pengajar}</strong></span>
+          </div>
+        </div>
+      `;
+      topicPreviewHtml = `
+        <div class="card-topic-preview">
+          📖 <strong>Topik Hari Ini:</strong> <em>${activeMeeting.topik}</em>
+        </div>
+      `;
+    } else if (nextMeeting) {
+      meetingBadgeHtml = `
+        <div class="card-meeting-badge upcoming">
+          <span>📌</span>
+          <div>
+            <strong>Pertemuan Terdekat: Sesi ${nextMeeting.sesi} (${nextMeeting.tanggal})</strong><br>
+            <span style="font-size: 0.74rem;">👨‍🏫 Dosen Bertugas: <strong>${nextMeeting.dosen_pengajar}</strong></span>
+          </div>
+        </div>
+      `;
+      topicPreviewHtml = `
+        <div class="card-topic-preview">
+          📖 <strong>Topik Sesi ${nextMeeting.sesi}:</strong> <em>${nextMeeting.topik}</em>
+        </div>
+      `;
+    }
+
     return `
       <div class="schedule-card">
         <div>
@@ -292,18 +332,26 @@ function renderScheduleCards(tab = 'today', searchQuery = '') {
           <h3 class="card-title">${item.mata_kuliah}</h3>
           <p class="card-desc">${item.deskripsi || 'Mata kuliah inti Program Studi Magister Ilmu Komunikasi FISIP ULM.'}</p>
 
+          ${meetingBadgeHtml}
+          ${topicPreviewHtml}
+
           <div class="card-lecturers">
             <div class="lecturer-label">Tim Dosen Pengajar:</div>
-            ${(item.tim_pengajar || []).map(d => `
-              <div class="lecturer-item">
-                <span class="lecturer-name">${d.nama}</span>
-                ${d.no_hp ? `
-                  <a href="https://wa.me/${d.no_hp}?text=${encodeURIComponent(`Assalamu'alaikum Wr. Wb. Selamat Pagi Bapak/Ibu ${d.nama}.\n\nSaya mahasiswa Magister Ilmu Komunikasi FISIP ULM Angkatan 2026 ingin mengonfirmasi perkuliahan mata kuliah *${item.mata_kuliah}*. Terima kasih.`)}" target="_blank" class="wa-lecturer-link">
-                    💬 Hubungi
-                  </a>
-                ` : ''}
-              </div>
-            `).join('')}
+            ${(item.tim_pengajar || []).map(d => {
+              const isAssignedCurrent = currentMeeting && currentMeeting.dosen_pengajar && (d.nama.includes(currentMeeting.dosen_pengajar) || currentMeeting.dosen_pengajar.includes(d.nama));
+              return `
+                <div class="lecturer-item ${isAssignedCurrent ? 'assigned-current' : ''}">
+                  <span class="lecturer-name">
+                    ${d.nama} ${isAssignedCurrent ? ' <span style="color: #10b981; font-weight: 700;">(Bertugas Sesi Ini)</span>' : ''}
+                  </span>
+                  ${d.no_hp ? `
+                    <a href="https://wa.me/${d.no_hp}?text=${encodeURIComponent(`Assalamu'alaikum Wr. Wb. Selamat Pagi Bapak/Ibu ${d.nama}.\n\nSaya mahasiswa Magister Ilmu Komunikasi FISIP ULM Angkatan 2026 ingin mengonfirmasi perkuliahan mata kuliah *${item.mata_kuliah}*. Terima kasih.`)}" target="_blank" class="wa-lecturer-link">
+                      💬 Hubungi
+                    </a>
+                  ` : ''}
+                </div>
+              `;
+            }).join('')}
           </div>
         </div>
 
@@ -312,10 +360,13 @@ function renderScheduleCards(tab = 'today', searchQuery = '') {
             🏢 Ruang ${ACADEMIC_DATA.default_ruangan} / 🌐 Zoom
           </div>
           <div class="action-buttons">
+            <button class="btn-icon btn-syllabus" onclick="openSyllabusModal('${item.id}')" title="Lihat 16 Rincian Pertemuan & Dosen Bertugas">
+              📖 16 Pertemuan (RPS)
+            </button>
             <a href="${ACADEMIC_DATA.default_zoom.link}" target="_blank" class="btn-icon" onclick="copyZoomInfo()">
               🚀 Zoom
             </a>
-            <button class="btn-icon" onclick="copyCourseBroadcast('${item.id}')">
+            <button class="btn-icon" onclick="copyCourseBroadcast('${item.id}')" title="Salin format WA mata kuliah">
               📋 Salin WA
             </button>
           </div>
@@ -593,7 +644,17 @@ function generateBroadcastMessageText() {
     const activeLecturers = selectedList.length > 0 ? selectedList : allLecturers;
     const lecturerNames = activeLecturers.join(', ');
 
-    return `${idx + 1}️⃣ *${m.mata_kuliah}*\n   ⏰ ${m.jam_mulai} - ${m.jam_selesai} WITA\n   👥 Dosen Pengampu: ${lecturerNames}`;
+    const dateISO = formatDateISO(data.targetDate);
+    const meeting = (m.pertemuan || []).find(p => p.tanggal === dateISO);
+
+    let info = `${idx + 1}️⃣ *${m.mata_kuliah}* (${m.sks} SKS)\n`;
+    if (meeting) {
+      info += `   📌 Sesi: Pertemuan ke-${meeting.sesi}\n`;
+      info += `   🎯 Topik: ${meeting.topik}\n`;
+    }
+    info += `   ⏰ Waktu: ${m.jam_mulai} - ${m.jam_selesai} WITA\n`;
+    info += `   👥 Dosen Pengampu: ${lecturerNames}`;
+    return info;
   }).join('\n\n');
 
   let customNoteText = '';
@@ -1137,7 +1198,182 @@ function initEventListeners() {
   });
 }
 
-// 11. Helper Actions
+// 11. Helper Actions & Silabus 16 Pertemuan (RPS)
+let activeSyllabusCourseId = null;
+
+window.openSyllabusModal = function(courseId) {
+  activeSyllabusCourseId = courseId;
+  const overlay = document.getElementById('syllabusModalOverlay');
+  if (!overlay) return;
+
+  const matkul = ACADEMIC_DATA.jadwal.find(m => m.id === courseId);
+  if (!matkul) return;
+
+  // Title & Subtitle
+  const titleEl = document.getElementById('syllabusModalTitle');
+  const subEl = document.getElementById('syllabusModalSubtitle');
+  if (titleEl) titleEl.textContent = `📖 Silabus & Pertemuan: ${matkul.mata_kuliah}`;
+  if (subEl) subEl.textContent = `${matkul.sks} SKS • ${matkul.hari}, ${matkul.jam_mulai} - ${matkul.jam_selesai} WITA • Ruang ${ACADEMIC_DATA.default_ruangan} & Zoom Meeting`;
+
+  // Summary box
+  const summaryEl = document.getElementById('syllabusCourseSummary');
+  if (summaryEl) {
+    summaryEl.innerHTML = `
+      <div>
+        <div class="syllabus-course-title">${matkul.mata_kuliah} (${matkul.sks} SKS)</div>
+        <p style="font-size: 0.82rem; color: var(--text-secondary); margin-bottom: 8px;">${matkul.deskripsi || 'Mata kuliah inti Program Studi Magister Ilmu Komunikasi FISIP ULM.'}</p>
+        <div class="syllabus-meta-tags">
+          <span class="syllabus-meta-tag">⏰ ${matkul.hari}, ${matkul.jam_mulai} - ${matkul.jam_selesai} WITA</span>
+          <span class="syllabus-meta-tag">👥 ${matkul.tim_pengajar.length} Dosen Tim Pengajar</span>
+          <span class="syllabus-meta-tag">🏛️ Ruang ${ACADEMIC_DATA.default_ruangan}</span>
+          <span class="syllabus-meta-tag">🌐 Zoom Ready</span>
+        </div>
+      </div>
+    `;
+  }
+
+  // Populate Filter Dosen dropdown
+  const selectFilter = document.getElementById('selectSyllabusDosenFilter');
+  if (selectFilter) {
+    let options = `<option value="all">👥 Semua Dosen Tim Pengajar (${matkul.tim_pengajar.length} Dosen)</option>`;
+    (matkul.tim_pengajar || []).forEach(d => {
+      options += `<option value="${d.nama}">👨‍🏫 ${d.nama} (${d.peran || 'Dosen'})</option>`;
+    });
+    selectFilter.innerHTML = options;
+    selectFilter.value = 'all';
+  }
+
+  renderSyllabusList(courseId, 'all');
+  overlay.classList.add('active');
+};
+
+window.closeSyllabusModal = function(e) {
+  if (e && e.target !== e.currentTarget && !e.target.classList.contains('modal-close-btn')) return;
+  const overlay = document.getElementById('syllabusModalOverlay');
+  if (overlay) overlay.classList.remove('active');
+};
+
+window.filterSyllabusList = function() {
+  const filterVal = document.getElementById('selectSyllabusDosenFilter').value;
+  if (activeSyllabusCourseId) {
+    renderSyllabusList(activeSyllabusCourseId, filterVal);
+  }
+};
+
+window.renderSyllabusList = function(courseId, filterLecturer = 'all') {
+  const container = document.getElementById('syllabusTimelineList');
+  if (!container) return;
+
+  const matkul = ACADEMIC_DATA.jadwal.find(m => m.id === courseId);
+  if (!matkul || !matkul.pertemuan) return;
+
+  const todayISO = formatDateISO(new Date());
+
+  let list = matkul.pertemuan;
+  if (filterLecturer && filterLecturer !== 'all') {
+    list = list.filter(p => p.dosen_pengajar && (p.dosen_pengajar.includes(filterLecturer) || filterLecturer.includes(p.dosen_pengajar)));
+  }
+
+  if (list.length === 0) {
+    container.innerHTML = `
+      <div style="text-align: center; padding: 30px; color: var(--text-secondary); background: var(--bg-surface); border-radius: var(--radius-md); border: 1px dashed var(--border-subtle);">
+        🔍 Tidak ada jadwal pertemuan khusus untuk dosen ini.
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = list.map(item => {
+    const isToday = item.tanggal === todayISO;
+    const isOnline = item.metode.toLowerCase() === 'online';
+    const isUtsUas = item.topik.toLowerCase().includes('uts') || item.topik.toLowerCase().includes('uas') || item.topik.toLowerCase().includes('ujian');
+    
+    // Format date Indonesian
+    const dateObj = new Date(item.tanggal);
+    const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+    const formattedDate = `${matkul.hari}, ${dateObj.getDate()} ${months[dateObj.getMonth()]} ${dateObj.getFullYear()}`;
+
+    // Find lecturer contact if available
+    const lecturerObj = (matkul.tim_pengajar || []).find(d => item.dosen_pengajar && (d.nama.includes(item.dosen_pengajar) || item.dosen_pengajar.includes(d.nama)));
+    const waPhone = lecturerObj ? lecturerObj.no_hp : null;
+
+    return `
+      <div class="syllabus-card ${isToday ? 'is-current' : ''} ${isUtsUas ? 'is-uts-uas' : ''}">
+        <div class="syllabus-sesi-badge">
+          <span>P-${item.sesi}</span>
+          <small>${item.metode}</small>
+        </div>
+
+        <div class="syllabus-body">
+          <div class="syllabus-card-header">
+            <span class="syllabus-date-str">🗓️ ${formattedDate}</span>
+            <div style="display: flex; gap: 6px; align-items: center;">
+              ${isToday ? '<span class="current-indicator-tag">🔥 Hari Ini</span>' : ''}
+              <span class="badge-mode ${isOnline ? 'online' : 'offline'}" style="font-size: 0.72rem;">
+                ${isOnline ? '🌐 Daring (Zoom)' : `🟢 Tatap Muka (${ACADEMIC_DATA.default_ruangan})`}
+              </span>
+            </div>
+          </div>
+
+          <div class="syllabus-topic">
+            ${item.topik}
+          </div>
+
+          <div class="syllabus-lecturer-row">
+            <div class="syllabus-lecturer-name">
+              <span>👨‍🏫</span>
+              <span><strong>${item.dosen_pengajar || 'Tim Pengajar'}</strong></span>
+            </div>
+            ${waPhone ? `
+              <a href="https://wa.me/${waPhone}?text=${encodeURIComponent(`Assalamu'alaikum Warahmatullahi Wabarakatuh Bapak/Ibu ${item.dosen_pengajar}.\n\nSaya mahasiswa MIKOM ULM Angkatan 2026 ingin mengonfirmasi perkuliahan *${matkul.mata_kuliah}* (Pertemuan ke-${item.sesi} pada ${formattedDate}). Terima kasih banyak.`)}" target="_blank" class="wa-lecturer-link" style="font-size: 0.74rem;">
+                💬 Chat Dosen
+              </a>
+            ` : ''}
+          </div>
+
+          ${item.tugas && item.tugas !== '-' ? `
+            <div class="syllabus-task-note">
+              <span>📝 Tugas / Evaluasi:</span> <span>${item.tugas}</span>
+            </div>
+          ` : ''}
+        </div>
+      </div>
+    `;
+  }).join('');
+};
+
+window.copyCourseSyllabusSummary = function() {
+  if (!activeSyllabusCourseId) return;
+  const matkul = ACADEMIC_DATA.jadwal.find(m => m.id === activeSyllabusCourseId);
+  if (!matkul || !matkul.pertemuan) return;
+
+  let text = `📖 *RINCIAN 16 PERTEMUAN & DOSEN PENGAMPU*\n`;
+  text += `📚 *${matkul.mata_kuliah}* (${matkul.sks} SKS)\n`;
+  text += `🏛️ Magister Ilmu Komunikasi FISIP ULM (Angkatan 2026)\n`;
+  text += `⏰ Waktu: ${matkul.hari}, ${matkul.jam_mulai} - ${matkul.jam_selesai} WITA\n`;
+  text += `🏢 Ruangan: Ruang ${ACADEMIC_DATA.default_ruangan} / 🌐 Zoom Meeting\n`;
+  text += `━━━━━━━━━━━━━━━━━━━━\n\n`;
+
+  matkul.pertemuan.forEach(p => {
+    const isOnline = p.metode.toLowerCase() === 'online';
+    text += `*P-${p.sesi}* (${p.tanggal}) [${isOnline ? 'ONLINE' : 'OFFLINE'}]\n`;
+    text += `🎯 *Topik:* ${p.topik}\n`;
+    text += `👨‍🏫 *Dosen Pengampu:* ${p.dosen_pengajar}\n`;
+    if (p.tugas && p.tugas !== '-') text += `📝 *Tugas:* ${p.tugas}\n`;
+    text += `\n`;
+  });
+
+  text += `━━━━━━━━━━━━━━━━━━━━\n_Sistem Informasi Akademik MIKOM FISIP ULM_`;
+
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text).then(() => {
+      showToast(`✅ Rangkuman 16 Pertemuan ${matkul.mata_kuliah} berhasil disalin!`);
+    }).catch(() => fallbackCopyText(text));
+  } else {
+    fallbackCopyText(text);
+  }
+};
+
 window.switchTab = function(tabName) {
   const btn = document.querySelector(`.tab-btn[data-tab="${tabName}"]`);
   if (btn) btn.click();
@@ -1158,10 +1394,25 @@ window.copyCourseBroadcast = function(courseId) {
   const matkul = ACADEMIC_DATA.jadwal.find(m => m.id === courseId);
   if (!matkul) return;
 
-  const text = `📚 *${matkul.mata_kuliah}*\n⏰ ${matkul.hari}, ${matkul.jam_mulai} - ${matkul.jam_selesai} WITA\n👥 Dosen: ${matkul.tim_pengajar.map(d => d.nama).join(', ')}\n🔗 Link Zoom: ${ACADEMIC_DATA.default_zoom.link}\n🏢 Ruang: ${ACADEMIC_DATA.default_ruangan}`;
+  const todayISO = formatDateISO(new Date());
+  const activeMeeting = (matkul.pertemuan || []).find(p => p.tanggal === todayISO);
+  const nextMeeting = !activeMeeting ? (matkul.pertemuan || []).find(p => p.tanggal >= todayISO) : null;
+  const currentP = activeMeeting || nextMeeting;
+
+  let text = `📚 *${matkul.mata_kuliah}* (${matkul.sks} SKS)\n`;
+  if (currentP) {
+    text += `📌 *Sesi:* Pertemuan ke-${currentP.sesi} (${currentP.metode})\n`;
+    text += `🎯 *Topik Bahasan:* ${currentP.topik}\n`;
+    text += `👨‍🏫 *Dosen Pengampu Sesi Ini:* ${currentP.dosen_pengajar}\n`;
+  }
+  text += `⏰ ${matkul.hari}, ${matkul.jam_mulai} - ${matkul.jam_selesai} WITA\n`;
+  text += `👥 Tim Pengajar: ${matkul.tim_pengajar.map(d => d.nama).join(', ')}\n`;
+  text += `🔗 Link Zoom: ${ACADEMIC_DATA.default_zoom.link}\n`;
+  text += `🏢 Lokasi Ruangan: Ruang ${ACADEMIC_DATA.default_ruangan}\n`;
+
   if (navigator.clipboard) {
     navigator.clipboard.writeText(text).then(() => {
-      showToast(`✅ Jadwal ${matkul.mata_kuliah} berhasil disalin!`);
+      showToast(`✅ Jadwal & Sesi ${matkul.mata_kuliah} berhasil disalin!`);
     }).catch(() => fallbackCopyText(text));
   } else {
     fallbackCopyText(text);
@@ -1177,10 +1428,20 @@ window.showDateModal = function(dateStr) {
   const dateObj = new Date(dateStr);
   const formatted = dateObj.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
 
-  let msg = `📅 ${formatted}\nStatus: ${isOnline ? '🌐 ONLINE (Zoom)' : `🟢 OFFLINE (Ruang ${ACADEMIC_DATA.default_ruangan})`}\n\nDaftar Matkul:\n`;
-  matkulList.forEach((m, i) => {
-    msg += `${i + 1}. ${m.mata_kuliah} (${m.jam_mulai} - ${m.jam_selesai} WITA)\n`;
-  });
+  let msg = `📅 ${formatted}\nStatus: ${isOnline ? '🌐 ONLINE (Zoom)' : `🟢 OFFLINE (Ruang ${ACADEMIC_DATA.default_ruangan})`}\n\n`;
+  
+  if (matkulList.length === 0) {
+    msg += `Tidak ada agenda perkuliahan pada tanggal ini.`;
+  } else {
+    msg += `Daftar Mata Kuliah:\n━━━━━━━━━━━━━━━━━━━━\n`;
+    matkulList.forEach((m, i) => {
+      const meeting = (m.pertemuan || []).find(p => p.tanggal === dateStr);
+      const sesiText = meeting ? `[Pertemuan ke-${meeting.sesi}]` : '';
+      const dosenText = meeting ? `\n   👨‍🏫 Dosen Bertugas: ${meeting.dosen_pengajar}` : '';
+      const topikText = meeting ? `\n   🎯 Topik: ${meeting.topik}` : '';
+      msg += `${i + 1}. ${m.mata_kuliah} ${sesiText} (${m.jam_mulai} - ${m.jam_selesai} WITA)${dosenText}${topikText}\n\n`;
+    });
+  }
 
   alert(msg);
 };
