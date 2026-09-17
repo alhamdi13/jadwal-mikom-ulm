@@ -102,7 +102,10 @@ export async function getScheduleForDate(dateInput = 0) {
     // Jika tanggal ini terjadwal (Offline atau Online)
     if (isOffline || isOnline) {
       const mode = isOnline ? 'Online' : 'Offline';
+      const meeting = (item.pertemuan || []).find(p => p.tanggal === dateStr);
+
       schedules.push({
+        id: item.id,
         mata_kuliah: item.mata_kuliah,
         hari: item.hari,
         jam_mulai: item.jam_mulai,
@@ -111,6 +114,10 @@ export async function getScheduleForDate(dateInput = 0) {
         tipe: mode,
         ruangan: mode === 'Offline' ? rawData.default_ruangan : null,
         zoom: mode === 'Online' ? rawData.default_zoom : null,
+        pertemuan_ke: meeting ? meeting.sesi : null,
+        topik: meeting ? meeting.topik : null,
+        dosen_pengajar: meeting ? meeting.dosen_pengajar : null,
+        tugas: meeting ? meeting.tugas : null,
         catatan: mode === 'Online' ? 'Perkuliahan Daring (Zoom Meeting)' : `Tatap Muka di Ruang ${rawData.default_ruangan}`
       });
     }
@@ -186,6 +193,10 @@ export async function getLecturersSchedulesForDate(dateInput = 0) {
         });
       }
 
+      const isAssignedToThisMeeting = classItem.dosen_pengajar 
+        ? lecturer.nama.includes(classItem.dosen_pengajar) || classItem.dosen_pengajar.includes(lecturer.nama)
+        : true;
+
       lecturerMap.get(phone).schedules.push({
         mata_kuliah: classItem.mata_kuliah,
         jam_mulai: classItem.jam_mulai,
@@ -193,6 +204,10 @@ export async function getLecturersSchedulesForDate(dateInput = 0) {
         tipe: classItem.tipe,
         ruangan: classItem.ruangan,
         zoom: classItem.zoom,
+        pertemuan_ke: classItem.pertemuan_ke,
+        topik: classItem.topik,
+        dosen_pengajar: classItem.dosen_pengajar,
+        is_assigned: isAssignedToThisMeeting,
         tim_pengajar: classItem.tim_pengajar
       });
     }
