@@ -5,7 +5,7 @@ on:
     # 09:00 UTC = 17:00 WITA (16:00 WIB)
     # 4 = Kamis sore (pengingat kuliah Jum'at)
     # 5 = Jum'at sore (pengingat kuliah Sabtu)
-    - cron: '0 9 * * 4,5'
+    - cron: '53 8 * * 4,5'
   workflow_dispatch: # Memungkinkan tombol "Run workflow" manual di GitHub UI
 
 jobs:
