@@ -29,10 +29,18 @@ export function formatGroupScheduleMessage(scheduleData, formattedDate) {
     const isOnline = item.tipe.toLowerCase() === 'online';
 
     msg += `${num} *${item.mata_kuliah}*\n`;
+    if (item.pertemuan_ke) {
+      msg += `📌 *Sesi:* Pertemuan ke-${item.pertemuan_ke}\n`;
+    }
+    if (item.topik) {
+      msg += `🎯 *Materi/Topik:* ${item.topik}\n`;
+    }
     msg += `⏰ *Waktu:* ${item.jam_mulai} - ${item.jam_selesai} WITA/WIB\n`;
     
-    // Tim Pengajar
-    if (item.tim_pengajar && item.tim_pengajar.length > 0) {
+    // Dosen Pengajar Bertugas / Tim Pengajar
+    if (item.dosen_pengajar) {
+      msg += `👨‍🏫 *Dosen Bertugas:* ${item.dosen_pengajar}\n`;
+    } else if (item.tim_pengajar && item.tim_pengajar.length > 0) {
       msg += `👥 *Tim Pengajar:*\n`;
       item.tim_pengajar.forEach((d, i) => {
         msg += `   ${i + 1}. ${d.nama}\n`;
@@ -47,6 +55,10 @@ export function formatGroupScheduleMessage(scheduleData, formattedDate) {
     } else {
       msg += `📍 *Metode:* 🟢 *OFFLINE (Tatap Muka)*\n`;
       msg += `🏢 *Lokasi Ruangan:* Ruang *${item.ruangan || 'G1.103'}*\n`;
+    }
+
+    if (item.tugas && item.tugas !== '-') {
+      msg += `📝 *Catatan Tugas:* ${item.tugas}\n`;
     }
 
     msg += `\n`;
@@ -114,8 +126,24 @@ export function formatLecturerDirectMessage(lecturerGroup, formattedDate) {
     const num = schedules.length > 1 ? `${NUMBER_EMOJIS[index] || (index + 1) + '.'} ` : '';
 
     msg += `${num}📚 *${item.mata_kuliah}*\n`;
+    if (item.pertemuan_ke) {
+      msg += `📌 *Sesi:* Pertemuan ke-${item.pertemuan_ke}\n`;
+    }
+    if (item.topik) {
+      msg += `🎯 *Pokok Bahasan:* ${item.topik}\n`;
+    }
     msg += `⏰ *Waktu:* ${item.jam_mulai} - ${item.jam_selesai} WITA/WIB\n`;
     
+    // Status bertugas / rekan
+    if (item.dosen_pengajar) {
+      const isMe = dosen.nama.includes(item.dosen_pengajar) || item.dosen_pengajar.includes(dosen.nama);
+      if (isMe) {
+        msg += `👨‍🏫 *Status:* Anda terjadwal mengajar pada sesi ini.\n`;
+      } else {
+        msg += `👨‍🏫 *Dosen Pengampu Sesi Ini:* ${item.dosen_pengajar}\n`;
+      }
+    }
+
     // Rekan Tim Pengajar
     if (item.tim_pengajar && item.tim_pengajar.length > 1) {
       const rekan = item.tim_pengajar.filter(d => !d.nama.includes(dosen.nama));
@@ -172,9 +200,17 @@ export function formatHMinus1GroupMessage(scheduleData, formattedTomorrowDate) {
     const isOnline = item.tipe.toLowerCase() === 'online';
 
     msg += `${num} *${item.mata_kuliah}*\n`;
+    if (item.pertemuan_ke) {
+      msg += `📌 *Sesi:* Pertemuan ke-${item.pertemuan_ke}\n`;
+    }
+    if (item.topik) {
+      msg += `🎯 *Materi/Topik:* ${item.topik}\n`;
+    }
     msg += `⏰ *Waktu:* ${item.jam_mulai} - ${item.jam_selesai} WITA\n`;
     
-    if (item.tim_pengajar && item.tim_pengajar.length > 0) {
+    if (item.dosen_pengajar) {
+      msg += `👨‍🏫 *Dosen Bertugas:* ${item.dosen_pengajar}\n`;
+    } else if (item.tim_pengajar && item.tim_pengajar.length > 0) {
       msg += `👥 *Tim Pengajar:*\n`;
       item.tim_pengajar.forEach((d, i) => {
         msg += `   ${i + 1}. ${d.nama}\n`;
@@ -218,8 +254,23 @@ export function formatHMinus1LecturerMessage(lecturerGroup, formattedTomorrowDat
     const num = schedules.length > 1 ? `${NUMBER_EMOJIS[index] || (index + 1) + '.'} ` : '';
 
     msg += `${num}📚 *${item.mata_kuliah}*\n`;
+    if (item.pertemuan_ke) {
+      msg += `📌 *Sesi:* Pertemuan ke-${item.pertemuan_ke}\n`;
+    }
+    if (item.topik) {
+      msg += `🎯 *Pokok Bahasan:* ${item.topik}\n`;
+    }
     msg += `⏰ *Waktu:* ${item.jam_mulai} - ${item.jam_selesai} WITA\n`;
     
+    if (item.dosen_pengajar) {
+      const isMe = dosen.nama.includes(item.dosen_pengajar) || item.dosen_pengajar.includes(dosen.nama);
+      if (isMe) {
+        msg += `👨‍🏫 *Status:* Anda terjadwal mengajar pada sesi ini.\n`;
+      } else {
+        msg += `👨‍🏫 *Dosen Pengampu Sesi Ini:* ${item.dosen_pengajar}\n`;
+      }
+    }
+
     if (item.tim_pengajar && item.tim_pengajar.length > 1) {
       const rekan = item.tim_pengajar.filter(d => !d.nama.includes(dosen.nama));
       if (rekan.length > 0) {
@@ -260,9 +311,17 @@ export function formatCourseReminderMessage(courseItem, generalInfo, formattedDa
   msg += `━━━━━━━━━━━━━━━━━━━━\n\n`;
 
   msg += `📚 *Mata Kuliah:* *${courseItem.mata_kuliah}*\n`;
+  if (courseItem.pertemuan_ke) {
+    msg += `📌 *Sesi:* Pertemuan ke-${courseItem.pertemuan_ke}\n`;
+  }
+  if (courseItem.topik) {
+    msg += `🎯 *Pokok Bahasan:* ${courseItem.topik}\n`;
+  }
   msg += `⏰ *Waktu Mulai:* *${courseItem.jam_mulai} - ${courseItem.jam_selesai} WITA*\n\n`;
 
-  if (courseItem.tim_pengajar && courseItem.tim_pengajar.length > 0) {
+  if (courseItem.dosen_pengajar) {
+    msg += `👨‍🏫 *Dosen Pengampu Sesi Ini:* *${courseItem.dosen_pengajar}*\n\n`;
+  } else if (courseItem.tim_pengajar && courseItem.tim_pengajar.length > 0) {
     msg += `👥 *Dosen Pengampu:*\n`;
     courseItem.tim_pengajar.forEach((d, i) => {
       msg += `   ${i + 1}. ${d.nama}\n`;
@@ -295,11 +354,11 @@ export function formatHelpMessage(prefix = '!') {
 Perintah yang tersedia:
 
 📌 *Cek Jadwal Kuliah:*
-• \`${prefix}jadwal\` 👉 Jadwal kuliah hari ini (otomatis Offline/Online).
+• \`${prefix}jadwal\` 👉 Jadwal kuliah hari ini (lengkap pertemuan & dosen).
 • \`${prefix}jadwal besok\` 👉 Jadwal kuliah esok hari.
 • \`${prefix}jadwal jumat\` / \`${prefix}jadwal sabtu\` 👉 Daftar matkul hari Jum'at / Sabtu.
 
-🔍 *Pencarian:*
+🔍 *Pencarian & Informasi:*
 • \`${prefix}zoom\` 👉 Menampilkan link Zoom Meeting perkuliahan online.
 • \`${prefix}cari [matkul/dosen]\` 👉 Cari jadwal berdasarkan mata kuliah atau nama dosen.
 
