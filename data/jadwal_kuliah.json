@@ -38,6 +38,7 @@
       ],
       "tanggal_offline": [
         "2026-09-04",
+        "2026-09-18",
         "2026-10-02",
         "2026-10-16",
         "2026-10-30",
@@ -47,7 +48,6 @@
       ],
       "tanggal_online": [
         "2026-09-11",
-        "2026-09-18",
         "2026-09-25",
         "2026-10-09",
         "2026-10-23",
@@ -76,8 +76,8 @@
         {
           "sesi": 3,
           "tanggal": "2026-09-18",
-          "metode": "Online",
-          "dosen_pengajar": "Dr. Fahrianoor, S.IP., M.Si",
+          "metode": "Offline",
+          "dosen_pengajar": "Prof. Dr. H. Bachruddin Ali Ahmad, M.Si",
           "topik": "Dimensi Ontologis dalam Ilmu Komunikasi",
           "tugas": "-"
         },
@@ -207,6 +207,7 @@
       ],
       "tanggal_offline": [
         "2026-09-04",
+        "2026-09-18",
         "2026-10-02",
         "2026-10-16",
         "2026-10-30",
@@ -216,7 +217,6 @@
       ],
       "tanggal_online": [
         "2026-09-11",
-        "2026-09-18",
         "2026-09-25",
         "2026-10-09",
         "2026-10-23",
@@ -245,7 +245,7 @@
         {
           "sesi": 3,
           "tanggal": "2026-09-18",
-          "metode": "Online",
+          "metode": "Offline",
           "dosen_pengajar": "Prof. Dr. H. Bachruddin Ali Ahmad, M.Si",
           "topik": "Teori Sistem & Budaya Organisasi Modern",
           "tugas": "-"
@@ -376,6 +376,7 @@
       ],
       "tanggal_offline": [
         "2026-09-04",
+        "2026-09-18",
         "2026-10-02",
         "2026-10-16",
         "2026-10-30",
@@ -385,7 +386,6 @@
       ],
       "tanggal_online": [
         "2026-09-11",
-        "2026-09-18",
         "2026-09-25",
         "2026-10-09",
         "2026-10-23",
@@ -414,8 +414,8 @@
         {
           "sesi": 3,
           "tanggal": "2026-09-18",
-          "metode": "Online",
-          "dosen_pengajar": "Dr. Muhammad Alif, M.Si",
+          "metode": "Offline",
+          "dosen_pengajar": "Dr. Irwansyah, S.Sos,. M.Si",
           "topik": "Model Komunikasi Partisipatif dalam Pemberdayaan",
           "tugas": "-"
         },
@@ -932,7 +932,7 @@
           "sesi": 3,
           "tanggal": "2026-09-19",
           "metode": "Offline",
-          "dosen_pengajar": "Dr. Yuanita Setyastuti, S.IP., M.Si",
+          "dosen_pengajar": "Dr. Muhammad Alif, M.Si",
           "topik": "Ekonomi Politik Media Baru & Monopoli Platform Global",
           "tugas": "-"
         },
