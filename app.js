@@ -1595,9 +1595,7 @@ window.switchBotModalTab = function(tabName) {
           💾 Simpan & Sinkronkan ke Cloud Bot
         </button>
       `;
-      if (!currentCloudEditorDateISO) {
-        loadScheduleForCloudEditor(1); // Default to tomorrow
-      }
+      initKanbanBoard();
     } else {
       footerActions.innerHTML = `
         <button class="quick-action-btn btn-blue" onclick="testAndSaveGitHubConfig()">
@@ -1852,180 +1850,641 @@ window.triggerWorkflowManual = async function(workflowIdOrFile, title) {
   }
 };
 
-/* Cloud Schedule Editor Logic */
-window.loadScheduleForCloudEditor = function(offsetOrDateStr) {
-  let targetDate;
-  if (typeof offsetOrDateStr === 'number') {
-    targetDate = new Date();
-    targetDate.setDate(targetDate.getDate() + offsetOrDateStr);
-  } else if (typeof offsetOrDateStr === 'string' && offsetOrDateStr.includes('-')) {
-    targetDate = new Date(offsetOrDateStr);
-  } else {
-    targetDate = new Date();
-  }
+/* ==========================================================================
+   Interactive Drag & Drop Kanban Schedule Board Engine
+   ========================================================================== */
 
-  currentCloudEditorDateISO = formatDateISO(targetDate);
-
-  const customDateInput = document.getElementById('inputCustomEditorDate');
-  if (customDateInput) customDateInput.value = currentCloudEditorDateISO;
-
-  const btnTomorrow = document.getElementById('btnEditorTomorrow');
-  const btnToday = document.getElementById('btnEditorToday');
-  const todayISO = formatDateISO(new Date());
-
-  const tomorrow = new Date();
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  const tomorrowISO = formatDateISO(tomorrow);
-
-  if (btnToday) btnToday.className = `quick-action-btn ${currentCloudEditorDateISO === todayISO ? 'btn-blue' : ''}`;
-  if (btnTomorrow) btnTomorrow.className = `quick-action-btn ${currentCloudEditorDateISO === tomorrowISO ? 'btn-blue' : ''}`;
-
-  renderCloudEditorCards(currentCloudEditorDateISO);
+const STANDARD_TIME_PRESETS = {
+  "Jum'at": [
+    { title: "Sesi 1 (Siang)", start: "14.00", end: "16.30", label: "14.00 - 16.30 WITA" },
+    { title: "Sesi 2 (Sore)", start: "16.30", end: "18.00", label: "16.30 - 18.00 WITA" },
+    { title: "Sesi 3 (Malam)", start: "18.45", end: "21.15", label: "18.45 - 21.15 WITA" }
+  ],
+  "Sabtu": [
+    { title: "Sesi 1 (Pagi)", start: "08.30", end: "11.00", label: "08.30 - 11.00 WITA" },
+    { title: "Sesi 2 (Siang)", start: "11.00", end: "13.30", label: "11.00 - 13.30 WITA" },
+    { title: "Sesi 3 (Sore)", start: "14.00", end: "16.30", label: "14.00 - 16.30 WITA" }
+  ]
 };
 
-function renderCloudEditorCards(dateISO) {
-  const container = document.getElementById('cloudScheduleEditorList');
-  if (!container) return;
+const SEMESTER_WEEKS = [
+  { week: 1, fri: '2026-09-11', sat: '2026-09-12', label: 'Pekan 1 (11 - 12 Sep 2026)' },
+  { week: 2, fri: '2026-09-18', sat: '2026-09-19', label: 'Pekan 2 (18 - 19 Sep 2026)' },
+  { week: 3, fri: '2026-09-25', sat: '2026-09-26', label: 'Pekan 3 (25 - 26 Sep 2026)' },
+  { week: 4, fri: '2026-10-02', sat: '2026-10-03', label: 'Pekan 4 (02 - 03 Okt 2026)' },
+  { week: 5, fri: '2026-10-09', sat: '2026-10-10', label: 'Pekan 5 (09 - 10 Okt 2026)' },
+  { week: 6, fri: '2026-10-16', sat: '2026-10-17', label: 'Pekan 6 (16 - 17 Okt 2026)' },
+  { week: 7, fri: '2026-10-23', sat: '2026-10-24', label: 'Pekan 7 (23 - 24 Okt 2026)' },
+  { week: 8, fri: '2026-10-30', sat: '2026-10-31', label: 'Pekan 8 (30 - 31 Okt 2026) - UTS' },
+  { week: 9, fri: '2026-11-06', sat: '2026-11-07', label: 'Pekan 9 (06 - 07 Nov 2026)' },
+  { week: 10, fri: '2026-11-13', sat: '2026-11-14', label: 'Pekan 10 (13 - 14 Nov 2026)' },
+  { week: 11, fri: '2026-11-20', sat: '2026-11-21', label: 'Pekan 11 (20 - 21 Nov 2026)' },
+  { week: 12, fri: '2026-11-27', sat: '2026-11-28', label: 'Pekan 12 (27 - 28 Nov 2026)' },
+  { week: 13, fri: '2026-12-04', sat: '2026-12-05', label: 'Pekan 13 (04 - 05 Des 2026)' },
+  { week: 14, fri: '2026-12-11', sat: '2026-12-12', label: 'Pekan 14 (11 - 12 Des 2026)' },
+  { week: 15, fri: '2026-12-18', sat: '2026-12-19', label: 'Pekan 15 (18 - 19 Des 2026)' },
+  { week: 16, fri: '2026-12-25', sat: '2026-12-26', label: 'Pekan 16 (25 - 26 Des 2026) - UAS' }
+];
 
-  const dateObj = new Date(dateISO);
-  const dayIndex = dateObj.getDay(); // 5 = Fri, 6 = Sat
-  const dayName = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', "Jum'at", 'Sabtu'][dayIndex];
-  const formattedDate = dateObj.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+let kanbanCurrentWeek = 2; // Default to Week 2
+let kanbanState = {
+  fridayDate: '2026-09-18',
+  saturdayDate: '2026-09-19',
+  fridayCards: [],
+  saturdayCards: []
+};
 
-  // Find classes scheduled on this day or matching day_index
-  const classesForDay = ACADEMIC_DATA.jadwal.filter(m => m.day_index === dayIndex || m.hari.toLowerCase().includes(dayName.toLowerCase().slice(0, 3)));
+let activeTimeEditCardId = null;
 
-  if (classesForDay.length === 0) {
-    container.innerHTML = `
-      <div style="text-align: center; padding: 24px; color: var(--text-secondary); background: var(--bg-surface); border-radius: var(--radius-md); border: 1px dashed var(--border-subtle);">
-        🎉 <strong>Hari ${dayName} (${formattedDate}) bukan jadwal perkuliahan reguler.</strong>
-        <p style="font-size: 0.8rem; margin-top: 4px;">Perkuliahan MIKOM 2026 aktif pada hari Jum'at & Sabtu.</p>
+// Initialize Kanban Board
+window.initKanbanBoard = function() {
+  const selWeek = document.getElementById('selKanbanWeek');
+  if (selWeek) {
+    selWeek.innerHTML = SEMESTER_WEEKS.map(w => `
+      <option value="${w.week}" ${w.week === kanbanCurrentWeek ? 'selected' : ''}>
+        ${w.label}
+      </option>
+    `).join('');
+  }
+
+  // Determine current or upcoming week based on current date
+  const todayISO = formatDateISO(new Date());
+  const foundWeek = SEMESTER_WEEKS.find(w => w.fri >= todayISO || w.sat >= todayISO);
+  if (foundWeek) {
+    kanbanCurrentWeek = foundWeek.week;
+    if (selWeek) selWeek.value = kanbanCurrentWeek;
+  }
+
+  loadKanbanWeek(kanbanCurrentWeek);
+};
+
+window.onKanbanWeekChange = function(weekNum) {
+  kanbanCurrentWeek = parseInt(weekNum, 10);
+  loadKanbanWeek(kanbanCurrentWeek);
+};
+
+window.loadKanbanWeek = function(weekNum) {
+  const weekObj = SEMESTER_WEEKS.find(w => w.week === weekNum) || SEMESTER_WEEKS[1];
+  kanbanState.fridayDate = weekObj.fri;
+  kanbanState.saturdayDate = weekObj.sat;
+
+  // Update date pill labels
+  const pillFri = document.getElementById('pillFriDate');
+  const pillSat = document.getElementById('pillSatDate');
+  const headerDateFri = document.getElementById('headerDateFriday');
+  const headerDateSat = document.getElementById('headerDateSaturday');
+
+  const friDateObj = new Date(weekObj.fri);
+  const satDateObj = new Date(weekObj.sat);
+
+  const formattedFri = friDateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+  const formattedSat = satDateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+
+  if (pillFri) pillFri.textContent = `Jum'at, ${formattedFri}`;
+  if (pillSat) pillSat.textContent = `Sabtu, ${formattedSat}`;
+  if (headerDateFri) headerDateFri.textContent = friDateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+  if (headerDateSat) headerDateSat.textContent = satDateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+
+  // Build card lists from ACADEMIC_DATA
+  kanbanState.fridayCards = [];
+  kanbanState.saturdayCards = [];
+
+  ACADEMIC_DATA.jadwal.forEach((matkul, idx) => {
+    const isFriOffline = (matkul.tanggal_offline || []).includes(weekObj.fri);
+    const isFriOnline = (matkul.tanggal_online || []).includes(weekObj.fri);
+    const isSatOffline = (matkul.tanggal_offline || []).includes(weekObj.sat);
+    const isSatOnline = (matkul.tanggal_online || []).includes(weekObj.sat);
+
+    const isScheduledFriday = isFriOffline || isFriOnline;
+    const isScheduledSaturday = isSatOffline || isSatOnline;
+
+    const meetingFri = (matkul.pertemuan || []).find(p => p.tanggal === weekObj.fri);
+    const meetingSat = (matkul.pertemuan || []).find(p => p.tanggal === weekObj.sat);
+    const meetingWeek = (matkul.pertemuan || []).find(p => p.sesi === weekNum);
+
+    const activeMeeting = meetingFri || meetingSat || meetingWeek || {
+      sesi: weekNum,
+      topik: 'Topik Materi Sesi Perkuliahan',
+      dosen_pengajar: matkul.tim_pengajar?.[0]?.nama || '',
+      metode: (matkul.hari === "Jum'at") ? 'Online' : 'Offline'
+    };
+
+    const cardObj = {
+      id: matkul.id,
+      mata_kuliah: matkul.mata_kuliah,
+      sks: matkul.sks,
+      tim_pengajar: matkul.tim_pengajar || [],
+      jam_mulai: matkul.jam_mulai,
+      jam_selesai: matkul.jam_selesai,
+      dosen_pengajar: activeMeeting.dosen_pengajar || matkul.tim_pengajar?.[0]?.nama || '',
+      metode: isFriOnline || isSatOnline ? 'Online' : (isFriOffline || isSatOffline ? 'Offline' : (activeMeeting.metode || 'Offline')),
+      isActive: isScheduledFriday || isScheduledSaturday || (!isScheduledFriday && !isScheduledSaturday && matkul.hari.includes('Jum') && weekObj.fri ? true : true),
+      topik: activeMeeting.topik || '',
+      sesi: activeMeeting.sesi || weekNum
+    };
+
+    if (isScheduledFriday) {
+      cardObj.hari = "Jum'at";
+      kanbanState.fridayCards.push(cardObj);
+    } else if (isScheduledSaturday) {
+      cardObj.hari = "Sabtu";
+      kanbanState.saturdayCards.push(cardObj);
+    } else {
+      // Fallback to original schedule day
+      if (matkul.hari.includes("Jum")) {
+        cardObj.hari = "Jum'at";
+        kanbanState.fridayCards.push(cardObj);
+      } else {
+        cardObj.hari = "Sabtu";
+        kanbanState.saturdayCards.push(cardObj);
+      }
+    }
+  });
+
+  renderKanbanBoard();
+};
+
+window.renderKanbanBoard = function() {
+  const containerFri = document.getElementById('kanbanCardsFriday');
+  const containerSat = document.getElementById('kanbanCardsSaturday');
+  const countFri = document.getElementById('countBadgeFriday');
+  const countSat = document.getElementById('countBadgeSaturday');
+
+  checkKanbanConflicts();
+
+  if (containerFri) {
+    containerFri.innerHTML = kanbanState.fridayCards.map(item => renderKanbanCardHtml(item, "Jum'at")).join('');
+  }
+  if (containerSat) {
+    containerSat.innerHTML = kanbanState.saturdayCards.map(item => renderKanbanCardHtml(item, "Sabtu")).join('');
+  }
+
+  if (countFri) countFri.textContent = `${kanbanState.fridayCards.length} Matkul`;
+  if (countSat) countSat.textContent = `${kanbanState.saturdayCards.length} Matkul`;
+};
+
+function renderKanbanCardHtml(item, day) {
+  const otherDay = day === "Jum'at" ? "Sabtu" : "Jum'at";
+  const isOnline = item.metode === 'Online';
+  const conflictClass = item.hasConflict ? 'has-conflict' : '';
+
+  return `
+    <div class="kanban-card ${conflictClass}" id="kanbanCard_${item.id}" draggable="true" ondragstart="handleDragStart(event, '${item.id}', '${day}')" ondragend="handleDragEnd(event)">
+      
+      <div class="kanban-card-top">
+        <div class="drag-handle-badge" title="Tahan & Seret kartu ini untuk memindahkan jadwal">
+          <span class="drag-icon">⠿</span>
+          <span>Sesi ${item.sesi} (${item.sks} SKS)</span>
+        </div>
+        <button class="kanban-time-btn" onclick="openTimeSlotModal('${item.id}')" title="Klik untuk mengubah jam perkuliahan">
+          ⏰ ${item.jam_mulai} - ${item.jam_selesai} WITA ✏️
+        </button>
       </div>
-    `;
+
+      <div class="kanban-course-name">${item.mata_kuliah}</div>
+
+      <div class="kanban-lecturer-row">
+        <label style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 2px;">👨‍🏫 Dosen Bertugas Sesi Ini:</label>
+        <select class="kanban-lecturer-select" onchange="onKanbanLecturerChange('${item.id}', this.value)">
+          ${(item.tim_pengajar || []).map(d => `
+            <option value="${d.nama}" ${d.nama === item.dosen_pengajar ? 'selected' : ''}>
+              ${d.nama}
+            </option>
+          `).join('')}
+        </select>
+      </div>
+
+      <div class="kanban-options-row">
+        <button class="kanban-mode-btn ${isOnline ? 'online' : 'offline'}" onclick="toggleKanbanCourseMode('${item.id}')" title="Klik untuk beralih antara Online Zoom & Offline Tatap Muka">
+          ${isOnline ? '🌐 Daring (Zoom)' : `🟢 Tatap Muka (${ACADEMIC_DATA.default_ruangan})`}
+        </button>
+
+        <label class="kanban-active-toggle" title="Tandai apakah mata kuliah ini masuk atau diliburkan">
+          <input type="checkbox" ${item.isActive ? 'checked' : ''} onchange="toggleKanbanCourseActive('${item.id}', this.checked)">
+          <span>${item.isActive ? '🟢 Masuk' : '❌ Diliburkan'}</span>
+        </label>
+      </div>
+
+      <div class="kanban-actions-footer">
+        <button class="kanban-quick-swap-btn" onclick="moveCardToDay('${item.id}', '${otherDay}')" title="Pindahkan mata kuliah ini ke hari ${otherDay}">
+          ⇄ Geser ke ${otherDay}
+        </button>
+
+        <div class="kanban-order-btns">
+          <button class="kanban-order-btn" onclick="shiftCardOrder('${item.id}', '${day}', -1)" title="Geser jam lebih awal (ke atas)">▲</button>
+          <button class="kanban-order-btn" onclick="shiftCardOrder('${item.id}', '${day}', 1)" title="Geser jam lebih lambat (ke bawah)">▼</button>
+        </div>
+      </div>
+
+    </div>
+  `;
+}
+
+// Drag and Drop Event Handlers
+window.handleDragStart = function(e, courseId, sourceDay) {
+  e.dataTransfer.setData('text/plain', JSON.stringify({ courseId, sourceDay }));
+  e.dataTransfer.effectAllowed = 'move';
+  const cardEl = document.getElementById(`kanbanCard_${courseId}`);
+  if (cardEl) {
+    setTimeout(() => cardEl.classList.add('is-dragging'), 0);
+  }
+};
+
+window.handleDragOver = function(e) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  const col = e.currentTarget;
+  if (col && !col.classList.contains('drag-over')) {
+    col.classList.add('drag-over');
+  }
+};
+
+window.handleDragLeave = function(e) {
+  const col = e.currentTarget;
+  if (col) {
+    col.classList.remove('drag-over');
+  }
+};
+
+window.handleDrop = function(e, targetDay) {
+  e.preventDefault();
+  const col = e.currentTarget;
+  if (col) col.classList.remove('drag-over');
+
+  try {
+    const rawData = e.dataTransfer.getData('text/plain');
+    if (!rawData) return;
+    const { courseId, sourceDay } = JSON.parse(rawData);
+
+    if (sourceDay !== targetDay) {
+      moveCardToDay(courseId, targetDay);
+    }
+  } catch (err) {
+    console.error('Error handling drop:', err);
+  }
+};
+
+window.handleDragEnd = function(e) {
+  document.querySelectorAll('.kanban-column').forEach(c => c.classList.remove('drag-over'));
+  document.querySelectorAll('.kanban-card').forEach(c => c.classList.remove('is-dragging'));
+};
+
+// Card Movement & Swapping
+window.moveCardToDay = function(courseId, targetDay) {
+  let cardObj = null;
+  const isTargetFriday = targetDay === "Jum'at";
+
+  if (isTargetFriday) {
+    const idx = kanbanState.saturdayCards.findIndex(c => c.id === courseId);
+    if (idx !== -1) {
+      cardObj = kanbanState.saturdayCards.splice(idx, 1)[0];
+      cardObj.hari = "Jum'at";
+      
+      // Auto-assign appropriate Friday standard time slot
+      const slotIdx = Math.min(kanbanState.fridayCards.length, STANDARD_TIME_PRESETS["Jum'at"].length - 1);
+      const preset = STANDARD_TIME_PRESETS["Jum'at"][slotIdx];
+      cardObj.jam_mulai = preset.start;
+      cardObj.jam_selesai = preset.end;
+
+      kanbanState.fridayCards.push(cardObj);
+      showToast(`🔀 Mata kuliah [${cardObj.mata_kuliah}] dipindahkan ke JUM'AT (${preset.label})`);
+    }
+  } else {
+    const idx = kanbanState.fridayCards.findIndex(c => c.id === courseId);
+    if (idx !== -1) {
+      cardObj = kanbanState.fridayCards.splice(idx, 1)[0];
+      cardObj.hari = "Sabtu";
+
+      // Auto-assign appropriate Saturday standard time slot
+      const slotIdx = Math.min(kanbanState.saturdayCards.length, STANDARD_TIME_PRESETS["Sabtu"].length - 1);
+      const preset = STANDARD_TIME_PRESETS["Sabtu"][slotIdx];
+      cardObj.jam_mulai = preset.start;
+      cardObj.jam_selesai = preset.end;
+
+      kanbanState.saturdayCards.push(cardObj);
+      showToast(`🔀 Mata kuliah [${cardObj.mata_kuliah}] dipindahkan ke SABTU (${preset.label})`);
+    }
+  }
+
+  renderKanbanBoard();
+};
+
+window.shiftCardOrder = function(courseId, day, direction) {
+  const list = day === "Jum'at" ? kanbanState.fridayCards : kanbanState.saturdayCards;
+  const idx = list.findIndex(c => c.id === courseId);
+  if (idx === -1) return;
+
+  const targetIdx = idx + direction;
+  if (targetIdx < 0 || targetIdx >= list.length) return;
+
+  // Swap items in list
+  const temp = list[idx];
+  list[idx] = list[targetIdx];
+  list[targetIdx] = temp;
+
+  // Re-assign sequential standard times for this day
+  const presets = STANDARD_TIME_PRESETS[day] || [];
+  list.forEach((c, i) => {
+    if (presets[i]) {
+      c.jam_mulai = presets[i].start;
+      c.jam_selesai = presets[i].end;
+    }
+  });
+
+  renderKanbanBoard();
+  showToast(`⚡ Urutan jam perkuliahan hari ${day} berhasil disesuaikan.`);
+};
+
+// Card Field Modifications
+window.onKanbanLecturerChange = function(courseId, lecturerName) {
+  const card = findKanbanCard(courseId);
+  if (card) {
+    card.dosen_pengajar = lecturerName;
+    showToast(`👨‍🏫 Dosen pengajar diubah menjadi: ${lecturerName}`);
+  }
+};
+
+window.toggleKanbanCourseMode = function(courseId) {
+  const card = findKanbanCard(courseId);
+  if (card) {
+    card.metode = card.metode === 'Online' ? 'Offline' : 'Online';
+    renderKanbanBoard();
+    showToast(`🌐 Metode ${card.mata_kuliah}: ${card.metode === 'Online' ? 'Daring (Zoom)' : `Tatap Muka (${ACADEMIC_DATA.default_ruangan})`}`);
+  }
+};
+
+window.toggleKanbanCourseActive = function(courseId, isChecked) {
+  const card = findKanbanCard(courseId);
+  if (card) {
+    card.isActive = isChecked;
+    renderKanbanBoard();
+    showToast(isChecked ? `🟢 [${card.mata_kuliah}] Terjadwal Masuk` : `❌ [${card.mata_kuliah}] Ditandai Diliburkan`);
+  }
+};
+
+window.resetKanbanToDefaultSyllabus = function() {
+  if (confirm('Kembalikan susunan jadwal pekan ini sesuai RPS default semester?')) {
+    loadKanbanWeek(kanbanCurrentWeek);
+    showToast('🔄 Jadwal telah direset sesuai Silabus Default.');
+  }
+};
+
+function findKanbanCard(courseId) {
+  return kanbanState.fridayCards.find(c => c.id === courseId) || kanbanState.saturdayCards.find(c => c.id === courseId);
+}
+
+// Conflict Detection
+function checkKanbanConflicts() {
+  const checkDay = (cards, dayName) => {
+    const activeCards = cards.filter(c => c.isActive);
+    activeCards.forEach(c => c.hasConflict = false);
+    const conflicts = [];
+
+    for (let i = 0; i < activeCards.length; i++) {
+      for (let j = i + 1; j < activeCards.length; j++) {
+        const a = activeCards[i];
+        const b = activeCards[j];
+
+        const startA = parseTimeToMinutes(a.jam_mulai);
+        const endA = parseTimeToMinutes(a.jam_selesai);
+        const startB = parseTimeToMinutes(b.jam_mulai);
+        const endB = parseTimeToMinutes(b.jam_selesai);
+
+        if (startA < endB && startB < endA) {
+          a.hasConflict = true;
+          b.hasConflict = true;
+          conflicts.push(`[${a.mata_kuliah}] dan [${b.mata_kuliah}] memiliki jam yang bertumpukan di hari ${dayName}.`);
+        }
+      }
+    }
+    return conflicts;
+  };
+
+  const friConflicts = checkDay(kanbanState.fridayCards, "Jum'at");
+  const satConflicts = checkDay(kanbanState.saturdayCards, "Sabtu");
+  const allConflicts = [...friConflicts, ...satConflicts];
+
+  const banner = document.getElementById('kanbanConflictBanner');
+  const textEl = document.getElementById('kanbanConflictText');
+
+  if (allConflicts.length > 0) {
+    if (banner) banner.style.display = 'flex';
+    if (textEl) textEl.innerHTML = allConflicts.join('<br>');
+  } else {
+    if (banner) banner.style.display = 'none';
+  }
+}
+
+function parseTimeToMinutes(timeStr) {
+  if (!timeStr) return 0;
+  const parts = timeStr.replace(':', '.').split('.');
+  const h = parseInt(parts[0] || '0', 10);
+  const m = parseInt(parts[1] || '0', 10);
+  return h * 60 + m;
+}
+
+// Time Slot Adjustment Modal
+window.openTimeSlotModal = function(courseId) {
+  activeTimeEditCardId = courseId;
+  const card = findKanbanCard(courseId);
+  if (!card) return;
+
+  const overlay = document.getElementById('timeSlotModalOverlay');
+  const titleEl = document.getElementById('timeSlotModalCourseTitle');
+  const presetsContainer = document.getElementById('timePresetsContainer');
+  const startInput = document.getElementById('inputCustomStart');
+  const endInput = document.getElementById('inputCustomEnd');
+
+  if (titleEl) titleEl.textContent = `${card.mata_kuliah} (Hari ${card.hari})`;
+  if (startInput) startInput.value = card.jam_mulai || '';
+  if (endInput) endInput.value = card.jam_selesai || '';
+
+  if (presetsContainer) {
+    const presets = STANDARD_TIME_PRESETS[card.hari] || STANDARD_TIME_PRESETS["Jum'at"];
+    presetsContainer.innerHTML = presets.map((p, idx) => `
+      <div class="time-preset-card" onclick="applyPresetTime('${p.start}', '${p.end}')">
+        <div class="time-preset-title">${p.title}</div>
+        <div class="time-preset-val">${p.label}</div>
+      </div>
+    `).join('');
+  }
+
+  if (overlay) overlay.classList.add('active');
+};
+
+window.closeTimeSlotModal = function(e) {
+  if (e && e.target !== e.currentTarget && !e.target.classList.contains('modal-close-btn')) return;
+  const overlay = document.getElementById('timeSlotModalOverlay');
+  if (overlay) overlay.classList.remove('active');
+  activeTimeEditCardId = null;
+};
+
+window.applyPresetTime = function(start, end) {
+  if (!activeTimeEditCardId) return;
+  const card = findKanbanCard(activeTimeEditCardId);
+  if (card) {
+    card.jam_mulai = start;
+    card.jam_selesai = end;
+    renderKanbanBoard();
+    showToast(`⏰ Jam [${card.mata_kuliah}] diubah menjadi ${start} - ${end} WITA`);
+  }
+  closeTimeSlotModal();
+};
+
+window.applyCustomTimeSlot = function() {
+  if (!activeTimeEditCardId) return;
+  const startInput = document.getElementById('inputCustomStart');
+  const endInput = document.getElementById('inputCustomEnd');
+
+  const start = startInput ? startInput.value.trim() : '';
+  const end = endInput ? endInput.value.trim() : '';
+
+  if (!start || !end) {
+    alert('Harap masukkan jam mulai dan jam selesai!');
     return;
   }
 
-  container.innerHTML = `
-    <div style="font-size: 0.88rem; font-weight: 800; color: var(--text-primary); margin-bottom: 10px;">
-      📚 Daftar Mata Kuliah untuk Tanggal: <u>${formattedDate}</u>
-    </div>
-  ` + classesForDay.map((matkul, idx) => {
-    const isOffline = (matkul.tanggal_offline || []).includes(dateISO);
-    const isOnline = (matkul.tanggal_online || []).includes(dateISO);
-    const isScheduledToday = isOffline || isOnline;
-
-    const currentMeeting = (matkul.pertemuan || []).find(p => p.tanggal === dateISO) || {
-      sesi: idx + 1,
-      dosen_pengajar: matkul.tim_pengajar?.[0]?.nama || '',
-      topik: ''
-    };
-
-    return `
-      <div class="cloud-editor-card" id="editorCard_${matkul.id}">
-        <div class="cloud-editor-title">
-          <span>${idx + 1}️⃣ ${matkul.mata_kuliah} (${matkul.sks} SKS)</span>
-          <label style="display: flex; align-items: center; gap: 6px; font-size: 0.78rem; font-weight: 600; cursor: pointer;">
-            <input type="checkbox" id="chkActive_${matkul.id}" ${isScheduledToday ? 'checked' : ''} onchange="toggleMatkulScheduledState('${matkul.id}')">
-            <span>${isScheduledToday ? '🟢 Kelas Masuk' : '❌ Kelas Diliburkan'}</span>
-          </label>
-        </div>
-
-        <div class="cloud-editor-grid">
-          <div class="form-group" style="margin-bottom: 8px;">
-            <label class="form-label" style="font-size: 0.76rem;">👨‍🏫 Dosen Bertugas:</label>
-            <select id="selDosen_${matkul.id}" class="form-input" style="padding: 6px 10px; font-size: 0.8rem;">
-              ${(matkul.tim_pengajar || []).map(d => `
-                <option value="${d.nama}" ${d.nama === currentMeeting.dosen_pengajar ? 'selected' : ''}>
-                  ${d.nama}
-                </option>
-              `).join('')}
-            </select>
-          </div>
-
-          <div class="form-group" style="margin-bottom: 8px;">
-            <label class="form-label" style="font-size: 0.76rem;">🌐 Metode Kuliah:</label>
-            <select id="selMetode_${matkul.id}" class="form-input" style="padding: 6px 10px; font-size: 0.8rem;">
-              <option value="Offline" ${isOffline || (!isScheduledToday && !isOnline) ? 'selected' : ''}>🟢 Tatap Muka (Ruang ${ACADEMIC_DATA.default_ruangan})</option>
-              <option value="Online" ${isOnline ? 'selected' : ''}>🌐 Daring (Zoom Meeting)</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="form-group" style="margin-bottom: 4px;">
-          <label class="form-label" style="font-size: 0.76rem;">🎯 Topik Bahasan / RPS Pertemuan ke-${currentMeeting.sesi}:</label>
-          <input type="text" id="inputTopik_${matkul.id}" class="form-input" style="padding: 6px 10px; font-size: 0.8rem;" value="${currentMeeting.topik || ''}" placeholder="Topik materi kuliah...">
-        </div>
-      </div>
-    `;
-  }).join('');
-}
-
-window.toggleMatkulScheduledState = function(matkulId) {
-  const chk = document.getElementById(`chkActive_${matkulId}`);
-  const card = document.getElementById(`editorCard_${matkulId}`);
-  if (!chk || !card) return;
-
-  const isChecked = chk.checked;
-  chk.nextElementSibling.textContent = isChecked ? '🟢 Kelas Masuk' : '❌ Kelas Diliburkan';
-  card.style.opacity = isChecked ? '1' : '0.6';
+  const card = findKanbanCard(activeTimeEditCardId);
+  if (card) {
+    card.jam_mulai = start;
+    card.jam_selesai = end;
+    renderKanbanBoard();
+    showToast(`⏰ Jam [${card.mata_kuliah}] diubah menjadi ${start} - ${end} WITA`);
+  }
+  closeTimeSlotModal();
 };
 
-window.saveAndSyncScheduleToCloud = async function() {
+// Cloud Sync & Diff Preview
+window.saveAndSyncScheduleToCloud = function() {
   const cfg = getGitHubConfig();
   if (!cfg.token || !cfg.repo) {
-    alert('Harap hubungkan Token GitHub terlebih dahulu di tab Pengaturan Token!');
+    alert('Harap hubungkan Token GitHub terlebih dahulu di tab Pengaturan Akses GitHub!');
     switchBotModalTab('token');
     return;
   }
 
-  if (!currentCloudEditorDateISO) {
-    alert('Pilih tanggal perkuliahan terlebih dahulu!');
-    return;
+  const diffItems = prepareKanbanDiff();
+  const diffListContainer = document.getElementById('syncDiffList');
+  const overlay = document.getElementById('syncConfirmModalOverlay');
+
+  if (diffListContainer) {
+    if (diffItems.length === 0) {
+      diffListContainer.innerHTML = `
+        <div style="text-align: center; color: var(--text-secondary); padding: 20px;">
+          ℹ️ Tidak ada perubahan susunan jadwal untuk pekan ini. Seluruh jadwal sudah sesuai.
+        </div>
+      `;
+    } else {
+      diffListContainer.innerHTML = diffItems.map(d => `
+        <div class="sync-diff-item ${d.typeClass}">
+          <span style="font-size: 1.1rem;">${d.icon}</span>
+          <div>
+            <strong>${d.courseName}</strong><br>
+            <span style="font-size: 0.78rem; color: var(--text-secondary);">${d.changeDesc}</span>
+          </div>
+        </div>
+      `).join('');
+    }
   }
 
-  const dateObj = new Date(currentCloudEditorDateISO);
-  const dayIndex = dateObj.getDay();
-  const dayName = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', "Jum'at", 'Sabtu'][dayIndex];
-  const classesForDay = ACADEMIC_DATA.jadwal.filter(m => m.day_index === dayIndex || m.hari.toLowerCase().includes(dayName.toLowerCase().slice(0, 3)));
+  if (overlay) overlay.classList.add('active');
+};
 
-  showToast('⏳ Mempersiapkan data & menyinkronkan ke GitHub Cloud...');
+window.closeSyncConfirmModal = function(e) {
+  if (e && e.target !== e.currentTarget && !e.target.classList.contains('modal-close-btn')) return;
+  const overlay = document.getElementById('syncConfirmModalOverlay');
+  if (overlay) overlay.classList.remove('active');
+};
 
-  // Update ACADEMIC_DATA and generate updated JSON structure
-  classesForDay.forEach(matkul => {
-    const chk = document.getElementById(`chkActive_${matkul.id}`);
-    const selDosen = document.getElementById(`selDosen_${matkul.id}`);
-    const selMetode = document.getElementById(`selMetode_${matkul.id}`);
-    const inputTopik = document.getElementById(`inputTopik_${matkul.id}`);
+function prepareKanbanDiff() {
+  const diffs = [];
+  const allCards = [...kanbanState.fridayCards, ...kanbanState.saturdayCards];
 
-    if (!chk) return;
+  allCards.forEach(card => {
+    const origMatkul = ACADEMIC_DATA.jadwal.find(m => m.id === card.id);
+    if (!origMatkul) return;
 
-    const isClassActive = chk.checked;
-    const dosenName = selDosen ? selDosen.value : matkul.tim_pengajar?.[0]?.nama;
-    const metode = selMetode ? selMetode.value : 'Offline';
-    const topik = inputTopik ? inputTopik.value.trim() : '';
+    const changes = [];
+    let icon = '✏️';
+    let typeClass = 'is-changed';
 
-    // 1. Remove this date from offline & online lists
-    matkul.tanggal_offline = (matkul.tanggal_offline || []).filter(d => d !== currentCloudEditorDateISO);
-    matkul.tanggal_online = (matkul.tanggal_online || []).filter(d => d !== currentCloudEditorDateISO);
+    if (card.hari !== origMatkul.hari) {
+      changes.push(`Hari bergeser: <s>${origMatkul.hari}</s> ➔ <strong>${card.hari}</strong>`);
+      icon = '🔀';
+      typeClass = 'is-moved';
+    }
 
-    // 2. If active, add to correct list
-    if (isClassActive) {
-      if (metode === 'Online') {
-        matkul.tanggal_online.push(currentCloudEditorDateISO);
+    if (card.jam_mulai !== origMatkul.jam_mulai || card.jam_selesai !== origMatkul.jam_selesai) {
+      changes.push(`Jam kuliah: <s>${origMatkul.jam_mulai} - ${origMatkul.jam_selesai}</s> ➔ <strong>${card.jam_mulai} - ${card.jam_selesai} WITA</strong>`);
+    }
+
+    if (!card.isActive) {
+      changes.push(`Status: <strong>DILIBURKAN / TIDAK MASUK</strong>`);
+      icon = '🏖️';
+      typeClass = 'is-cancelled';
+    } else {
+      changes.push(`Metode: <strong>${card.metode === 'Online' ? 'Daring (Zoom)' : `Tatap Muka (Ruang ${ACADEMIC_DATA.default_ruangan})`}</strong>`);
+    }
+
+    changes.push(`Dosen Pengampu: <strong>${card.dosen_pengajar}</strong>`);
+
+    diffs.push({
+      courseName: card.mata_kuliah,
+      changeDesc: changes.join(' • '),
+      icon: icon,
+      typeClass: typeClass
+    });
+  });
+
+  return diffs;
+}
+
+window.executeCloudCommit = async function() {
+  const cfg = getGitHubConfig();
+  if (!cfg.token || !cfg.repo) return;
+
+  const btnCommit = document.getElementById('btnConfirmCommit');
+  if (btnCommit) {
+    btnCommit.disabled = true;
+    btnCommit.innerHTML = '⏳ Menyinkronkan ke GitHub...';
+  }
+
+  showToast('⏳ Mengirim pembaruan jadwal ke GitHub Cloud...');
+
+  // Update ACADEMIC_DATA.jadwal dates and meetings
+  const allCards = [...kanbanState.fridayCards, ...kanbanState.saturdayCards];
+  const friDate = kanbanState.fridayDate;
+  const satDate = kanbanState.saturdayDate;
+
+  allCards.forEach(card => {
+    const matkul = ACADEMIC_DATA.jadwal.find(m => m.id === card.id);
+    if (!matkul) return;
+
+    // 1. Remove this weekend dates
+    matkul.tanggal_offline = (matkul.tanggal_offline || []).filter(d => d !== friDate && d !== satDate);
+    matkul.tanggal_online = (matkul.tanggal_online || []).filter(d => d !== friDate && d !== satDate);
+
+    // 2. Add to appropriate date and mode if active
+    if (card.isActive) {
+      const targetDate = card.hari === "Jum'at" ? friDate : satDate;
+      if (card.metode === 'Online') {
+        matkul.tanggal_online.push(targetDate);
         matkul.tanggal_online.sort();
       } else {
-        matkul.tanggal_offline.push(currentCloudEditorDateISO);
+        matkul.tanggal_offline.push(targetDate);
         matkul.tanggal_offline.sort();
       }
     }
 
-    // 3. Update pertemuan array if exists
+    // 3. Update meeting object in pertemuan array
     if (matkul.pertemuan) {
-      const existingP = matkul.pertemuan.find(p => p.tanggal === currentCloudEditorDateISO);
-      if (existingP) {
-        existingP.dosen_pengajar = dosenName;
-        existingP.metode = metode;
-        if (topik) existingP.topik = topik;
+      const targetDate = card.hari === "Jum'at" ? friDate : satDate;
+      let meeting = matkul.pertemuan.find(p => p.tanggal === targetDate || p.sesi === card.sesi);
+      if (meeting) {
+        meeting.tanggal = targetDate;
+        meeting.dosen_pengajar = card.dosen_pengajar;
+        meeting.metode = card.metode;
+        if (card.topik) meeting.topik = card.topik;
       }
     }
   });
@@ -2080,7 +2539,7 @@ window.saveAndSyncScheduleToCloud = async function() {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        message: `chore: update jadwal & dosen pengampu ${currentCloudEditorDateISO} via Web Dashboard`,
+        message: `chore: update jadwal interaktif Pekan ${kanbanCurrentWeek} (${friDate} & ${satDate}) via Web Dashboard`,
         content: base64Content,
         sha: sha || undefined,
         branch: 'main'
@@ -2098,10 +2557,17 @@ window.saveAndSyncScheduleToCloud = async function() {
     renderCalendar();
     renderBroadcastTab();
 
-    showToast(`🎉 Sukses! Data jadwal ${currentCloudEditorDateISO} telah tersinkronisasi ke server GitHub Bot.`);
+    closeSyncConfirmModal();
     closeBotControlModal();
+    showToast(`🎉 Sukses! Jadwal Pekan ${kanbanCurrentWeek} telah tersinkronisasi ke server GitHub Bot.`);
   } catch (err) {
-    alert(`❌ Gagal menyimpan ke GitHub: ${err.message}\n\nPastikan token GitHub memiliki izin (scope) 'repo' atau 'contents:write'.`);
+    alert(`❌ Gagal menyimpan ke GitHub: ${err.message}\n\nPastikan token GitHub memiliki izin 'repo' atau 'contents:write'.`);
+  } finally {
+    if (btnCommit) {
+      btnCommit.disabled = false;
+      btnCommit.innerHTML = '💾 Konfirmasi & Sinkronkan Sekarang';
+    }
   }
 };
+
 

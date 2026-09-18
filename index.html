@@ -622,27 +622,90 @@
           </div>
         </div>
 
-        <!-- Tab 2: Edit & Sinkronkan Jadwal Cloud -->
+        <!-- Tab 2: Edit & Sinkronkan Jadwal Cloud (Drag & Drop Kanban Board) -->
         <div id="botTabEditor" class="bot-tab-content" style="display: none;">
-          <div style="background: rgba(79, 70, 229, 0.08); border: 1px solid rgba(79, 70, 229, 0.25); border-radius: var(--radius-sm); padding: 10px 14px; margin-bottom: 14px; font-size: 0.82rem; color: var(--text-secondary);">
-            💡 <strong>Info Sinkronisasi:</strong> Perubahan yang Anda simpan di bawah ini akan langsung di-commit ke file <code>data/jadwal_kuliah.json</code> di GitHub. Bot WhatsApp otomatis akan membaca data terbaru ini saat jam siaran tiba.
-          </div>
+          <div class="cloud-editor-header-box">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+              <div>
+                <div style="font-size: 0.95rem; font-weight: 800; color: var(--text-primary);">
+                  🔀 Papan Interaktif Jadwal Kuliah (Drag & Drop)
+                </div>
+                <div style="font-size: 0.78rem; color: var(--text-secondary); margin-top: 2px;">
+                  Tarik & lepas kartu untuk memindahkan jadwal Jum'at ⇄ Sabtu, geser urutan, atau sesuaikan jam & dosen bertugas.
+                </div>
+              </div>
+              <div style="display: flex; gap: 6px; align-items: center;">
+                <button class="btn-icon" style="font-size: 0.75rem; padding: 4px 8px;" onclick="resetKanbanToDefaultSyllabus()" title="Kembalikan jadwal pekan ini sesuai RPS default">
+                  🔄 Reset ke Default RPS
+                </button>
+              </div>
+            </div>
 
-          <div class="form-group" style="margin-bottom: 12px;">
-            <label class="form-label">Pilih Tanggal Perkuliahan yang Ingin Disesuaikan:</label>
-            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-              <button class="quick-action-btn btn-blue" id="btnEditorTomorrow" onclick="loadScheduleForCloudEditor(1)">
-                🗓️ Besok (H-1)
-              </button>
-              <button class="quick-action-btn" id="btnEditorToday" onclick="loadScheduleForCloudEditor(0)">
-                🔥 Hari Ini (Hari H)
-              </button>
-              <input type="date" id="inputCustomEditorDate" class="form-input" style="width: auto; padding: 6px 12px; font-size: 0.82rem;" onchange="loadScheduleForCloudEditor(this.value)">
+            <!-- Weekend Selector Row -->
+            <div class="kanban-weekend-selector">
+              <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                <span style="font-size: 0.8rem; font-weight: 700; color: var(--text-secondary);">📅 Pilih Pekan Kuliah:</span>
+                <select id="selKanbanWeek" class="form-input" style="width: auto; padding: 4px 10px; font-size: 0.8rem;" onchange="onKanbanWeekChange(this.value)">
+                  <!-- Options populated dynamically (Pekan 1 to 16) -->
+                </select>
+                <div class="weekend-date-pills" id="kanbanDatePills">
+                  <span class="date-pill pill-fri" id="pillFriDate">Jum'at, 18 Sep 2026</span>
+                  <span>⇄</span>
+                  <span class="date-pill pill-sat" id="pillSatDate">Sabtu, 19 Sep 2026</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Live Conflict Alert Banner -->
+            <div class="conflict-banner" id="kanbanConflictBanner" style="display: none;">
+              <span>⚠️</span>
+              <div id="kanbanConflictText" style="font-size: 0.78rem; font-weight: 600;"></div>
             </div>
           </div>
 
-          <div id="cloudScheduleEditorList">
-            <!-- Rendered dynamically by app.js: Editor form per matkul -->
+          <!-- 2-Column Kanban Board Layout -->
+          <div class="kanban-board-grid">
+            
+            <!-- Column 1: Jum'at -->
+            <div class="kanban-column col-friday" id="kanbanColFriday" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event, 'Jum\'at')">
+              <div class="kanban-col-header">
+                <div class="col-header-title">
+                  <span class="day-indicator fri"></span>
+                  <strong>JUM'AT</strong>
+                  <span class="col-count-badge" id="countBadgeFriday">3 Matkul</span>
+                </div>
+                <div class="col-date-sub" id="headerDateFriday">18 September 2026</div>
+              </div>
+
+              <div class="kanban-cards-container" id="kanbanCardsFriday">
+                <!-- Draggable cards rendered by app.js -->
+              </div>
+
+              <div class="kanban-drop-zone-hint">
+                <span>➕ Tarik & Lepas Matkul ke Sini untuk Jadwal Jum'at</span>
+              </div>
+            </div>
+
+            <!-- Column 2: Sabtu -->
+            <div class="kanban-column col-saturday" id="kanbanColSaturday" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event, 'Sabtu')">
+              <div class="kanban-col-header">
+                <div class="col-header-title">
+                  <span class="day-indicator sat"></span>
+                  <strong>SABTU</strong>
+                  <span class="col-count-badge" id="countBadgeSaturday">3 Matkul</span>
+                </div>
+                <div class="col-date-sub" id="headerDateSaturday">19 September 2026</div>
+              </div>
+
+              <div class="kanban-cards-container" id="kanbanCardsSaturday">
+                <!-- Draggable cards rendered by app.js -->
+              </div>
+
+              <div class="kanban-drop-zone-hint">
+                <span>➕ Tarik & Lepas Matkul ke Sini untuk Jadwal Sabtu</span>
+              </div>
+            </div>
+
           </div>
         </div>
 
@@ -650,7 +713,7 @@
         <div id="botTabToken" class="bot-tab-content" style="display: none;">
           <div class="form-group">
             <label class="form-label">Nama Repository GitHub (Format: <code>username/nama-repo</code>):</label>
-            <input type="text" id="inputGhRepo" class="form-input" placeholder="Contoh: arasyid/wa-jadwal-kuliah-bot">
+            <input type="text" id="inputGhRepo" class="form-input" placeholder="Contoh: alhamdi13/jadwal-mikom-ulm">
           </div>
 
           <div class="form-group">
@@ -699,6 +762,88 @@
         <div id="botModalFooterActions">
           <!-- Contextual buttons rendered by app.js based on active tab -->
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 6: Pengatur Jam Kuliah & Presets -->
+  <div class="modal-overlay" id="timeSlotModalOverlay" onclick="closeTimeSlotModal(event)">
+    <div class="modal-content" style="max-width: 480px;" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 1.3rem;">⏰</span>
+          <div>
+            <h3 style="font-size: 1.05rem; font-weight: 800;">Atur Jam Perkuliahan</h3>
+            <p style="font-size: 0.75rem; color: var(--text-secondary);" id="timeSlotModalCourseTitle">Mata Kuliah</p>
+          </div>
+        </div>
+        <button class="modal-close-btn" onclick="closeTimeSlotModal()">&times;</button>
+      </div>
+
+      <div class="modal-body" style="padding-top: 10px;">
+        <div style="font-size: 0.8rem; font-weight: 700; color: var(--text-primary); margin-bottom: 8px;">
+          📌 Pilihan Slot Jam Standar MIKOM:
+        </div>
+        
+        <div class="time-presets-grid" id="timePresetsContainer">
+          <!-- Preset buttons rendered dynamically -->
+        </div>
+
+        <div style="border-top: 1px solid var(--border-subtle); margin: 14px 0 10px; padding-top: 10px;">
+          <div style="font-size: 0.8rem; font-weight: 700; color: var(--text-primary); margin-bottom: 8px;">
+            ✏️ Atau Masukkan Jam Kustom Sendiri (WITA):
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label" style="font-size: 0.74rem;">Jam Mulai:</label>
+              <input type="text" id="inputCustomStart" class="form-input" placeholder="Contoh: 15.00" style="padding: 6px 10px; font-size: 0.85rem;">
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label" style="font-size: 0.74rem;">Jam Selesai:</label>
+              <input type="text" id="inputCustomEnd" class="form-input" placeholder="Contoh: 17.30" style="padding: 6px 10px; font-size: 0.85rem;">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer" style="justify-content: flex-end; gap: 8px;">
+        <button class="btn-icon" onclick="closeTimeSlotModal()">Batal</button>
+        <button class="quick-action-btn btn-blue" onclick="applyCustomTimeSlot()">
+          ✔️ Terapkan Jam Baru
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 7: Konfirmasi & Diff Preview Sebelum Sync ke GitHub -->
+  <div class="modal-overlay" id="syncConfirmModalOverlay" onclick="closeSyncConfirmModal(event)">
+    <div class="modal-content" style="max-width: 620px;" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 1.3rem;">🔍</span>
+          <div>
+            <h3 style="font-size: 1.05rem; font-weight: 800;">Pratinjau Perubahan Jadwal</h3>
+            <p style="font-size: 0.75rem; color: var(--text-secondary);">Periksa ringkasan penyesuaian sebelum dikirim ke GitHub Cloud Bot</p>
+          </div>
+        </div>
+        <button class="modal-close-btn" onclick="closeSyncConfirmModal()">&times;</button>
+      </div>
+
+      <div class="modal-body" style="padding-top: 10px;">
+        <div class="sync-diff-box" id="syncDiffList">
+          <!-- Diff list rendered dynamically -->
+        </div>
+
+        <div style="margin-top: 12px; font-size: 0.78rem; color: var(--text-muted); background: var(--bg-surface); padding: 8px 12px; border-radius: var(--radius-sm); border: 1px dashed var(--border-subtle);">
+          🚀 <strong>Target Repository:</strong> <code>alhamdi13/jadwal-mikom-ulm</code> (File: <code>data/jadwal_kuliah.json</code> @ branch <code>main</code>)
+        </div>
+      </div>
+
+      <div class="modal-footer" style="justify-content: space-between;">
+        <button class="btn-icon" onclick="closeSyncConfirmModal()">Kembali Edit</button>
+        <button class="quick-action-btn btn-green" id="btnConfirmCommit" onclick="executeCloudCommit()">
+          💾 Konfirmasi & Sinkronkan Sekarang
+        </button>
       </div>
     </div>
   </div>
