@@ -3,25 +3,30 @@ name: Broadcast Pengingat Kuliah H-30 Menit
 on:
   schedule:
     # ── JUM'AT (UTC) ──
-    # 13:30 WITA = 05:30 UTC Jum'at (Pengingat Matkul 1: 14.00)
+    # 13:30 WITA = 05:30 UTC Jum'at (Pengingat Matkul Siang: 14.00)
     - cron: '30 5 * * 5'
-    # 16:00 WITA = 08:00 UTC Jum'at (Pengingat Matkul 2: 16.30)
+    # 16:00 WITA = 08:00 UTC Jum'at (Pengingat Matkul Sore: 16.30)
     - cron: '0 8 * * 5'
-    # 18:15 WITA = 10:15 UTC Jum'at (Pengingat Matkul 3: 18.45)
+    # 18:15 WITA = 10:15 UTC Jum'at (Pengingat Matkul Malam: 18.45)
     - cron: '15 10 * * 5'
 
     # ── SABTU (UTC) ──
-    # 07:30 WITA Sabtu = 23:30 UTC Jum'at malam (Pengingat Matkul 1: 08.00)
+    # 07:30 / 08:00 WITA Sabtu = 23:30 / 00:00 UTC (Pengingat Sesi 1 Pagi: 08.00 - 08.30)
     - cron: '30 23 * * 5'
-    # 10:00 WITA Sabtu = 02:00 UTC Sabtu (Pengingat Matkul 2: 10.30)
+    - cron: '0 0 * * 6'
+    # 10:00 / 10:30 WITA Sabtu = 02:00 / 02:30 UTC (Pengingat Sesi 2 Siang: 10.30 - 11.00)
     - cron: '0 2 * * 6'
-    # 12:30 WITA Sabtu = 04:30 UTC Sabtu (Pengingat Matkul 3: 13.00)
+    - cron: '30 2 * * 6'
+    # 12:30 / 13:30 WITA Sabtu = 04:30 / 05:30 UTC (Pengingat Sesi 3 Sore: 13.00 - 14.00)
     - cron: '30 4 * * 6'
+    - cron: '30 5 * * 6'
+    # 18:30 / 19:00 WITA Sabtu = 10:30 / 11:00 UTC (Pengingat Sesi 4 Malam: 19.00 - 19.30)
+    - cron: '30 10 * * 6'
 
   workflow_dispatch:
     inputs:
       course_index:
-        description: 'Index Matkul (0 = Sesi 1, 1 = Sesi 2, 2 = Sesi 3) atau kosongkan untuk otomatis'
+        description: 'Index Matkul (0 = Sesi 1, 1 = Sesi 2, 2 = Sesi 3, 3 = Sesi 4) atau kosongkan untuk otomatis'
         required: false
         default: ''
 
