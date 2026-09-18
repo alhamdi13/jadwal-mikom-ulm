@@ -27,23 +27,25 @@ function getActiveRuangConfig() {
   if (typeof localStorage !== 'undefined') {
     const saved = localStorage.getItem('sijadwal_custom_ruangan');
     if (saved) return saved;
+// Cek apakah ada jadwal kustom yang disimpan di browser (localStorage)
+function getActiveJadwalConfig(defaultJadwal) {
+  if (typeof localStorage !== 'undefined') {
+    const saved = localStorage.getItem('sijadwal_custom_jadwal');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed;
+        }
+      } catch (e) {
+        console.error('Gagal memuat jadwal kustom dari localStorage:', e);
+      }
+    }
   }
-  return "G1.103";
+  return defaultJadwal;
 }
 
-const ACADEMIC_DATA = {
-  kampus: "Universitas Lambung Mangkurat (ULM)",
-  fakultas: "Fakultas Ilmu Sosial dan Ilmu Politik (FISIP)",
-  program_studi: "Magister Ilmu Komunikasi (MIKOM)",
-  jenjang: "Strata 2 (S2)",
-  semester: "Semester Ganjil (Semester I) T.A 2026/2027",
-  angkatan: "2026",
-  lokasi_kampus: "Banjarmasin, Kalimantan Selatan",
-  default_ruangan: getActiveRuangConfig(),
-  base_default_ruangan: "G1.103",
-  default_zoom: getActiveZoomConfig(),
-  base_default_zoom: DEFAULT_ZOOM_CONFIG,
-  jadwal: [
+const BASE_JADWAL_DATA = [
     {
       id: "MK-01",
       hari: "Jum'at",
@@ -371,7 +373,22 @@ const ACADEMIC_DATA = {
         { sesi: 16, tanggal: "2026-12-19", metode: "Online", dosen_pengajar: "Dr. Atika, S.I.Kom., M.Si", topik: "Ujian Akhir Semester (UAS)", tugas: "Pengumpulan Artikel Akhir UAS" }
       ]
     }
-  ],
+];
+
+const ACADEMIC_DATA = {
+  kampus: "Universitas Lambung Mangkurat (ULM)",
+  fakultas: "Fakultas Ilmu Sosial dan Ilmu Politik (FISIP)",
+  program_studi: "Magister Ilmu Komunikasi (MIKOM)",
+  jenjang: "Strata 2 (S2)",
+  semester: "Semester Ganjil (Semester I) T.A 2026/2027",
+  angkatan: "2026",
+  lokasi_kampus: "Banjarmasin, Kalimantan Selatan",
+  default_ruangan: getActiveRuangConfig(),
+  base_default_ruangan: "G1.103",
+  default_zoom: getActiveZoomConfig(),
+  base_default_zoom: DEFAULT_ZOOM_CONFIG,
+  jadwal: getActiveJadwalConfig(BASE_JADWAL_DATA),
+  base_jadwal: BASE_JADWAL_DATA,
   daftar_dosen: [
     {
       nama: "Dr. Irwansyah, S.Sos,. M.Si",

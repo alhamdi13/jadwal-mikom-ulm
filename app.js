@@ -228,11 +228,14 @@ function initTodaySpotlight() {
   }
 }
 
+let currentActiveTab = 'today';
+
 // 5. Render Schedule Cards Grid
 function renderScheduleCards(tab = 'today', searchQuery = '') {
   const container = document.getElementById('scheduleGrid');
   if (!container) return;
 
+  currentActiveTab = tab;
   const today = new Date();
   const todayISO = formatDateISO(today);
   let list = [];
@@ -252,6 +255,13 @@ function renderScheduleCards(tab = 'today', searchQuery = '') {
   } else {
     list = ACADEMIC_DATA.jadwal;
   }
+
+  // Sort list chronologically by start time (jam_mulai)
+  list.sort((a, b) => {
+    const timeA = parseTimeToMinutes(a.jam_mulai);
+    const timeB = parseTimeToMinutes(b.jam_mulai);
+    return timeA - timeB;
+  });
 
   // Filter Search
   if (searchQuery) {
@@ -2266,7 +2276,12 @@ window.toggleKanbanCourseActive = function(courseId, isChecked) {
 
 window.resetKanbanToDefaultSyllabus = function() {
   if (confirm('Kembalikan susunan jadwal pekan ini sesuai RPS default semester?')) {
+    if (ACADEMIC_DATA.base_jadwal) {
+      ACADEMIC_DATA.jadwal = JSON.parse(JSON.stringify(ACADEMIC_DATA.base_jadwal));
+      localStorage.removeItem('sijadwal_custom_jadwal');
+    }
     loadKanbanWeek(kanbanCurrentWeek);
+    renderScheduleCards(currentActiveTab || 'today');
     showToast('🔄 Jadwal telah direset sesuai Silabus Default.');
   }
 };
@@ -2493,7 +2508,7 @@ window.executeCloudCommit = async function() {
 
   showToast('⏳ Mengirim pembaruan jadwal ke GitHub Cloud...');
 
-  // Update ACADEMIC_DATA.jadwal dates and meetings
+  // Update ACADEMIC_DATA.jadwal dates, days, hours, and meetings
   const allCards = [...kanbanState.fridayCards, ...kanbanState.saturdayCards];
   const friDate = kanbanState.fridayDate;
   const satDate = kanbanState.saturdayDate;
@@ -2501,6 +2516,12 @@ window.executeCloudCommit = async function() {
   allCards.forEach(card => {
     const matkul = ACADEMIC_DATA.jadwal.find(m => m.id === card.id);
     if (!matkul) return;
+
+    // Update dynamic day and time directly on course object
+    matkul.hari = card.hari;
+    matkul.jam_mulai = card.jam_mulai;
+    matkul.jam_selesai = card.jam_selesai;
+    matkul.day_index = card.hari === "Jum'at" ? 5 : 6;
 
     // 1. Remove this weekend dates
     matkul.tanggal_offline = (matkul.tanggal_offline || []).filter(d => d !== friDate && d !== satDate);
@@ -2530,6 +2551,9 @@ window.executeCloudCommit = async function() {
       }
     }
   });
+
+  // Save to localStorage for instant local persistence
+  localStorage.setItem('sijadwal_custom_jadwal', JSON.stringify(ACADEMIC_DATA.jadwal));
 
   // Prepare database JSON payload for GitHub
   const updatedDbJson = {
@@ -2595,7 +2619,7 @@ window.executeCloudCommit = async function() {
 
     // Refresh UI
     initTodaySpotlight();
-    renderScheduleCards('today');
+    renderScheduleCards(currentActiveTab || 'today');
     renderCalendar();
     renderBroadcastTab();
 
