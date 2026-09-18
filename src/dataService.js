@@ -103,6 +103,7 @@ export async function getScheduleForDate(dateInput = 0) {
     if (isOffline || isOnline) {
       const mode = isOnline ? 'Online' : 'Offline';
       const meeting = (item.pertemuan || []).find(p => p.tanggal === dateStr);
+      const activeLecturer = meeting?.dosen_pengajar || item.dosen_pengajar_aktif || (item.tim_pengajar && item.tim_pengajar.length > 0 ? item.tim_pengajar[0].nama : null);
 
       schedules.push({
         id: item.id,
@@ -116,7 +117,7 @@ export async function getScheduleForDate(dateInput = 0) {
         zoom: mode === 'Online' ? rawData.default_zoom : null,
         pertemuan_ke: meeting ? meeting.sesi : null,
         topik: meeting ? meeting.topik : null,
-        dosen_pengajar: meeting ? meeting.dosen_pengajar : null,
+        dosen_pengajar: activeLecturer,
         tugas: meeting ? meeting.tugas : null,
         catatan: mode === 'Online' ? 'Perkuliahan Daring (Zoom Meeting)' : `Tatap Muka di Ruang ${rawData.default_ruangan}`
       });
@@ -164,15 +165,37 @@ export async function getScheduleByDayName(dayNameQuery) {
 }
 
 /**
- * Mengambil jadwal hari ini yang dikelompokkan per Dosen untuk japri
+ * Mengambil jadwal hari ini yang dikelompokkan per Dosen untuk japri (Hanya Dosen yang Bertugas Aktif)
  * @param {Date|number} dateInput
  */
 export async function getLecturersSchedulesForDate(dateInput = 0) {
   const daySchedule = await getScheduleForDate(dateInput);
+  const rawData = await loadScheduleData();
   const lecturerMap = new Map();
 
   for (const classItem of daySchedule.schedules) {
-    for (const lecturer of classItem.tim_pengajar) {
+    // 1. Filter tim_pengajar HANYA ke dosen yang bertugas (dosen_pengajar aktif)
+    let assignedLecturers = [];
+    if (classItem.dosen_pengajar) {
+      assignedLecturers = (classItem.tim_pengajar || []).filter(d => 
+        classItem.dosen_pengajar.includes(d.nama) || d.nama.includes(classItem.dosen_pengajar)
+      );
+
+      // Jika nama tidak langsung cocok di tim_pengajar lokal, cari di master daftar_dosen
+      if (assignedLecturers.length === 0 && rawData.daftar_dosen) {
+        const found = rawData.daftar_dosen.find(d => 
+          classItem.dosen_pengajar.includes(d.nama) || d.nama.includes(classItem.dosen_pengajar)
+        );
+        if (found) assignedLecturers = [found];
+      }
+    }
+
+    // 2. Jika tidak ada filter khusus, gunakan tim_pengajar default
+    if (assignedLecturers.length === 0) {
+      assignedLecturers = classItem.tim_pengajar || [];
+    }
+
+    for (const lecturer of assignedLecturers) {
       let phone = (lecturer.no_hp || '').replace(/[^0-9]/g, '');
       if (!phone) continue;
 
@@ -193,10 +216,6 @@ export async function getLecturersSchedulesForDate(dateInput = 0) {
         });
       }
 
-      const isAssignedToThisMeeting = classItem.dosen_pengajar 
-        ? lecturer.nama.includes(classItem.dosen_pengajar) || classItem.dosen_pengajar.includes(lecturer.nama)
-        : true;
-
       lecturerMap.get(phone).schedules.push({
         mata_kuliah: classItem.mata_kuliah,
         jam_mulai: classItem.jam_mulai,
@@ -206,8 +225,8 @@ export async function getLecturersSchedulesForDate(dateInput = 0) {
         zoom: classItem.zoom,
         pertemuan_ke: classItem.pertemuan_ke,
         topik: classItem.topik,
-        dosen_pengajar: classItem.dosen_pengajar,
-        is_assigned: isAssignedToThisMeeting,
+        dosen_pengajar: classItem.dosen_pengajar || lecturer.nama,
+        is_assigned: true,
         tim_pengajar: classItem.tim_pengajar
       });
     }
