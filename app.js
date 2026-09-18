@@ -2622,6 +2622,7 @@ window.executeCloudCommit = async function() {
     matkul.jam_mulai = card.jam_mulai;
     matkul.jam_selesai = card.jam_selesai;
     matkul.day_index = card.hari === "Jum'at" ? 5 : 6;
+    matkul.dosen_pengajar_aktif = card.dosen_pengajar;
 
     // 1. Remove this weekend dates
     matkul.tanggal_offline = (matkul.tanggal_offline || []).filter(d => d !== friDate && d !== satDate);
@@ -2637,17 +2638,23 @@ window.executeCloudCommit = async function() {
         matkul.tanggal_offline.push(targetDate);
         matkul.tanggal_offline.sort();
       }
-    }
 
-    // 3. Update meeting object in pertemuan array
-    if (matkul.pertemuan) {
-      const targetDate = card.hari === "Jum'at" ? friDate : satDate;
+      // 3. Update or insert meeting object in pertemuan array
+      if (!matkul.pertemuan) matkul.pertemuan = [];
       let meeting = matkul.pertemuan.find(p => p.tanggal === targetDate || p.sesi === card.sesi);
       if (meeting) {
         meeting.tanggal = targetDate;
         meeting.dosen_pengajar = card.dosen_pengajar;
         meeting.metode = card.metode;
         if (card.topik) meeting.topik = card.topik;
+      } else {
+        matkul.pertemuan.push({
+          sesi: card.sesi || kanbanCurrentWeek,
+          tanggal: targetDate,
+          metode: card.metode,
+          dosen_pengajar: card.dosen_pengajar,
+          topik: card.topik || 'Materi Perkuliahan Sesi Ini'
+        });
       }
     }
   });
@@ -2670,6 +2677,7 @@ window.executeCloudCommit = async function() {
       jam_mulai: m.jam_mulai,
       jam_selesai: m.jam_selesai,
       mata_kuliah: m.mata_kuliah,
+      dosen_pengajar_aktif: m.dosen_pengajar_aktif || (m.pertemuan?.find(p => p.tanggal === friDate || p.tanggal === satDate)?.dosen_pengajar) || (m.tim_pengajar?.[0]?.nama),
       tim_pengajar: m.tim_pengajar,
       tanggal_offline: m.tanggal_offline,
       tanggal_online: m.tanggal_online,
