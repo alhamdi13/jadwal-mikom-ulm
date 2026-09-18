@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initClock();
   initTheme();
   initTodaySpotlight();
+  initBotControl();
   renderScheduleCards('today');
   renderCalendar();
   renderLecturerDirectory();
@@ -1472,3 +1473,635 @@ window.showToast = function(message) {
     setTimeout(() => toast.remove(), 300);
   }, 3500);
 };
+
+/* ==========================================================================
+   12. Bot WhatsApp Cloud Control & GitHub API Module
+   ========================================================================== */
+
+const BOT_WORKFLOWS_DEF = [
+  {
+    file: 'h_minus_1_broadcast.yml',
+    title: '🔔 Bot Pengingat H-1 Sore',
+    schedule: '⏰ Setiap Kamis & Jum\'at Sore (16:53 WITA)',
+    desc: 'Mengirimkan konfirmasi kesiapan ke dosen pengampu (Japri) dan pengingat kuliah esok hari ke WAG mahasiswa.'
+  },
+  {
+    file: 'morning_broadcast.yml',
+    title: '🌅 Bot Jadwal Pagi Hari H',
+    schedule: '⏰ Setiap Jum\'at & Sabtu Pagi (04:53 WITA)',
+    desc: 'Mengirimkan rekapitulasi jadwal kuliah hari ini beserta ruangan tatap muka / link Zoom ke WAG mahasiswa.'
+  },
+  {
+    file: 'course_reminder_broadcast.yml',
+    title: '⏱️ Bot Pengingat Kilat H-30 Menit',
+    schedule: '⏰ 30 Menit Sebelum Setiap Sesi Kuliah',
+    desc: 'Mengirimkan notifikasi kilat fokus per-mata kuliah langsung dengan link Zoom & nomor ruang kelas.'
+  }
+];
+
+let cachedWorkflowStates = {};
+let currentCloudEditorDateISO = '';
+
+function getGitHubConfig() {
+  return {
+    repo: localStorage.getItem('sijadwal_gh_repo') || 'alhamdi13/jadwal-mikom-ulm',
+    token: localStorage.getItem('sijadwal_gh_token') || ''
+  };
+}
+
+function saveGitHubConfig(repo, token) {
+  localStorage.setItem('sijadwal_gh_repo', repo.trim());
+  localStorage.setItem('sijadwal_gh_token', token.trim());
+}
+
+function initBotControl() {
+  const cfg = getGitHubConfig();
+  const repoInput = document.getElementById('inputGhRepo');
+  const tokenInput = document.getElementById('inputGhToken');
+  
+  if (repoInput) repoInput.value = cfg.repo || 'alhamdi13/jadwal-mikom-ulm';
+  if (tokenInput && cfg.token) tokenInput.value = cfg.token;
+
+  updateTopBarBotBadge();
+}
+
+function updateTopBarBotBadge() {
+  const cfg = getGitHubConfig();
+  const btn = document.getElementById('btnTopBotControl');
+  if (!btn) return;
+
+  if (!cfg.token || !cfg.repo) {
+    btn.innerHTML = `⚠️ Kontrol Bot (Atur Token)`;
+    btn.style.color = '#f59e0b';
+    btn.style.borderColor = 'rgba(245, 158, 11, 0.35)';
+    btn.style.background = 'rgba(245, 158, 11, 0.12)';
+  } else {
+    btn.innerHTML = `<span class="pulse-dot-mini"></span> 🤖 Saklar & Kontrol Bot`;
+    btn.style.color = '#10b981';
+    btn.style.borderColor = 'rgba(16, 185, 129, 0.35)';
+    btn.style.background = 'rgba(16, 185, 129, 0.15)';
+  }
+}
+
+window.openBotControlModal = function(initialTab = 'switches') {
+  const overlay = document.getElementById('botControlModalOverlay');
+  if (!overlay) return;
+
+  overlay.classList.add('active');
+  switchBotModalTab(initialTab);
+  
+  const cfg = getGitHubConfig();
+  if (cfg.token && cfg.repo) {
+    refreshBotWorkflowsStatus();
+  } else {
+    renderBotWorkflowsList();
+    const banner = document.getElementById('botConnectionText');
+    const dot = document.getElementById('botConnectionDot');
+    if (banner) banner.textContent = '⚠️ GitHub Token belum diatur. Masuk ke tab "Pengaturan Akses GitHub" untuk menghubungkan.';
+    if (dot) dot.className = 'pulse-dot warning';
+  }
+};
+
+window.closeBotControlModal = function(e) {
+  if (e && e.target !== e.currentTarget && !e.target.classList.contains('modal-close-btn')) return;
+  const overlay = document.getElementById('botControlModalOverlay');
+  if (overlay) overlay.classList.remove('active');
+};
+
+window.switchBotModalTab = function(tabName) {
+  document.querySelectorAll('.bot-modal-tab-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.getAttribute('data-bttab') === tabName);
+  });
+
+  const tabSwitches = document.getElementById('botTabSwitches');
+  const tabEditor = document.getElementById('botTabEditor');
+  const tabToken = document.getElementById('botTabToken');
+  const footerActions = document.getElementById('botModalFooterActions');
+
+  if (tabSwitches) tabSwitches.style.display = (tabName === 'switches') ? 'block' : 'none';
+  if (tabEditor) tabEditor.style.display = (tabName === 'editor') ? 'block' : 'none';
+  if (tabToken) tabToken.style.display = (tabName === 'token') ? 'block' : 'none';
+
+  if (footerActions) {
+    if (tabName === 'switches') {
+      footerActions.innerHTML = `
+        <button class="quick-action-btn btn-blue" onclick="refreshBotWorkflowsStatus()">
+          🔄 Perbarui Status Saklar
+        </button>
+      `;
+    } else if (tabName === 'editor') {
+      footerActions.innerHTML = `
+        <button class="quick-action-btn btn-green" onclick="saveAndSyncScheduleToCloud()">
+          💾 Simpan & Sinkronkan ke Cloud Bot
+        </button>
+      `;
+      if (!currentCloudEditorDateISO) {
+        loadScheduleForCloudEditor(1); // Default to tomorrow
+      }
+    } else {
+      footerActions.innerHTML = `
+        <button class="quick-action-btn btn-blue" onclick="testAndSaveGitHubConfig()">
+          🔌 Uji Koneksi & Simpan
+        </button>
+      `;
+    }
+  }
+};
+
+window.toggleTokenVisibility = function() {
+  const tokenInput = document.getElementById('inputGhToken');
+  if (tokenInput) {
+    tokenInput.type = tokenInput.type === 'password' ? 'text' : 'password';
+  }
+};
+
+window.testAndSaveGitHubConfig = async function() {
+  const repo = (document.getElementById('inputGhRepo').value || '').trim();
+  const token = (document.getElementById('inputGhToken').value || '').trim();
+
+  if (!repo || !token) {
+    alert('Harap isi Nama Repository (contoh: user/repo) dan Personal Access Token!');
+    return;
+  }
+
+  showToast('⏳ Menguji koneksi ke GitHub Actions API...');
+
+  try {
+    const res = await fetch(`https://api.github.com/repos/${repo}/actions/workflows`, {
+      headers: {
+        'Accept': 'application/vnd.github+json',
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    if (!res.ok) {
+      const errData = await res.json().catch(() => ({}));
+      throw new Error(errData.message || `HTTP ${res.status}: Gagal otentikasi GitHub.`);
+    }
+
+    const data = await res.json();
+    saveGitHubConfig(repo, token);
+    updateTopBarBotBadge();
+
+    showToast(`✅ Berhasil terhubung ke ${repo}! Ditemukan ${data.total_count || data.workflows?.length || 0} workflows.`);
+    
+    // Switch to switches tab and refresh
+    setTimeout(() => {
+      switchBotModalTab('switches');
+      refreshBotWorkflowsStatus();
+    }, 600);
+  } catch (err) {
+    alert(`❌ Gagal terhubung ke GitHub: ${err.message}\n\nPastikan nama repo benar dan token memiliki scope 'workflow' & 'repo'.`);
+  }
+};
+
+window.refreshBotWorkflowsStatus = async function() {
+  const cfg = getGitHubConfig();
+  const banner = document.getElementById('botConnectionText');
+  const dot = document.getElementById('botConnectionDot');
+
+  if (!cfg.token || !cfg.repo) {
+    if (banner) banner.textContent = '⚠️ GitHub Token belum diatur. Masuk ke tab "Pengaturan Akses GitHub" untuk menghubungkan.';
+    if (dot) dot.className = 'pulse-dot warning';
+    renderBotWorkflowsList();
+    return;
+  }
+
+  if (banner) banner.textContent = `Menghubungi GitHub Actions (${cfg.repo})...`;
+  if (dot) dot.className = 'pulse-dot warning';
+
+  try {
+    const res = await fetch(`https://api.github.com/repos/${cfg.repo}/actions/workflows`, {
+      headers: {
+        'Accept': 'application/vnd.github+json',
+        'Authorization': `Bearer ${cfg.token}`
+      }
+    });
+
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+    const data = await res.json();
+    const workflows = data.workflows || [];
+
+    // Map by file path (e.g. .github/workflows/h_minus_1_broadcast.yml)
+    cachedWorkflowStates = {};
+    workflows.forEach(wf => {
+      const fileName = wf.path.split('/').pop();
+      cachedWorkflowStates[fileName] = {
+        id: wf.id,
+        name: wf.name,
+        state: wf.state, // 'active' or 'disabled_manually'
+        path: wf.path
+      };
+    });
+
+    if (banner) banner.textContent = `🟢 Terhubung Sukses ke GitHub Actions (${cfg.repo})`;
+    if (dot) dot.className = 'pulse-dot';
+
+    renderBotWorkflowsList();
+    showToast('✅ Status saklar bot berhasil diperbarui dari cloud!');
+  } catch (err) {
+    if (banner) banner.textContent = `❌ Gagal mengambil status: ${err.message}`;
+    if (dot) dot.className = 'pulse-dot danger';
+    renderBotWorkflowsList();
+  }
+};
+
+function renderBotWorkflowsList() {
+  const container = document.getElementById('botWorkflowsList');
+  if (!container) return;
+
+  const cfg = getGitHubConfig();
+  const isConfigured = !!(cfg.token && cfg.repo);
+
+  container.innerHTML = BOT_WORKFLOWS_DEF.map(item => {
+    const wfState = cachedWorkflowStates[item.file];
+    const isActive = wfState ? wfState.state === 'active' : true;
+    const wfId = wfState ? wfState.id : item.file;
+
+    return `
+      <div class="workflow-card ${isActive ? 'is-active' : 'is-disabled'}">
+        <div class="workflow-info">
+          <div class="workflow-title-row">
+            <span class="workflow-title">${item.title}</span>
+            <span class="workflow-status-tag ${isActive ? 'active' : 'disabled'}">
+              ${isActive ? '🟢 AKTIF' : '🔴 NONAKTIF (DIMATIKAN)'}
+            </span>
+          </div>
+          <div class="workflow-desc">${item.desc}</div>
+          <div class="workflow-cron-pill">${item.schedule}</div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 8px;">
+          <label class="toggle-switch" title="${isActive ? 'Klik untuk mematikan bot ini' : 'Klik untuk menyalakan bot ini'}">
+            <input type="checkbox" ${isActive ? 'checked' : ''} ${!isConfigured ? 'disabled' : ''} onchange="toggleWorkflowSwitch('${wfId}', '${item.file}', this.checked)">
+            <span class="toggle-slider"></span>
+          </label>
+
+          ${isConfigured ? `
+            <button class="btn-icon" style="font-size: 0.72rem; padding: 4px 8px;" onclick="triggerWorkflowManual('${wfId}', '${item.title}')" title="Kirim siaran manual sekarang melalui GitHub Actions">
+              ⚡ Test Kirim
+            </button>
+          ` : ''}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+window.toggleWorkflowSwitch = async function(workflowIdOrFile, fileName, shouldEnable) {
+  const cfg = getGitHubConfig();
+  if (!cfg.token || !cfg.repo) {
+    alert('Harap hubungkan Token GitHub terlebih dahulu di tab Pengaturan Token!');
+    refreshBotWorkflowsStatus();
+    return;
+  }
+
+  const endpoint = shouldEnable ? 'enable' : 'disable';
+  showToast(`⏳ Mengirim instruksi ${shouldEnable ? 'MENYALAKAN' : 'MEMATIKAN'} bot ke GitHub...`);
+
+  try {
+    const res = await fetch(`https://api.github.com/repos/${cfg.repo}/actions/workflows/${workflowIdOrFile}/${endpoint}`, {
+      method: 'PUT',
+      headers: {
+        'Accept': 'application/vnd.github+json',
+        'Authorization': `Bearer ${cfg.token}`
+      }
+    });
+
+    if (!res.ok) {
+      const errData = await res.json().catch(() => ({}));
+      throw new Error(errData.message || `HTTP ${res.status}`);
+    }
+
+    if (cachedWorkflowStates[fileName]) {
+      cachedWorkflowStates[fileName].state = shouldEnable ? 'active' : 'disabled_manually';
+    }
+
+    renderBotWorkflowsList();
+    showToast(`✅ Berhasil! Bot ${fileName} sekarang ${shouldEnable ? 'AKTIF 🟢' : 'NONAKTIF 🔴'}.`);
+  } catch (err) {
+    alert(`❌ Gagal mengubah status bot di GitHub: ${err.message}`);
+    refreshBotWorkflowsStatus();
+  }
+};
+
+window.quickToggleAllBot = async function(enableAll) {
+  const cfg = getGitHubConfig();
+  if (!cfg.token || !cfg.repo) {
+    alert('Harap hubungkan Token GitHub terlebih dahulu di tab Pengaturan Token!');
+    return;
+  }
+
+  const actionName = enableAll ? 'MENYALAKAN SEMUA' : 'MEMATIKAN SEMUA';
+  if (!confirm(`Apakah Anda yakin ingin ${actionName} siaran bot WhatsApp otomatis di GitHub?`)) {
+    return;
+  }
+
+  showToast(`⏳ Sedang ${enableAll ? 'mengaktifkan' : 'menonaktifkan'} seluruh bot cloud...`);
+
+  const endpoint = enableAll ? 'enable' : 'disable';
+
+  for (const item of BOT_WORKFLOWS_DEF) {
+    const wfState = cachedWorkflowStates[item.file];
+    const targetId = wfState ? wfState.id : item.file;
+
+    try {
+      await fetch(`https://api.github.com/repos/${cfg.repo}/actions/workflows/${targetId}/${endpoint}`, {
+        method: 'PUT',
+        headers: {
+          'Accept': 'application/vnd.github+json',
+          'Authorization': `Bearer ${cfg.token}`
+        }
+      });
+      if (cachedWorkflowStates[item.file]) {
+        cachedWorkflowStates[item.file].state = enableAll ? 'active' : 'disabled_manually';
+      }
+    } catch (e) {
+      console.error('Error toggling workflow:', item.file, e);
+    }
+  }
+
+  renderBotWorkflowsList();
+  showToast(`🎉 Seluruh bot berhasil ${enableAll ? 'DINYALAKAN 🟢' : 'DIMATIKAN 🔴'}!`);
+};
+
+window.triggerWorkflowManual = async function(workflowIdOrFile, title) {
+  const cfg = getGitHubConfig();
+  if (!cfg.token || !cfg.repo) return;
+
+  if (!confirm(`Jalankan pengujian siaran [${title}] sekarang melalui server GitHub Actions?`)) return;
+
+  showToast(`⏳ Mengirim pemicu eksekusi siaran ke GitHub...`);
+
+  try {
+    const res = await fetch(`https://api.github.com/repos/${cfg.repo}/actions/workflows/${workflowIdOrFile}/dispatches`, {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/vnd.github+json',
+        'Authorization': `Bearer ${cfg.token}`
+      },
+      body: JSON.stringify({ ref: 'main' })
+    });
+
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+    showToast(`🚀 Siaran [${title}] berhasil dipicu di GitHub Actions!`);
+  } catch (err) {
+    alert(`❌ Gagal memicu siaran di GitHub: ${err.message}`);
+  }
+};
+
+/* Cloud Schedule Editor Logic */
+window.loadScheduleForCloudEditor = function(offsetOrDateStr) {
+  let targetDate;
+  if (typeof offsetOrDateStr === 'number') {
+    targetDate = new Date();
+    targetDate.setDate(targetDate.getDate() + offsetOrDateStr);
+  } else if (typeof offsetOrDateStr === 'string' && offsetOrDateStr.includes('-')) {
+    targetDate = new Date(offsetOrDateStr);
+  } else {
+    targetDate = new Date();
+  }
+
+  currentCloudEditorDateISO = formatDateISO(targetDate);
+
+  const customDateInput = document.getElementById('inputCustomEditorDate');
+  if (customDateInput) customDateInput.value = currentCloudEditorDateISO;
+
+  const btnTomorrow = document.getElementById('btnEditorTomorrow');
+  const btnToday = document.getElementById('btnEditorToday');
+  const todayISO = formatDateISO(new Date());
+
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const tomorrowISO = formatDateISO(tomorrow);
+
+  if (btnToday) btnToday.className = `quick-action-btn ${currentCloudEditorDateISO === todayISO ? 'btn-blue' : ''}`;
+  if (btnTomorrow) btnTomorrow.className = `quick-action-btn ${currentCloudEditorDateISO === tomorrowISO ? 'btn-blue' : ''}`;
+
+  renderCloudEditorCards(currentCloudEditorDateISO);
+};
+
+function renderCloudEditorCards(dateISO) {
+  const container = document.getElementById('cloudScheduleEditorList');
+  if (!container) return;
+
+  const dateObj = new Date(dateISO);
+  const dayIndex = dateObj.getDay(); // 5 = Fri, 6 = Sat
+  const dayName = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', "Jum'at", 'Sabtu'][dayIndex];
+  const formattedDate = dateObj.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+
+  // Find classes scheduled on this day or matching day_index
+  const classesForDay = ACADEMIC_DATA.jadwal.filter(m => m.day_index === dayIndex || m.hari.toLowerCase().includes(dayName.toLowerCase().slice(0, 3)));
+
+  if (classesForDay.length === 0) {
+    container.innerHTML = `
+      <div style="text-align: center; padding: 24px; color: var(--text-secondary); background: var(--bg-surface); border-radius: var(--radius-md); border: 1px dashed var(--border-subtle);">
+        🎉 <strong>Hari ${dayName} (${formattedDate}) bukan jadwal perkuliahan reguler.</strong>
+        <p style="font-size: 0.8rem; margin-top: 4px;">Perkuliahan MIKOM 2026 aktif pada hari Jum'at & Sabtu.</p>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = `
+    <div style="font-size: 0.88rem; font-weight: 800; color: var(--text-primary); margin-bottom: 10px;">
+      📚 Daftar Mata Kuliah untuk Tanggal: <u>${formattedDate}</u>
+    </div>
+  ` + classesForDay.map((matkul, idx) => {
+    const isOffline = (matkul.tanggal_offline || []).includes(dateISO);
+    const isOnline = (matkul.tanggal_online || []).includes(dateISO);
+    const isScheduledToday = isOffline || isOnline;
+
+    const currentMeeting = (matkul.pertemuan || []).find(p => p.tanggal === dateISO) || {
+      sesi: idx + 1,
+      dosen_pengajar: matkul.tim_pengajar?.[0]?.nama || '',
+      topik: ''
+    };
+
+    return `
+      <div class="cloud-editor-card" id="editorCard_${matkul.id}">
+        <div class="cloud-editor-title">
+          <span>${idx + 1}️⃣ ${matkul.mata_kuliah} (${matkul.sks} SKS)</span>
+          <label style="display: flex; align-items: center; gap: 6px; font-size: 0.78rem; font-weight: 600; cursor: pointer;">
+            <input type="checkbox" id="chkActive_${matkul.id}" ${isScheduledToday ? 'checked' : ''} onchange="toggleMatkulScheduledState('${matkul.id}')">
+            <span>${isScheduledToday ? '🟢 Kelas Masuk' : '❌ Kelas Diliburkan'}</span>
+          </label>
+        </div>
+
+        <div class="cloud-editor-grid">
+          <div class="form-group" style="margin-bottom: 8px;">
+            <label class="form-label" style="font-size: 0.76rem;">👨‍🏫 Dosen Bertugas:</label>
+            <select id="selDosen_${matkul.id}" class="form-input" style="padding: 6px 10px; font-size: 0.8rem;">
+              ${(matkul.tim_pengajar || []).map(d => `
+                <option value="${d.nama}" ${d.nama === currentMeeting.dosen_pengajar ? 'selected' : ''}>
+                  ${d.nama}
+                </option>
+              `).join('')}
+            </select>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 8px;">
+            <label class="form-label" style="font-size: 0.76rem;">🌐 Metode Kuliah:</label>
+            <select id="selMetode_${matkul.id}" class="form-input" style="padding: 6px 10px; font-size: 0.8rem;">
+              <option value="Offline" ${isOffline || (!isScheduledToday && !isOnline) ? 'selected' : ''}>🟢 Tatap Muka (Ruang ${ACADEMIC_DATA.default_ruangan})</option>
+              <option value="Online" ${isOnline ? 'selected' : ''}>🌐 Daring (Zoom Meeting)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 4px;">
+          <label class="form-label" style="font-size: 0.76rem;">🎯 Topik Bahasan / RPS Pertemuan ke-${currentMeeting.sesi}:</label>
+          <input type="text" id="inputTopik_${matkul.id}" class="form-input" style="padding: 6px 10px; font-size: 0.8rem;" value="${currentMeeting.topik || ''}" placeholder="Topik materi kuliah...">
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+window.toggleMatkulScheduledState = function(matkulId) {
+  const chk = document.getElementById(`chkActive_${matkulId}`);
+  const card = document.getElementById(`editorCard_${matkulId}`);
+  if (!chk || !card) return;
+
+  const isChecked = chk.checked;
+  chk.nextElementSibling.textContent = isChecked ? '🟢 Kelas Masuk' : '❌ Kelas Diliburkan';
+  card.style.opacity = isChecked ? '1' : '0.6';
+};
+
+window.saveAndSyncScheduleToCloud = async function() {
+  const cfg = getGitHubConfig();
+  if (!cfg.token || !cfg.repo) {
+    alert('Harap hubungkan Token GitHub terlebih dahulu di tab Pengaturan Token!');
+    switchBotModalTab('token');
+    return;
+  }
+
+  if (!currentCloudEditorDateISO) {
+    alert('Pilih tanggal perkuliahan terlebih dahulu!');
+    return;
+  }
+
+  const dateObj = new Date(currentCloudEditorDateISO);
+  const dayIndex = dateObj.getDay();
+  const dayName = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', "Jum'at", 'Sabtu'][dayIndex];
+  const classesForDay = ACADEMIC_DATA.jadwal.filter(m => m.day_index === dayIndex || m.hari.toLowerCase().includes(dayName.toLowerCase().slice(0, 3)));
+
+  showToast('⏳ Mempersiapkan data & menyinkronkan ke GitHub Cloud...');
+
+  // Update ACADEMIC_DATA and generate updated JSON structure
+  classesForDay.forEach(matkul => {
+    const chk = document.getElementById(`chkActive_${matkul.id}`);
+    const selDosen = document.getElementById(`selDosen_${matkul.id}`);
+    const selMetode = document.getElementById(`selMetode_${matkul.id}`);
+    const inputTopik = document.getElementById(`inputTopik_${matkul.id}`);
+
+    if (!chk) return;
+
+    const isClassActive = chk.checked;
+    const dosenName = selDosen ? selDosen.value : matkul.tim_pengajar?.[0]?.nama;
+    const metode = selMetode ? selMetode.value : 'Offline';
+    const topik = inputTopik ? inputTopik.value.trim() : '';
+
+    // 1. Remove this date from offline & online lists
+    matkul.tanggal_offline = (matkul.tanggal_offline || []).filter(d => d !== currentCloudEditorDateISO);
+    matkul.tanggal_online = (matkul.tanggal_online || []).filter(d => d !== currentCloudEditorDateISO);
+
+    // 2. If active, add to correct list
+    if (isClassActive) {
+      if (metode === 'Online') {
+        matkul.tanggal_online.push(currentCloudEditorDateISO);
+        matkul.tanggal_online.sort();
+      } else {
+        matkul.tanggal_offline.push(currentCloudEditorDateISO);
+        matkul.tanggal_offline.sort();
+      }
+    }
+
+    // 3. Update pertemuan array if exists
+    if (matkul.pertemuan) {
+      const existingP = matkul.pertemuan.find(p => p.tanggal === currentCloudEditorDateISO);
+      if (existingP) {
+        existingP.dosen_pengajar = dosenName;
+        existingP.metode = metode;
+        if (topik) existingP.topik = topik;
+      }
+    }
+  });
+
+  // Prepare database JSON payload for GitHub
+  const updatedDbJson = {
+    kampus: ACADEMIC_DATA.kampus,
+    fakultas: ACADEMIC_DATA.fakultas,
+    program_studi: ACADEMIC_DATA.program_studi,
+    semester: ACADEMIC_DATA.semester,
+    angkatan: ACADEMIC_DATA.angkatan,
+    default_zoom: ACADEMIC_DATA.default_zoom,
+    default_ruangan: ACADEMIC_DATA.default_ruangan,
+    jadwal_matkul: ACADEMIC_DATA.jadwal.map(m => ({
+      id: m.id,
+      hari: m.hari,
+      jam_mulai: m.jam_mulai,
+      jam_selesai: m.jam_selesai,
+      mata_kuliah: m.mata_kuliah,
+      tim_pengajar: m.tim_pengajar,
+      tanggal_offline: m.tanggal_offline,
+      tanggal_online: m.tanggal_online,
+      pertemuan: m.pertemuan
+    }))
+  };
+
+  try {
+    // 1. Get current file SHA from GitHub
+    const getRes = await fetch(`https://api.github.com/repos/${cfg.repo}/contents/data/jadwal_kuliah.json`, {
+      headers: {
+        'Accept': 'application/vnd.github+json',
+        'Authorization': `Bearer ${cfg.token}`
+      }
+    });
+
+    let sha = '';
+    if (getRes.ok) {
+      const getData = await getRes.json();
+      sha = getData.sha;
+    }
+
+    // 2. Encode to Base64 (UTF-8 safe)
+    const jsonString = JSON.stringify(updatedDbJson, null, 2);
+    const base64Content = btoa(unescape(encodeURIComponent(jsonString)));
+
+    // 3. Commit update to GitHub
+    const putRes = await fetch(`https://api.github.com/repos/${cfg.repo}/contents/data/jadwal_kuliah.json`, {
+      method: 'PUT',
+      headers: {
+        'Accept': 'application/vnd.github+json',
+        'Authorization': `Bearer ${cfg.token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        message: `chore: update jadwal & dosen pengampu ${currentCloudEditorDateISO} via Web Dashboard`,
+        content: base64Content,
+        sha: sha || undefined,
+        branch: 'main'
+      })
+    });
+
+    if (!putRes.ok) {
+      const errData = await putRes.json().catch(() => ({}));
+      throw new Error(errData.message || `HTTP ${putRes.status}`);
+    }
+
+    // Refresh UI
+    initTodaySpotlight();
+    renderScheduleCards('today');
+    renderCalendar();
+    renderBroadcastTab();
+
+    showToast(`🎉 Sukses! Data jadwal ${currentCloudEditorDateISO} telah tersinkronisasi ke server GitHub Bot.`);
+    closeBotControlModal();
+  } catch (err) {
+    alert(`❌ Gagal menyimpan ke GitHub: ${err.message}\n\nPastikan token GitHub memiliki izin (scope) 'repo' atau 'contents:write'.`);
+  }
+};
+

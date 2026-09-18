@@ -28,6 +28,9 @@
       </div>
 
       <div class="top-actions">
+        <button class="quick-action-btn" id="btnTopBotControl" onclick="openBotControlModal()" style="background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.35);" title="Saklar On/Off Bot & Kontrol Cloud">
+          🤖 Saklar & Kontrol Bot
+        </button>
         <button class="quick-action-btn btn-blue" onclick="openSettingsModal()" title="Ubah Ruangan Kuliah atau Link Zoom">
           ⚙️ Edit Ruang & Zoom
         </button>
@@ -129,9 +132,14 @@
             Kirim pengumuman perkuliahan hari ini ke grup WhatsApp kelas atau hubungi dosen pengampu dengan template pesan santun siap kirim.
           </p>
         </div>
-        <button class="quick-action-btn" onclick="openRevisionModal()" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.35);">
-          ⚡ Generator Revisi WAG
-        </button>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+          <button class="quick-action-btn" onclick="openBotControlModal()" style="background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.35);" title="Matikan / Nyalakan Jadwal Bot atau Edit Jadwal Cloud">
+            🤖 Saklar & Kontrol Bot
+          </button>
+          <button class="quick-action-btn" onclick="openRevisionModal()" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.35);">
+            ⚡ Generator Revisi WAG
+          </button>
+        </div>
       </div>
 
       <div class="broadcast-hub-grid">
@@ -544,6 +552,152 @@
           <button class="quick-action-btn" onclick="copyCourseSyllabusSummary()">
             📋 Salin Rangkuman Silabus WA
           </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 5: Pusat Saklar & Kontrol Bot WhatsApp Cloud -->
+  <div class="modal-overlay" id="botControlModalOverlay" onclick="closeBotControlModal(event)">
+    <div class="modal-content" style="max-width: 780px;" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 1.4rem;">🤖</span>
+          <div>
+            <h3 style="font-size: 1.18rem; font-weight: 800;">Pusat Saklar & Kontrol Bot WhatsApp Cloud</h3>
+            <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 2px;">
+              Kelola status siaran otomatis & sinkronkan jadwal kuliah ke GitHub tanpa perlu menyentuh kodingan
+            </p>
+          </div>
+        </div>
+        <button class="modal-close-btn" onclick="closeBotControlModal()">&times;</button>
+      </div>
+
+      <!-- Modal Internal Tabs -->
+      <div class="bot-modal-tabs">
+        <button class="bot-modal-tab-btn active" data-bttab="switches" onclick="switchBotModalTab('switches')">
+          ⚡ Saklar On/Off Bot
+        </button>
+        <button class="bot-modal-tab-btn" data-bttab="editor" onclick="switchBotModalTab('editor')">
+          ✏️ Edit & Sinkronkan Jadwal Cloud
+        </button>
+        <button class="bot-modal-tab-btn" data-bttab="token" onclick="switchBotModalTab('token')">
+          ⚙️ Pengaturan Akses GitHub
+        </button>
+      </div>
+
+      <div class="modal-body" style="padding-top: 14px;">
+        
+        <!-- Tab 1: Saklar On/Off Workflow -->
+        <div id="botTabSwitches" class="bot-tab-content active">
+          <!-- Connection Status Pill -->
+          <div class="bot-connection-banner" id="botConnectionBanner">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span class="pulse-dot" id="botConnectionDot"></span>
+              <span id="botConnectionText" style="font-size: 0.82rem; font-weight: 700;">Memeriksa status koneksi GitHub Actions...</span>
+            </div>
+            <button class="btn-icon" style="padding: 4px 10px; font-size: 0.74rem;" onclick="refreshBotWorkflowsStatus()">
+              🔄 Refresh Status
+            </button>
+          </div>
+
+          <!-- Emergency Action Group -->
+          <div class="emergency-box">
+            <div style="font-size: 0.82rem; font-weight: 700; color: var(--text-primary); margin-bottom: 6px;">
+              🚨 Aksi Darurat Cepat (1-Klik):
+            </div>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+              <button class="quick-action-btn" onclick="quickToggleAllBot(false)" style="background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.35);" title="Matikan semua siaran bot jika perkuliahan besok libur total">
+                🏖️ Matikan Semua Bot (Libur Total)
+              </button>
+              <button class="quick-action-btn btn-green" onclick="quickToggleAllBot(true)" title="Aktifkan kembali seluruh siaran bot otomatis">
+                🚀 Nyalakan Semua Bot (Kuliah Normal)
+              </button>
+            </div>
+          </div>
+
+          <!-- Workflows Toggle Cards List -->
+          <div class="workflows-list" id="botWorkflowsList">
+            <!-- Rendered dynamically by app.js -->
+          </div>
+        </div>
+
+        <!-- Tab 2: Edit & Sinkronkan Jadwal Cloud -->
+        <div id="botTabEditor" class="bot-tab-content" style="display: none;">
+          <div style="background: rgba(79, 70, 229, 0.08); border: 1px solid rgba(79, 70, 229, 0.25); border-radius: var(--radius-sm); padding: 10px 14px; margin-bottom: 14px; font-size: 0.82rem; color: var(--text-secondary);">
+            💡 <strong>Info Sinkronisasi:</strong> Perubahan yang Anda simpan di bawah ini akan langsung di-commit ke file <code>data/jadwal_kuliah.json</code> di GitHub. Bot WhatsApp otomatis akan membaca data terbaru ini saat jam siaran tiba.
+          </div>
+
+          <div class="form-group" style="margin-bottom: 12px;">
+            <label class="form-label">Pilih Tanggal Perkuliahan yang Ingin Disesuaikan:</label>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+              <button class="quick-action-btn btn-blue" id="btnEditorTomorrow" onclick="loadScheduleForCloudEditor(1)">
+                🗓️ Besok (H-1)
+              </button>
+              <button class="quick-action-btn" id="btnEditorToday" onclick="loadScheduleForCloudEditor(0)">
+                🔥 Hari Ini (Hari H)
+              </button>
+              <input type="date" id="inputCustomEditorDate" class="form-input" style="width: auto; padding: 6px 12px; font-size: 0.82rem;" onchange="loadScheduleForCloudEditor(this.value)">
+            </div>
+          </div>
+
+          <div id="cloudScheduleEditorList">
+            <!-- Rendered dynamically by app.js: Editor form per matkul -->
+          </div>
+        </div>
+
+        <!-- Tab 3: Pengaturan Akses GitHub Token -->
+        <div id="botTabToken" class="bot-tab-content" style="display: none;">
+          <div class="form-group">
+            <label class="form-label">Nama Repository GitHub (Format: <code>username/nama-repo</code>):</label>
+            <input type="text" id="inputGhRepo" class="form-input" placeholder="Contoh: arasyid/wa-jadwal-kuliah-bot">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">GitHub Personal Access Token (PAT):</label>
+            <div style="position: relative;">
+              <input type="password" id="inputGhToken" class="form-input" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx atau github_pat_xxxx..." style="padding-right: 40px;">
+              <button type="button" onclick="toggleTokenVisibility()" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; font-size: 1rem;" title="Lihat/Sembunyikan Token">👁️</button>
+            </div>
+            <small style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-top: 4px;">
+              🔒 Token ini hanya disimpan secara lokal di browser Anda (<code>localStorage</code>) untuk menghubungkan dashboard ke GitHub Actions.
+            </small>
+          </div>
+
+          <div style="margin-bottom: 16px;">
+            <button class="quick-action-btn btn-blue" onclick="testAndSaveGitHubConfig()">
+              🔌 Uji Koneksi & Simpan Token
+            </button>
+          </div>
+
+          <!-- Token Guide Collapsible -->
+          <details class="token-guide-box">
+            <summary style="cursor: pointer; font-size: 0.82rem; font-weight: 700; color: #818cf8;">
+              📖 Cara Cepat Mendapatkan GitHub Token (Hanya 30 Detik)
+            </summary>
+            <div style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 10px; line-height: 1.6;">
+              <ol style="padding-left: 18px;">
+                <li>Buka halaman token GitHub: <a href="https://github.com/settings/tokens/new" target="_blank" style="color: #60a5fa; text-decoration: underline;">github.com/settings/tokens/new</a></li>
+                <li>Beri nama Note: <code>SiJadwal-Web-Dashboard</code> dan pilih Expiration (misal: <em>90 days</em> atau <em>No expiration</em>).</li>
+                <li>Centang izin (scopes) berikut:
+                  <ul>
+                    <li>✅ <strong>workflow</strong> (untuk mengontrol on/off alur kerja bot)</li>
+                    <li>✅ <strong>repo</strong> (untuk membaca & menyimpan perubahan jadwal ke cloud)</li>
+                  </ul>
+                </li>
+                <li>Klik tombol hijau <strong>"Generate token"</strong> di paling bawah.</li>
+                <li>Salin kode token yang muncul dan tempelkan ke kolom input di atas.</li>
+              </ol>
+            </div>
+          </details>
+        </div>
+
+      </div>
+
+      <div class="modal-footer" style="justify-content: space-between;">
+        <button class="btn-icon" onclick="closeBotControlModal()">Tutup</button>
+        <div id="botModalFooterActions">
+          <!-- Contextual buttons rendered by app.js based on active tab -->
         </div>
       </div>
     </div>

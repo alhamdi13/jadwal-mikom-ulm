@@ -40,11 +40,41 @@ if (process.env.SESSION_DATA_BASE64) {
 const broadcastMode = (process.argv[2] || 'morning').toLowerCase();
 const courseIndexArg = process.argv[3] !== undefined && process.argv[3] !== '' ? parseInt(process.argv[3], 10) : null;
 
+// Cek batas toleransi waktu eksekusi (Anti-Stale Guard untuk GitHub Actions)
+function checkExecutionTimeWindow() {
+  const isManualRun = process.env.GITHUB_EVENT_NAME === 'workflow_dispatch' || !process.env.GITHUB_ACTIONS;
+  if (isManualRun) return true; // Manual trigger selalu diizinkan
+
+  const now = new Date();
+  const currentHourWITA = parseInt(now.toLocaleTimeString('en-US', { timeZone: 'Asia/Makassar', hour12: false, hour: '2-digit' }), 10);
+
+  if (broadcastMode === 'h_minus_1') {
+    // Siaran H-1 sore idealnya berjalan antara jam 16:00 - 19:30 WITA
+    if (currentHourWITA >= 20 || currentHourWITA < 14) {
+      console.warn(`⚠️ [Anti-Stale Guard] Siaran H-1 Sore dibatalkan otomatis karena waktu saat ini (${currentHourWITA}:00 WITA) melewati batas waktu wajar sore hari (maksimal 19:30 WITA). Mencegah pengiriman pesan terlambat akibat antrean runner GitHub.`);
+      return false;
+    }
+  } else if (broadcastMode === 'morning') {
+    // Siaran pagi idealnya berjalan antara jam 04:30 - 09:30 WITA
+    if (currentHourWITA >= 10 || currentHourWITA < 3) {
+      console.warn(`⚠️ [Anti-Stale Guard] Siaran Pagi dibatalkan otomatis karena waktu saat ini (${currentHourWITA}:00 WITA) melewati batas wajar pagi.`);
+      return false;
+    }
+  }
+
+  return true;
+}
+
 async function runScheduledBroadcast() {
   console.log('====================================================');
   console.log(`⏰ MENJALANKAN SIARAN JADWAL KULIAH [MODE: ${broadcastMode.toUpperCase()}]`);
   console.log(`📍 Target Grup : ${config.targetGroups?.[0]?.name || 'Belum diatur'} (${config.targetGroups?.[0]?.id || '-'})`);
   console.log('====================================================');
+
+  if (!checkExecutionTimeWindow()) {
+    console.log('🛑 Proses siaran dihentikan secara aman oleh Anti-Stale Guard.');
+    return;
+  }
 
   const credsPath = path.join(sessionDir, 'creds.json');
   if (!fs.existsSync(credsPath)) {

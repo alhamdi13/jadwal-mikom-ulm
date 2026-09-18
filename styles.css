@@ -2121,3 +2121,262 @@ body {
   }
 }
 
+/* ==========================================================================
+   Bot Control Modal & GitHub Actions Sync Styling
+   ========================================================================== */
+
+.pulse-dot-mini {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 8px #10b981;
+  margin-right: 4px;
+}
+
+.bot-modal-tabs {
+  display: flex;
+  gap: 8px;
+  border-bottom: 1px solid var(--border-subtle);
+  padding: 0 20px;
+  background: rgba(0, 0, 0, 0.15);
+}
+
+.bot-modal-tab-btn {
+  background: none;
+  border: none;
+  padding: 12px 16px;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: var(--transition-fast);
+}
+
+.bot-modal-tab-btn:hover {
+  color: var(--text-primary);
+}
+
+.bot-modal-tab-btn.active {
+  color: #10b981;
+  border-bottom-color: #10b981;
+}
+
+[data-theme="light"] .bot-modal-tabs {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+.bot-connection-banner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  margin-bottom: 14px;
+}
+
+.pulse-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 10px #10b981;
+}
+
+.pulse-dot.warning {
+  background: #f59e0b;
+  box-shadow: 0 0 10px #f59e0b;
+}
+
+.pulse-dot.danger {
+  background: #ef4444;
+  box-shadow: 0 0 10px #ef4444;
+}
+
+.emergency-box {
+  background: rgba(239, 68, 68, 0.06);
+  border: 1px dashed rgba(239, 68, 68, 0.3);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  margin-bottom: 16px;
+}
+
+.workflows-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+.workflow-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 16px 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  transition: var(--transition-fast);
+}
+
+.workflow-card:hover {
+  border-color: var(--border-highlight);
+}
+
+.workflow-card.is-active {
+  border-left: 4px solid #10b981;
+}
+
+.workflow-card.is-disabled {
+  border-left: 4px solid #ef4444;
+  opacity: 0.75;
+}
+
+.workflow-info {
+  flex: 1;
+}
+
+.workflow-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.workflow-title {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.workflow-status-tag {
+  font-size: 0.7rem;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+}
+
+.workflow-status-tag.active {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.workflow-status-tag.disabled {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.workflow-desc {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+.workflow-cron-pill {
+  display: inline-block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.74rem;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-top: 4px;
+  color: #a5b4fc;
+}
+
+/* Modern iOS-Style Toggle Switch */
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 52px;
+  height: 28px;
+  flex-shrink: 0;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #4b5563;
+  transition: .3s;
+  border-radius: 34px;
+}
+
+.toggle-slider:before {
+  position: absolute;
+  content: "";
+  height: 20px;
+  width: 20px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: .3s;
+  border-radius: 50%;
+}
+
+input:checked + .toggle-slider {
+  background-color: #10b981;
+}
+
+input:focus + .toggle-slider {
+  box-shadow: 0 0 1px #10b981;
+}
+
+input:checked + .toggle-slider:before {
+  transform: translateX(24px);
+}
+
+/* Cloud Schedule Editor */
+.cloud-editor-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  margin-bottom: 12px;
+}
+
+.cloud-editor-title {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.cloud-editor-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.token-guide-box {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+}
+
+@media (max-width: 640px) {
+  .cloud-editor-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+
