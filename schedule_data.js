@@ -27,6 +27,10 @@ function getActiveRuangConfig() {
   if (typeof localStorage !== 'undefined') {
     const saved = localStorage.getItem('sijadwal_custom_ruangan');
     if (saved) return saved;
+  }
+  return "G1.103";
+}
+
 // Cek apakah ada jadwal kustom yang disimpan di browser (localStorage)
 function getActiveJadwalConfig(defaultJadwal) {
   if (typeof localStorage !== 'undefined') {
