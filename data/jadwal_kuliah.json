@@ -38,7 +38,7 @@
       ],
       "tanggal_offline": [
         "2026-09-04",
-        "2026-09-18",
+        "2026-09-19",
         "2026-10-02",
         "2026-10-16",
         "2026-10-30",
@@ -75,9 +75,9 @@
         },
         {
           "sesi": 3,
-          "tanggal": "2026-09-18",
+          "tanggal": "2026-09-19",
           "metode": "Offline",
-          "dosen_pengajar": "Prof. Dr. H. Bachruddin Ali Ahmad, M.Si",
+          "dosen_pengajar": "Dr. Fahrianoor, S.IP., M.Si",
           "topik": "Dimensi Ontologis dalam Ilmu Komunikasi",
           "tugas": "-"
         },
@@ -415,7 +415,7 @@
           "sesi": 3,
           "tanggal": "2026-09-18",
           "metode": "Offline",
-          "dosen_pengajar": "Dr. Irwansyah, S.Sos,. M.Si",
+          "dosen_pengajar": "Dr. Muhammad Alif, M.Si",
           "topik": "Model Komunikasi Partisipatif dalam Pemberdayaan",
           "tugas": "-"
         },
