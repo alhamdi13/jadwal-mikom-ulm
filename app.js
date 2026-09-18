@@ -2004,11 +2004,46 @@ window.loadKanbanWeek = function(weekNum) {
   renderKanbanBoard();
 };
 
+window.toggleBotModalFullscreen = function() {
+  const modal = document.querySelector('.bot-control-modal');
+  const btn = document.getElementById('btnToggleBotModalFullscreen');
+  if (!modal) return;
+
+  const isFull = modal.classList.toggle('is-fullscreen');
+  if (btn) {
+    btn.innerHTML = isFull ? '🗗 Normal' : '⛶ Layar Penuh';
+    btn.title = isFull ? 'Kembalikan Ukuran Normal' : 'Buka Tampilan Layar Penuh';
+  }
+};
+
+window.setKanbanViewFilter = function(filterMode) {
+  const grid = document.getElementById('kanbanBoardGrid');
+  if (!grid) return;
+
+  grid.classList.remove('filter-friday', 'filter-saturday');
+  if (filterMode === 'friday') {
+    grid.classList.add('filter-friday');
+  } else if (filterMode === 'saturday') {
+    grid.classList.add('filter-saturday');
+  }
+
+  // Update button active classes
+  const btnBoth = document.getElementById('btnFilterBoth');
+  const btnFri = document.getElementById('btnFilterFri');
+  const btnSat = document.getElementById('btnFilterSat');
+
+  if (btnBoth) btnBoth.classList.toggle('active', filterMode === 'both');
+  if (btnFri) btnFri.classList.toggle('active', filterMode === 'friday');
+  if (btnSat) btnSat.classList.toggle('active', filterMode === 'saturday');
+};
+
 window.renderKanbanBoard = function() {
   const containerFri = document.getElementById('kanbanCardsFriday');
   const containerSat = document.getElementById('kanbanCardsSaturday');
   const countFri = document.getElementById('countBadgeFriday');
   const countSat = document.getElementById('countBadgeSaturday');
+  const filterCountFri = document.getElementById('filterCountFri');
+  const filterCountSat = document.getElementById('filterCountSat');
 
   checkKanbanConflicts();
 
@@ -2019,8 +2054,13 @@ window.renderKanbanBoard = function() {
     containerSat.innerHTML = kanbanState.saturdayCards.map(item => renderKanbanCardHtml(item, "Sabtu")).join('');
   }
 
-  if (countFri) countFri.textContent = `${kanbanState.fridayCards.length} Matkul`;
-  if (countSat) countSat.textContent = `${kanbanState.saturdayCards.length} Matkul`;
+  const friLen = kanbanState.fridayCards.length;
+  const satLen = kanbanState.saturdayCards.length;
+
+  if (countFri) countFri.textContent = `${friLen} Matkul`;
+  if (countSat) countSat.textContent = `${satLen} Matkul`;
+  if (filterCountFri) filterCountFri.textContent = friLen;
+  if (filterCountSat) filterCountSat.textContent = satLen;
 };
 
 function renderKanbanCardHtml(item, day) {
@@ -2031,48 +2071,50 @@ function renderKanbanCardHtml(item, day) {
   return `
     <div class="kanban-card ${conflictClass}" id="kanbanCard_${item.id}" draggable="true" ondragstart="handleDragStart(event, '${item.id}', '${day}')" ondragend="handleDragEnd(event)">
       
+      <!-- Top Row: Handle, Time, and Active Toggle -->
       <div class="kanban-card-top">
         <div class="drag-handle-badge" title="Tahan & Seret kartu ini untuk memindahkan jadwal">
           <span class="drag-icon">⠿</span>
           <span>Sesi ${item.sesi} (${item.sks} SKS)</span>
         </div>
+
         <button class="kanban-time-btn" onclick="openTimeSlotModal('${item.id}')" title="Klik untuk mengubah jam perkuliahan">
-          ⏰ ${item.jam_mulai} - ${item.jam_selesai} WITA ✏️
+          ⏰ ${item.jam_mulai} - ${item.jam_selesai} ✏️
         </button>
       </div>
 
+      <!-- Course Name -->
       <div class="kanban-course-name">${item.mata_kuliah}</div>
 
-      <div class="kanban-lecturer-row">
-        <label style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 2px;">👨‍🏫 Dosen Bertugas Sesi Ini:</label>
-        <select class="kanban-lecturer-select" onchange="onKanbanLecturerChange('${item.id}', this.value)">
+      <!-- Middle Controls: Lecturer Select & Online/Offline Mode -->
+      <div class="kanban-card-middle-grid">
+        <select class="kanban-lecturer-select" onchange="onKanbanLecturerChange('${item.id}', this.value)" title="Pilih dosen pengajar sesi ini">
           ${(item.tim_pengajar || []).map(d => `
             <option value="${d.nama}" ${d.nama === item.dosen_pengajar ? 'selected' : ''}>
               ${d.nama}
             </option>
           `).join('')}
         </select>
-      </div>
 
-      <div class="kanban-options-row">
-        <button class="kanban-mode-btn ${isOnline ? 'online' : 'offline'}" onclick="toggleKanbanCourseMode('${item.id}')" title="Klik untuk beralih antara Online Zoom & Offline Tatap Muka">
-          ${isOnline ? '🌐 Daring (Zoom)' : `🟢 Tatap Muka (${ACADEMIC_DATA.default_ruangan})`}
+        <button class="kanban-mode-btn ${isOnline ? 'online' : 'offline'}" onclick="toggleKanbanCourseMode('${item.id}')" title="Klik untuk beralih antara Online & Offline">
+          ${isOnline ? '🌐 Daring' : '🟢 Tatap Muka'}
         </button>
-
-        <label class="kanban-active-toggle" title="Tandai apakah mata kuliah ini masuk atau diliburkan">
-          <input type="checkbox" ${item.isActive ? 'checked' : ''} onchange="toggleKanbanCourseActive('${item.id}', this.checked)">
-          <span>${item.isActive ? '🟢 Masuk' : '❌ Diliburkan'}</span>
-        </label>
       </div>
 
+      <!-- Bottom Row: 1-Click Day Swap, Status Checkbox, and Order Shift -->
       <div class="kanban-actions-footer">
         <button class="kanban-quick-swap-btn" onclick="moveCardToDay('${item.id}', '${otherDay}')" title="Pindahkan mata kuliah ini ke hari ${otherDay}">
           ⇄ Geser ke ${otherDay}
         </button>
 
+        <label class="kanban-active-toggle" title="Tandai apakah mata kuliah ini masuk atau diliburkan">
+          <input type="checkbox" ${item.isActive ? 'checked' : ''} onchange="toggleKanbanCourseActive('${item.id}', this.checked)">
+          <span>${item.isActive ? '🟢 Masuk' : '❌ Libur'}</span>
+        </label>
+
         <div class="kanban-order-btns">
-          <button class="kanban-order-btn" onclick="shiftCardOrder('${item.id}', '${day}', -1)" title="Geser jam lebih awal (ke atas)">▲</button>
-          <button class="kanban-order-btn" onclick="shiftCardOrder('${item.id}', '${day}', 1)" title="Geser jam lebih lambat (ke bawah)">▼</button>
+          <button class="kanban-order-btn" onclick="shiftCardOrder('${item.id}', '${day}', -1)" title="Geser lebih awal (ke atas)">▲</button>
+          <button class="kanban-order-btn" onclick="shiftCardOrder('${item.id}', '${day}', 1)" title="Geser lebih lambat (ke bawah)">▼</button>
         </div>
       </div>
 

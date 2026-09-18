@@ -559,18 +559,23 @@
 
   <!-- Modal 5: Pusat Saklar & Kontrol Bot WhatsApp Cloud -->
   <div class="modal-overlay" id="botControlModalOverlay" onclick="closeBotControlModal(event)">
-    <div class="modal-content" style="max-width: 780px;" onclick="event.stopPropagation()">
+    <div class="modal-content bot-control-modal" onclick="event.stopPropagation()">
       <div class="modal-header">
         <div style="display: flex; align-items: center; gap: 10px;">
           <span style="font-size: 1.4rem;">🤖</span>
           <div>
-            <h3 style="font-size: 1.18rem; font-weight: 800;">Pusat Saklar & Kontrol Bot WhatsApp Cloud</h3>
-            <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 2px;">
+            <h3 style="font-size: 1.15rem; font-weight: 800;">Pusat Saklar & Kontrol Bot WhatsApp Cloud</h3>
+            <p style="font-size: 0.78rem; color: var(--text-secondary); margin-top: 2px;">
               Kelola status siaran otomatis & sinkronkan jadwal kuliah ke GitHub tanpa perlu menyentuh kodingan
             </p>
           </div>
         </div>
-        <button class="modal-close-btn" onclick="closeBotControlModal()">&times;</button>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <button class="btn-icon" id="btnToggleBotModalFullscreen" onclick="toggleBotModalFullscreen()" title="Buka/Tutup Layar Penuh">
+            ⛶ Layar Penuh
+          </button>
+          <button class="modal-close-btn" onclick="closeBotControlModal()">&times;</button>
+        </div>
       </div>
 
       <!-- Modal Internal Tabs -->
@@ -631,7 +636,7 @@
                   🔀 Papan Interaktif Jadwal Kuliah (Drag & Drop)
                 </div>
                 <div style="font-size: 0.78rem; color: var(--text-secondary); margin-top: 2px;">
-                  Tarik & lepas kartu untuk memindahkan jadwal Jum'at ⇄ Sabtu, geser urutan, atau sesuaikan jam & dosen bertugas.
+                  Tarik kartu atau gunakan tombol <strong>⇄ Geser</strong> untuk memindahkan jadwal Jum'at ⇄ Sabtu & atur jam kuliah.
                 </div>
               </div>
               <div style="display: flex; gap: 6px; align-items: center;">
@@ -641,10 +646,10 @@
               </div>
             </div>
 
-            <!-- Weekend Selector Row -->
+            <!-- Weekend Selector & View Filter Controls -->
             <div class="kanban-weekend-selector">
               <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                <span style="font-size: 0.8rem; font-weight: 700; color: var(--text-secondary);">📅 Pilih Pekan Kuliah:</span>
+                <span style="font-size: 0.8rem; font-weight: 700; color: var(--text-secondary);">📅 Pilih Pekan:</span>
                 <select id="selKanbanWeek" class="form-input" style="width: auto; padding: 4px 10px; font-size: 0.8rem;" onchange="onKanbanWeekChange(this.value)">
                   <!-- Options populated dynamically (Pekan 1 to 16) -->
                 </select>
@@ -653,6 +658,19 @@
                   <span>⇄</span>
                   <span class="date-pill pill-sat" id="pillSatDate">Sabtu, 19 Sep 2026</span>
                 </div>
+              </div>
+
+              <!-- Day Filter Switcher (Both / Friday Only / Saturday Only) -->
+              <div class="kanban-view-filter">
+                <button class="kanban-filter-btn active" id="btnFilterBoth" onclick="setKanbanViewFilter('both')" title="Lihat 2 Kolom Berdampingan">
+                  ☷ Tampilkan Keduanya
+                </button>
+                <button class="kanban-filter-btn" id="btnFilterFri" onclick="setKanbanViewFilter('friday')" title="Fokus Jadwal Jum'at Saja">
+                  🟢 Jum'at (<span id="filterCountFri">3</span>)
+                </button>
+                <button class="kanban-filter-btn" id="btnFilterSat" onclick="setKanbanViewFilter('saturday')" title="Fokus Jadwal Sabtu Saja">
+                  🔵 Sabtu (<span id="filterCountSat">3</span>)
+                </button>
               </div>
             </div>
 
@@ -664,7 +682,7 @@
           </div>
 
           <!-- 2-Column Kanban Board Layout -->
-          <div class="kanban-board-grid">
+          <div class="kanban-board-grid" id="kanbanBoardGrid">
             
             <!-- Column 1: Jum'at -->
             <div class="kanban-column col-friday" id="kanbanColFriday" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event, 'Jum\'at')">
