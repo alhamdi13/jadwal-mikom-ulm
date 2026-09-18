@@ -15,9 +15,9 @@
   "jadwal_matkul": [
     {
       "id": "MK-01",
-      "hari": "Jum'at",
-      "jam_mulai": "14.00",
-      "jam_selesai": "16.30",
+      "hari": "Sabtu",
+      "jam_mulai": "19.00",
+      "jam_selesai": "21.15",
       "mata_kuliah": "Filsafat Ilmu Komunikasi",
       "tim_pengajar": [
         {
@@ -528,8 +528,8 @@
     {
       "id": "MK-04",
       "hari": "Sabtu",
-      "jam_mulai": "08.00",
-      "jam_selesai": "10.30",
+      "jam_mulai": "08.30",
+      "jam_selesai": "11.00",
       "mata_kuliah": "Perspektif dan Teori Komunikasi",
       "tim_pengajar": [
         {
@@ -702,8 +702,8 @@
     {
       "id": "MK-05",
       "hari": "Sabtu",
-      "jam_mulai": "10.30",
-      "jam_selesai": "13.00",
+      "jam_mulai": "11.00",
+      "jam_selesai": "13.30",
       "mata_kuliah": "Perspektif Psikologi Komunikasi",
       "tim_pengajar": [
         {
@@ -871,8 +871,8 @@
     {
       "id": "MK-06",
       "hari": "Sabtu",
-      "jam_mulai": "13.00",
-      "jam_selesai": "15.30",
+      "jam_mulai": "14.00",
+      "jam_selesai": "16.30",
       "mata_kuliah": "Media dan Teknologi Komunikasi",
       "tim_pengajar": [
         {
