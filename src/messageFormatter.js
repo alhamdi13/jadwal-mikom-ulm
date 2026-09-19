@@ -346,6 +346,49 @@ export function formatCourseReminderMessage(courseItem, generalInfo, formattedDa
 }
 
 /**
+ * Format pesan pengingat 30 menit sebelum sesi kuliah dimulai khusus untuk Dosen Pengampu (Japri)
+ */
+export function formatCourseReminderLecturerMessage(courseItem, generalInfo, formattedDate, lecturerName) {
+  const { kampus, fakultas, program_studi } = generalInfo;
+  const isOnline = courseItem.tipe.toLowerCase() === 'online';
+
+  const startHour = parseInt((courseItem.jam_mulai || '08').split('.')[0], 10);
+  let greeting = 'Pagi';
+  if (startHour >= 11 && startHour < 15) greeting = 'Siang';
+  else if (startHour >= 15 && startHour < 18) greeting = 'Sore';
+  else if (startHour >= 18) greeting = 'Malam';
+
+  let msg = `Assalamu'alaikum Warahmatullahi Wabarakatuh,\n`;
+  msg += `Selamat ${greeting} Bapak/Ibu *${lecturerName}* 🙏\n\n`;
+  msg += `Mohon izin mengingatkan kembali, perkuliahan di *${program_studi}* (${fakultas} - ${kampus}) akan segera dimulai dalam waktu *30 menit ke depan*:\n\n`;
+
+  msg += `📚 *Mata Kuliah:* *${courseItem.mata_kuliah}*\n`;
+  if (courseItem.pertemuan_ke) {
+    msg += `📌 *Sesi:* Pertemuan ke-${courseItem.pertemuan_ke}\n`;
+  }
+  if (courseItem.topik) {
+    msg += `🎯 *Pokok Bahasan:* ${courseItem.topik}\n`;
+  }
+  msg += `⏰ *Waktu Perkuliahan:* *${courseItem.jam_mulai} - ${courseItem.jam_selesai} WITA*\n\n`;
+
+  if (isOnline) {
+    msg += `📍 *Metode Perkuliahan:* 🌐 *ONLINE (Zoom Meeting)*\n`;
+    if (courseItem.zoom?.link) msg += `🔗 *Link Zoom Langsung:*\n${courseItem.zoom.link}\n\n`;
+    if (courseItem.zoom?.meeting_id) msg += `🔑 *Meeting ID:* \`${courseItem.zoom.meeting_id}\`\n`;
+    if (courseItem.zoom?.passcode) msg += `🔐 *Passcode:* \`${courseItem.zoom.passcode}\`\n`;
+  } else {
+    msg += `📍 *Metode Perkuliahan:* 🟢 *OFFLINE (Tatap Muka)*\n`;
+    msg += `🏢 *Lokasi Ruangan:* Ruang *${courseItem.ruangan || 'G1.103'}* (Gedung Pascasarjana FISIP ULM)\n`;
+  }
+
+  msg += `\n━━━━━━━━━━━━━━━━━━━━\n`;
+  msg += `Rekan-rekan mahasiswa telah bersiap untuk mengikuti perkuliahan. Terima kasih banyak atas dedikasi dan kesediaan Bapak/Ibu. 🤲✨\n\n`;
+  msg += `_Pesan pengingat otomatis dari Sistem Informasi Akademik MIKOM FISIP ULM_`;
+
+  return msg;
+}
+
+/**
  * Format pesan bantuan / menu bot
  */
 export function formatHelpMessage(prefix = '!') {

@@ -3,14 +3,16 @@ import { config } from './config.js';
 import {
   getFormattedDate,
   getScheduleForDate,
-  getLecturersSchedulesForDate
+  getLecturersSchedulesForDate,
+  loadScheduleData
 } from './dataService.js';
 import {
   formatGroupScheduleMessage,
   formatLecturerDirectMessage,
   formatHMinus1GroupMessage,
   formatHMinus1LecturerMessage,
-  formatCourseReminderMessage
+  formatCourseReminderMessage,
+  formatCourseReminderLecturerMessage
 } from './messageFormatter.js';
 
 let cronTask = null;
@@ -75,26 +77,10 @@ export async function executeMorningBroadcast(sock, targetGroupOverride = null, 
     await sendToTargetGroups(sock, groupMessage, targetGroupOverride, 'Broadcast Pagi WAG');
   }
 
-  // 3. Kirim Pesan Japri ke Dosen Pengampu Hari Ini
-  if (config.scheduler.enableLecturerDirectMessage) {
-    const lecturersToday = await getLecturersSchedulesForDate(dateOffsetOrDate);
-    console.log(`[Broadcast Dosen Pagi] Ditemukan ${lecturersToday.length} dosen yang mengajar hari ini.`);
-
-    for (const item of lecturersToday) {
-      const { dosen } = item;
-      if (!dosen.no_hp) continue;
-
-      const lecturerJid = `${dosen.no_hp}@s.whatsapp.net`;
-      const lecturerMsg = formatLecturerDirectMessage(item, formattedDate);
-
-      try {
-        await sock.sendMessage(lecturerJid, { text: lecturerMsg });
-        console.log(`[Broadcast Dosen Pagi] Berhasil kirim ke Dosen: ${dosen.nama} (${dosen.no_hp})`);
-      } catch (err) {
-        console.error(`[Broadcast Dosen Pagi] Gagal mengirim ke Dosen ${dosen.nama} (${dosen.no_hp}):`, err.message);
-      }
-    }
-  }
+  // 3. Pagi Hari H: Japri ke Dosen DINONAKTIFKAN secara permanen
+  // Alasannya: Agar tidak mengganggu waktu subuh/istirahat dosen dan mencegah spam jika terjadi pergantian dosen internal.
+  // Konfirmasi ke dosen HANYA dilakukan 1 kali pada H-1 Sore (17:00 WITA) via executeHMinus1Broadcast.
+  console.log(`[Broadcast Pagi] Japri dosen pagi dilewati (Japri dosen hanya diproses pada H-1 Sore).`);
 
   console.log(`[Broadcast Pagi] Selesai memproses broadcast pagi hari.`);
 }
@@ -213,11 +199,55 @@ export async function executeCourseReminderBroadcast(sock, targetCourseIndex = n
     return;
   }
 
-  // 3. Format dan kirim pesan ke WAG
-  const reminderMsg = formatCourseReminderMessage(selectedCourse, scheduleData, formattedDate);
-  await sendToTargetGroups(sock, reminderMsg, targetGroupOverride, `Reminder H-30: ${selectedCourse.mata_kuliah}`);
+  // 3. Format dan kirim pesan ke WAG Mahasiswa
+  if (config.scheduler.enableGroupBroadcast) {
+    const reminderMsg = formatCourseReminderMessage(selectedCourse, scheduleData, formattedDate);
+    await sendToTargetGroups(sock, reminderMsg, targetGroupOverride, `Reminder H-30 WAG: ${selectedCourse.mata_kuliah}`);
+  }
 
-  console.log(`[Reminder H-30 Min] Selesai mengirim pengingat matkul "${selectedCourse.mata_kuliah}".`);
+  // 4. Kirim Japri Pengingat H-30 Menit ke Dosen Pengampu yang Bertugas
+  if (config.scheduler.enableLecturerDirectMessage) {
+    const rawData = await loadScheduleData();
+    let assignedLecturers = [];
+
+    if (selectedCourse.dosen_pengajar) {
+      assignedLecturers = (selectedCourse.tim_pengajar || []).filter(d => 
+        selectedCourse.dosen_pengajar.includes(d.nama) || d.nama.includes(selectedCourse.dosen_pengajar)
+      );
+
+      if (assignedLecturers.length === 0 && rawData.daftar_dosen) {
+        const found = rawData.daftar_dosen.find(d => 
+          selectedCourse.dosen_pengajar.includes(d.nama) || d.nama.includes(selectedCourse.dosen_pengajar)
+        );
+        if (found) assignedLecturers = [found];
+      }
+    }
+
+    if (assignedLecturers.length === 0 && selectedCourse.tim_pengajar && selectedCourse.tim_pengajar.length > 0) {
+      assignedLecturers = [selectedCourse.tim_pengajar[0]];
+    }
+
+    for (const lecturer of assignedLecturers) {
+      let phone = (lecturer.no_hp || '').replace(/[^0-9]/g, '');
+      if (!phone) continue;
+
+      if (phone.startsWith('08')) {
+        phone = '62' + phone.substring(1);
+      }
+
+      const lecturerJid = `${phone}@s.whatsapp.net`;
+      const lecturerReminderMsg = formatCourseReminderLecturerMessage(selectedCourse, scheduleData, formattedDate, lecturer.nama);
+
+      try {
+        await sock.sendMessage(lecturerJid, { text: lecturerReminderMsg });
+        console.log(`[Reminder H-30 Dosen] Berhasil mengirim pengingat ke Dosen: ${lecturer.nama} (${phone})`);
+      } catch (err) {
+        console.error(`[Reminder H-30 Dosen] Gagal mengirim ke Dosen ${lecturer.nama} (${phone}):`, err.message);
+      }
+    }
+  }
+
+  console.log(`[Reminder H-30 Min] Selesai memproses pengingat matkul "${selectedCourse.mata_kuliah}".`);
 }
 
 /**
