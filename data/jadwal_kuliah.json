@@ -15,10 +15,11 @@
   "jadwal_matkul": [
     {
       "id": "MK-04",
-      "hari": "Sabtu",
-      "jam_mulai": "08.30",
-      "jam_selesai": "11.00",
+      "hari": "Jum'at",
+      "jam_mulai": "14.00",
+      "jam_selesai": "16.30",
       "mata_kuliah": "Perspektif dan Teori Komunikasi",
+      "dosen_pengajar_aktif": "Prof. Dr. H. Bachruddin Ali Ahmad, M.Si",
       "tim_pengajar": [
         {
           "nama": "Prof. Dr. H. Bachruddin Ali Ahmad, M.Si",
@@ -48,7 +49,7 @@
       "tanggal_online": [
         "2026-09-12",
         "2026-09-19",
-        "2026-09-26",
+        "2026-09-25",
         "2026-10-10",
         "2026-10-24",
         "2026-11-07",
@@ -83,7 +84,7 @@
         },
         {
           "sesi": 4,
-          "tanggal": "2026-09-26",
+          "tanggal": "2026-09-25",
           "metode": "Online",
           "dosen_pengajar": "Prof. Dr. H. Bachruddin Ali Ahmad, M.Si",
           "topik": "Tradisi Sosio-Psikologis & Sosio-Kultural",
@@ -193,6 +194,7 @@
       "jam_mulai": "11.00",
       "jam_selesai": "13.30",
       "mata_kuliah": "Perspektif Psikologi Komunikasi",
+      "dosen_pengajar_aktif": "Dr. Yuanita Setyastuti, S.IP., M.Si",
       "tim_pengajar": [
         {
           "nama": "Dr. Yuanita Setyastuti, S.IP., M.Si",
@@ -362,6 +364,7 @@
       "jam_mulai": "14.00",
       "jam_selesai": "16.30",
       "mata_kuliah": "Media dan Teknologi Komunikasi",
+      "dosen_pengajar_aktif": "Dr. Muhammad Alif, M.Si",
       "tim_pengajar": [
         {
           "nama": "Dr. Yuanita Setyastuti, S.IP., M.Si",
@@ -428,7 +431,7 @@
           "sesi": 4,
           "tanggal": "2026-09-26",
           "metode": "Online",
-          "dosen_pengajar": "Dr. Yuanita Setyastuti, S.IP., M.Si",
+          "dosen_pengajar": "Dr. Muhammad Alif, M.Si",
           "topik": "Budaya Partisipatif, Prosumer, dan Ekosistem Konten",
           "tugas": "Analisis Pola Konsumsi Konten"
         },
@@ -536,6 +539,7 @@
       "jam_mulai": "16.30",
       "jam_selesai": "18.00",
       "mata_kuliah": "Perspektif Komunikasi Organisasi",
+      "dosen_pengajar_aktif": "Prof. Dr. H. Bachruddin Ali Ahmad, M.Si",
       "tim_pengajar": [
         {
           "nama": "Prof. Dr. H. Bachruddin Ali Ahmad, M.Si",
@@ -705,6 +709,7 @@
       "jam_mulai": "18.45",
       "jam_selesai": "21.15",
       "mata_kuliah": "CSR dan Komunikasi Pemberdayaan",
+      "dosen_pengajar_aktif": "Dr. Irwansyah, S.Sos,. M.Si",
       "tim_pengajar": [
         {
           "nama": "Dr. Irwansyah, S.Sos,. M.Si",
@@ -871,9 +876,10 @@
     {
       "id": "MK-01",
       "hari": "Sabtu",
-      "jam_mulai": "19.00",
-      "jam_selesai": "21.15",
+      "jam_mulai": "08.30",
+      "jam_selesai": "11.00",
       "mata_kuliah": "Filsafat Ilmu Komunikasi",
+      "dosen_pengajar_aktif": "Prof. Dr. H. Bachruddin Ali Ahmad, M.Si",
       "tim_pengajar": [
         {
           "nama": "Prof. Dr. H. Bachruddin Ali Ahmad, M.Si",
@@ -903,7 +909,7 @@
       "tanggal_online": [
         "2026-09-11",
         "2026-09-19",
-        "2026-09-25",
+        "2026-09-26",
         "2026-10-09",
         "2026-10-23",
         "2026-11-06",
@@ -938,7 +944,7 @@
         },
         {
           "sesi": 4,
-          "tanggal": "2026-09-25",
+          "tanggal": "2026-09-26",
           "metode": "Online",
           "dosen_pengajar": "Prof. Dr. H. Bachruddin Ali Ahmad, M.Si",
           "topik": "Objek Formal dan Objek Material Ilmu Komunikasi",
