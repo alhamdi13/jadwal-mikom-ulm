@@ -2725,21 +2725,41 @@ input:checked + .toggle-slider:before {
   flex-direction: column;
   gap: 10px;
   flex: 1;
+  position: relative;
+  min-height: 80px;
 }
 
-/* Streamlined Compact Kanban Card */
+/* Dynamic Insertion Guide Indicator */
+.kanban-drop-indicator {
+  height: 5px;
+  border-radius: var(--radius-full);
+  background: linear-gradient(90deg, #10b981 0%, #3b82f6 100%);
+  box-shadow: 0 0 12px rgba(59, 130, 246, 0.8), 0 0 4px #10b981;
+  margin: 4px 0;
+  pointer-events: none;
+  animation: indicatorPulse 0.9s infinite alternate cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.15s ease-out;
+}
+
+@keyframes indicatorPulse {
+  from { opacity: 0.7; transform: scaleY(0.9); }
+  to { opacity: 1; transform: scaleY(1.4); }
+}
+
+/* Streamlined Compact Kanban Card with GPU-accelerated Smooth Transitions */
 .kanban-card {
   background: var(--bg-surface-elevated);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
   padding: 10px 12px;
   cursor: grab;
-  transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
   user-select: none;
   position: relative;
   display: flex;
   flex-direction: column;
   gap: 6px;
+  will-change: transform, opacity;
+  transition: transform 0.28s cubic-bezier(0.2, 0.9, 0.3, 1), box-shadow 0.2s ease, border-color 0.2s ease, opacity 0.2s ease;
 }
 
 .kanban-card:hover {
@@ -2753,9 +2773,41 @@ input:checked + .toggle-slider:before {
 }
 
 .kanban-card.is-dragging {
-  opacity: 0.35;
+  opacity: 0.25;
   transform: scale(0.96);
-  border: 2px dashed #60a5fa;
+  border: 2px dashed #60a5fa !important;
+  filter: grayscale(0.5);
+}
+
+.kanban-card.kanban-card-enter {
+  animation: kanbanCardPopIn 0.35s cubic-bezier(0.2, 0.9, 0.3, 1) forwards;
+}
+
+@keyframes kanbanCardPopIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.9) translateY(12px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Touch Dragging Floating Avatar for Mobile */
+.touch-dragging-avatar {
+  position: fixed;
+  pointer-events: none;
+  z-index: 10000;
+  opacity: 0.92;
+  transform: translate(-50%, -50%) scale(1.04) rotate(1.5deg);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.6), 0 0 20px rgba(59, 130, 246, 0.4);
+  width: 290px;
+  max-width: 82vw;
+  border: 2px solid #60a5fa !important;
+  border-radius: var(--radius-md);
+  background: var(--bg-surface-elevated);
+  padding: 10px 12px;
 }
 
 .kanban-card.has-conflict {
@@ -2777,12 +2829,14 @@ input:checked + .toggle-slider:before {
   font-size: 0.72rem;
   font-weight: 700;
   color: var(--text-secondary);
+  touch-action: none;
 }
 
 .drag-icon {
   font-size: 0.95rem;
   color: var(--text-muted);
   cursor: grab;
+  touch-action: none;
 }
 
 .kanban-time-btn {

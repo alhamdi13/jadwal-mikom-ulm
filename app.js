@@ -2111,7 +2111,7 @@ window.loadKanbanWeek = function(weekNum) {
     }
   });
 
-  renderKanbanBoard();
+  flipAnimateKanban(renderKanbanBoard);
 };
 
 window.toggleBotModalFullscreen = function() {
@@ -2147,6 +2147,99 @@ window.setKanbanViewFilter = function(filterMode) {
   if (btnSat) btnSat.classList.toggle('active', filterMode === 'saturday');
 };
 
+// Dynamic Drag & Drop State
+let currentDraggingCourse = null;
+let touchDragState = null;
+
+// FLIP (First, Last, Invert, Play) Smooth Layout Animation Engine
+function flipAnimateKanban(actionCallback) {
+  const cards = document.querySelectorAll('.kanban-card');
+  const firstPositions = new Map();
+
+  cards.forEach(card => {
+    firstPositions.set(card.id, card.getBoundingClientRect());
+  });
+
+  // Execute DOM mutation or state render
+  if (typeof actionCallback === 'function') {
+    actionCallback();
+  }
+
+  // Next animation frame: compute position delta and animate
+  requestAnimationFrame(() => {
+    const newCards = document.querySelectorAll('.kanban-card');
+    newCards.forEach(card => {
+      const first = firstPositions.get(card.id);
+      if (first) {
+        const last = card.getBoundingClientRect();
+        const deltaX = first.left - last.left;
+        const deltaY = first.top - last.top;
+
+        if (deltaX !== 0 || deltaY !== 0) {
+          // Invert
+          card.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
+          card.style.transition = 'none';
+
+          // Play
+          requestAnimationFrame(() => {
+            card.style.transition = 'transform 0.32s cubic-bezier(0.2, 0.9, 0.3, 1), box-shadow 0.2s ease, opacity 0.25s ease';
+            card.style.transform = '';
+          });
+        }
+      } else {
+        // Newly inserted or transferred card entrance
+        card.classList.add('kanban-card-enter');
+        setTimeout(() => card.classList.remove('kanban-card-enter'), 380);
+      }
+    });
+  });
+}
+
+// Re-align standard progressive time presets when order changes
+function realignDayTimePresets(day) {
+  const list = day === "Jum'at" ? kanbanState.fridayCards : kanbanState.saturdayCards;
+  const presets = STANDARD_TIME_PRESETS[day] || [];
+  list.forEach((c, i) => {
+    if (presets[i]) {
+      c.jam_mulai = presets[i].start;
+      c.jam_selesai = presets[i].end;
+    }
+  });
+}
+
+// Helper to determine insertion point between cards based on mouse/touch Y position
+function getDragAfterElement(container, y) {
+  const draggableElements = [...container.querySelectorAll('.kanban-card:not(.is-dragging)')];
+
+  return draggableElements.reduce((closest, child) => {
+    const box = child.getBoundingClientRect();
+    const offset = y - box.top - box.height / 2;
+    if (offset < 0 && offset > closest.offset) {
+      return { offset: offset, element: child };
+    } else {
+      return closest;
+    }
+  }, { offset: Number.NEGATIVE_INFINITY }).element;
+}
+
+// Dynamic Glowing Drop Slot Indicator Helper
+function showDropIndicator(container, afterElement) {
+  removeDropIndicators();
+  const indicator = document.createElement('div');
+  indicator.className = 'kanban-drop-indicator';
+  indicator.id = 'activeDropIndicator';
+
+  if (!afterElement) {
+    container.appendChild(indicator);
+  } else {
+    container.insertBefore(indicator, afterElement);
+  }
+}
+
+function removeDropIndicators() {
+  document.querySelectorAll('.kanban-drop-indicator').forEach(el => el.remove());
+}
+
 window.renderKanbanBoard = function() {
   const containerFri = document.getElementById('kanbanCardsFriday');
   const containerSat = document.getElementById('kanbanCardsSaturday');
@@ -2171,6 +2264,9 @@ window.renderKanbanBoard = function() {
   if (countSat) countSat.textContent = `${satLen} Matkul`;
   if (filterCountFri) filterCountFri.textContent = friLen;
   if (filterCountSat) filterCountSat.textContent = satLen;
+
+  // Initialize mobile touch handlers on newly rendered cards
+  initKanbanTouchSupport();
 };
 
 function renderKanbanCardHtml(item, day) {
@@ -2179,7 +2275,7 @@ function renderKanbanCardHtml(item, day) {
   const conflictClass = item.hasConflict ? 'has-conflict' : '';
 
   return `
-    <div class="kanban-card ${conflictClass}" id="kanbanCard_${item.id}" draggable="true" ondragstart="handleDragStart(event, '${item.id}', '${day}')" ondragend="handleDragEnd(event)">
+    <div class="kanban-card ${conflictClass}" id="kanbanCard_${item.id}" data-course-id="${item.id}" data-day="${day}" draggable="true" ondragstart="handleDragStart(event, '${item.id}', '${day}')" ondragend="handleDragEnd(event)">
       
       <!-- Top Row: Handle, Time, and Active Toggle -->
       <div class="kanban-card-top">
@@ -2232,95 +2328,147 @@ function renderKanbanCardHtml(item, day) {
   `;
 }
 
-// Drag and Drop Event Handlers
+// Drag and Drop Event Handlers (HTML5 Desktop)
 window.handleDragStart = function(e, courseId, sourceDay) {
-  e.dataTransfer.setData('text/plain', JSON.stringify({ courseId, sourceDay }));
-  e.dataTransfer.effectAllowed = 'move';
+  currentDraggingCourse = { courseId, sourceDay };
+  if (e.dataTransfer) {
+    e.dataTransfer.setData('text/plain', JSON.stringify({ courseId, sourceDay }));
+    e.dataTransfer.effectAllowed = 'move';
+  }
   const cardEl = document.getElementById(`kanbanCard_${courseId}`);
   if (cardEl) {
-    setTimeout(() => cardEl.classList.add('is-dragging'), 0);
+    setTimeout(() => cardEl.classList.add('is-dragging'), 10);
   }
 };
 
 window.handleDragOver = function(e) {
   e.preventDefault();
-  e.dataTransfer.dropEffect = 'move';
+  if (e.dataTransfer) e.dataTransfer.dropEffect = 'move';
+
   const col = e.currentTarget;
   if (col && !col.classList.contains('drag-over')) {
     col.classList.add('drag-over');
+  }
+
+  // Find container inside column
+  const container = col ? col.querySelector('.kanban-cards-container') : null;
+  if (container) {
+    const afterElement = getDragAfterElement(container, e.clientY);
+    showDropIndicator(container, afterElement);
   }
 };
 
 window.handleDragLeave = function(e) {
   const col = e.currentTarget;
-  if (col) {
+  // If moving out of the column element
+  if (col && !col.contains(e.relatedTarget)) {
     col.classList.remove('drag-over');
+    removeDropIndicators();
   }
 };
 
 window.handleDrop = function(e, targetDay) {
   e.preventDefault();
-  const col = e.currentTarget;
-  if (col) col.classList.remove('drag-over');
+  removeDropIndicators();
+  document.querySelectorAll('.kanban-column').forEach(c => c.classList.remove('drag-over'));
+
+  let courseId = null;
+  let sourceDay = null;
 
   try {
-    const rawData = e.dataTransfer.getData('text/plain');
-    if (!rawData) return;
-    const { courseId, sourceDay } = JSON.parse(rawData);
-
-    if (sourceDay !== targetDay) {
-      moveCardToDay(courseId, targetDay);
+    const rawData = e.dataTransfer ? e.dataTransfer.getData('text/plain') : null;
+    if (rawData) {
+      const parsed = JSON.parse(rawData);
+      courseId = parsed.courseId;
+      sourceDay = parsed.sourceDay;
     }
-  } catch (err) {
-    console.error('Error handling drop:', err);
+  } catch (err) {}
+
+  if (!courseId && currentDraggingCourse) {
+    courseId = currentDraggingCourse.courseId;
+    sourceDay = currentDraggingCourse.sourceDay;
   }
+
+  if (!courseId) return;
+
+  const col = e.currentTarget;
+  const container = col ? col.querySelector('.kanban-cards-container') : null;
+  const afterElement = container ? getDragAfterElement(container, e.clientY) : null;
+
+  // Process smooth reordering or transfer
+  executeDropReorder(courseId, sourceDay, targetDay, afterElement);
 };
 
 window.handleDragEnd = function(e) {
+  removeDropIndicators();
+  currentDraggingCourse = null;
   document.querySelectorAll('.kanban-column').forEach(c => c.classList.remove('drag-over'));
   document.querySelectorAll('.kanban-card').forEach(c => c.classList.remove('is-dragging'));
 };
 
-// Card Movement & Swapping
-window.moveCardToDay = function(courseId, targetDay) {
-  let cardObj = null;
-  const isTargetFriday = targetDay === "Jum'at";
+// Core Drag & Drop Reordering Execution Engine with FLIP Animation
+function executeDropReorder(courseId, sourceDay, targetDay, afterElement) {
+  const sourceList = sourceDay === "Jum'at" ? kanbanState.fridayCards : kanbanState.saturdayCards;
+  const targetList = targetDay === "Jum'at" ? kanbanState.fridayCards : kanbanState.saturdayCards;
 
-  if (isTargetFriday) {
-    const idx = kanbanState.saturdayCards.findIndex(c => c.id === courseId);
-    if (idx !== -1) {
-      cardObj = kanbanState.saturdayCards.splice(idx, 1)[0];
-      cardObj.hari = "Jum'at";
-      
-      // Auto-assign appropriate Friday standard time slot
-      const slotIdx = Math.min(kanbanState.fridayCards.length, STANDARD_TIME_PRESETS["Jum'at"].length - 1);
-      const preset = STANDARD_TIME_PRESETS["Jum'at"][slotIdx];
-      cardObj.jam_mulai = preset.start;
-      cardObj.jam_selesai = preset.end;
+  const cardIdx = sourceList.findIndex(c => c.id === courseId);
+  if (cardIdx === -1) return;
 
-      kanbanState.fridayCards.push(cardObj);
-      showToast(`🔀 Mata kuliah [${cardObj.mata_kuliah}] dipindahkan ke JUM'AT (${preset.label})`);
-    }
-  } else {
-    const idx = kanbanState.fridayCards.findIndex(c => c.id === courseId);
-    if (idx !== -1) {
-      cardObj = kanbanState.fridayCards.splice(idx, 1)[0];
-      cardObj.hari = "Sabtu";
+  const cardObj = sourceList[cardIdx];
 
-      // Auto-assign appropriate Saturday standard time slot
-      const slotIdx = Math.min(kanbanState.saturdayCards.length, STANDARD_TIME_PRESETS["Sabtu"].length - 1);
-      const preset = STANDARD_TIME_PRESETS["Sabtu"][slotIdx];
-      cardObj.jam_mulai = preset.start;
-      cardObj.jam_selesai = preset.end;
-
-      kanbanState.saturdayCards.push(cardObj);
-      showToast(`🔀 Mata kuliah [${cardObj.mata_kuliah}] dipindahkan ke SABTU (${preset.label})`);
-    }
+  // Calculate target insertion index based on afterElement
+  let targetIdx = targetList.length;
+  if (afterElement && afterElement.dataset && afterElement.dataset.courseId) {
+    const foundIdx = targetList.findIndex(c => c.id === afterElement.dataset.courseId);
+    if (foundIdx !== -1) targetIdx = foundIdx;
   }
 
-  renderKanbanBoard();
+  if (sourceDay === targetDay) {
+    // Reorder within the same day
+    if (targetIdx > cardIdx) targetIdx--; // Adjust for item removal
+    if (targetIdx !== cardIdx) {
+      sourceList.splice(cardIdx, 1);
+      sourceList.splice(targetIdx, 0, cardObj);
+      realignDayTimePresets(targetDay);
+
+      flipAnimateKanban(renderKanbanBoard);
+      showToast(`⚡ Urutan jadwal ${targetDay} berhasil disesuaikan.`);
+    }
+  } else {
+    // Transfer across different days (Jum'at ⇄ Sabtu)
+    sourceList.splice(cardIdx, 1);
+    cardObj.hari = targetDay;
+    targetList.splice(targetIdx, 0, cardObj);
+
+    realignDayTimePresets(sourceDay);
+    realignDayTimePresets(targetDay);
+
+    flipAnimateKanban(renderKanbanBoard);
+    showToast(`🔀 [${cardObj.mata_kuliah}] dipindahkan ke ${targetDay.toUpperCase()}.`);
+  }
+}
+
+// 1-Click Smooth Card Transfer between Friday ⇄ Saturday
+window.moveCardToDay = function(courseId, targetDay) {
+  const isTargetFriday = targetDay === "Jum'at";
+  const sourceList = isTargetFriday ? kanbanState.saturdayCards : kanbanState.fridayCards;
+  const targetList = isTargetFriday ? kanbanState.fridayCards : kanbanState.saturdayCards;
+
+  const idx = sourceList.findIndex(c => c.id === courseId);
+  if (idx === -1) return;
+
+  const cardObj = sourceList.splice(idx, 1)[0];
+  cardObj.hari = targetDay;
+  targetList.push(cardObj);
+
+  realignDayTimePresets("Jum'at");
+  realignDayTimePresets("Sabtu");
+
+  flipAnimateKanban(renderKanbanBoard);
+  showToast(`🔀 Mata kuliah [${cardObj.mata_kuliah}] dipindahkan ke ${targetDay.toUpperCase()}`);
 };
 
+// 1-Click Smooth Order Shift (▲ Up / ▼ Down)
 window.shiftCardOrder = function(courseId, day, direction) {
   const list = day === "Jum'at" ? kanbanState.fridayCards : kanbanState.saturdayCards;
   const idx = list.findIndex(c => c.id === courseId);
@@ -2329,23 +2477,111 @@ window.shiftCardOrder = function(courseId, day, direction) {
   const targetIdx = idx + direction;
   if (targetIdx < 0 || targetIdx >= list.length) return;
 
-  // Swap items in list
+  // Swap items in array
   const temp = list[idx];
   list[idx] = list[targetIdx];
   list[targetIdx] = temp;
 
-  // Re-assign sequential standard times for this day
-  const presets = STANDARD_TIME_PRESETS[day] || [];
-  list.forEach((c, i) => {
-    if (presets[i]) {
-      c.jam_mulai = presets[i].start;
-      c.jam_selesai = presets[i].end;
-    }
-  });
+  realignDayTimePresets(day);
 
-  renderKanbanBoard();
+  flipAnimateKanban(renderKanbanBoard);
   showToast(`⚡ Urutan jam perkuliahan hari ${day} berhasil disesuaikan.`);
 };
+
+// Touch Drag & Drop Support for Mobile / Tablets
+function initKanbanTouchSupport() {
+  const cards = document.querySelectorAll('.kanban-card');
+
+  cards.forEach(card => {
+    const handle = card.querySelector('.drag-handle-badge') || card;
+    let startX = 0;
+    let startY = 0;
+    let isTouchDragging = false;
+    let floatingAvatar = null;
+
+    handle.addEventListener('touchstart', (e) => {
+      const touch = e.touches[0];
+      startX = touch.clientX;
+      startY = touch.clientY;
+      isTouchDragging = false;
+    }, { passive: true });
+
+    handle.addEventListener('touchmove', (e) => {
+      const touch = e.touches[0];
+      const deltaX = Math.abs(touch.clientX - startX);
+      const deltaY = Math.abs(touch.clientY - startY);
+
+      if (!isTouchDragging && (deltaX > 10 || deltaY > 10)) {
+        isTouchDragging = true;
+        card.classList.add('is-dragging');
+
+        // Create floating avatar
+        floatingAvatar = card.cloneNode(true);
+        floatingAvatar.className = 'touch-dragging-avatar';
+        floatingAvatar.id = 'touchDragAvatar';
+        document.body.appendChild(floatingAvatar);
+      }
+
+      if (isTouchDragging && floatingAvatar) {
+        if (e.cancelable) e.preventDefault();
+
+        floatingAvatar.style.left = `${touch.clientX}px`;
+        floatingAvatar.style.top = `${touch.clientY}px`;
+
+        // Check which column element is under touch point
+        const elUnderTouch = document.elementFromPoint(touch.clientX, touch.clientY);
+        const col = elUnderTouch ? elUnderTouch.closest('.kanban-column') : null;
+
+        document.querySelectorAll('.kanban-column').forEach(c => {
+          if (c === col) {
+            c.classList.add('drag-over');
+            const container = c.querySelector('.kanban-cards-container');
+            if (container) {
+              const afterElement = getDragAfterElement(container, touch.clientY);
+              showDropIndicator(container, afterElement);
+            }
+          } else {
+            c.classList.remove('drag-over');
+          }
+        });
+      }
+    }, { passive: false });
+
+    const handleTouchEnd = (e) => {
+      if (isTouchDragging) {
+        const touch = e.changedTouches ? e.changedTouches[0] : null;
+        card.classList.remove('is-dragging');
+
+        if (floatingAvatar) {
+          floatingAvatar.remove();
+          floatingAvatar = null;
+        }
+
+        if (touch) {
+          const elUnderTouch = document.elementFromPoint(touch.clientX, touch.clientY);
+          const col = elUnderTouch ? elUnderTouch.closest('.kanban-column') : null;
+
+          if (col) {
+            const targetDay = col.classList.contains('col-friday') ? "Jum'at" : "Sabtu";
+            const container = col.querySelector('.kanban-cards-container');
+            const afterElement = container ? getDragAfterElement(container, touch.clientY) : null;
+            const courseId = card.dataset.courseId;
+            const sourceDay = card.dataset.day;
+
+            executeDropReorder(courseId, sourceDay, targetDay, afterElement);
+          }
+        }
+
+        removeDropIndicators();
+        document.querySelectorAll('.kanban-column').forEach(c => c.classList.remove('drag-over'));
+      }
+      isTouchDragging = false;
+    };
+
+    handle.addEventListener('touchend', handleTouchEnd);
+    handle.addEventListener('touchcancel', handleTouchEnd);
+  });
+}
 
 // Card Field Modifications
 window.onKanbanLecturerChange = function(courseId, lecturerName) {
@@ -2360,7 +2596,7 @@ window.toggleKanbanCourseMode = function(courseId) {
   const card = findKanbanCard(courseId);
   if (card) {
     card.metode = card.metode === 'Online' ? 'Offline' : 'Online';
-    renderKanbanBoard();
+    flipAnimateKanban(renderKanbanBoard);
     showToast(`🌐 Metode ${card.mata_kuliah}: ${card.metode === 'Online' ? 'Daring (Zoom)' : `Tatap Muka (${ACADEMIC_DATA.default_ruangan})`}`);
   }
 };
@@ -2369,7 +2605,7 @@ window.toggleKanbanCourseActive = function(courseId, isChecked) {
   const card = findKanbanCard(courseId);
   if (card) {
     card.isActive = isChecked;
-    renderKanbanBoard();
+    flipAnimateKanban(renderKanbanBoard);
     showToast(isChecked ? `🟢 [${card.mata_kuliah}] Terjadwal Masuk` : `❌ [${card.mata_kuliah}] Ditandai Diliburkan`);
   }
 };
@@ -2482,7 +2718,7 @@ window.applyPresetTime = function(start, end) {
   if (card) {
     card.jam_mulai = start;
     card.jam_selesai = end;
-    renderKanbanBoard();
+    flipAnimateKanban(renderKanbanBoard);
     showToast(`⏰ Jam [${card.mata_kuliah}] diubah menjadi ${start} - ${end} WITA`);
   }
   closeTimeSlotModal();
@@ -2505,7 +2741,7 @@ window.applyCustomTimeSlot = function() {
   if (card) {
     card.jam_mulai = start;
     card.jam_selesai = end;
-    renderKanbanBoard();
+    flipAnimateKanban(renderKanbanBoard);
     showToast(`⏰ Jam [${card.mata_kuliah}] diubah menjadi ${start} - ${end} WITA`);
   }
   closeTimeSlotModal();
