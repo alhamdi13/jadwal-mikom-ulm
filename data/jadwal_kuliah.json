@@ -191,8 +191,8 @@
     {
       "id": "MK-05",
       "hari": "Sabtu",
-      "jam_mulai": "11.00",
-      "jam_selesai": "13.30",
+      "jam_mulai": "14.00",
+      "jam_selesai": "16.30",
       "mata_kuliah": "Perspektif Psikologi Komunikasi",
       "dosen_pengajar_aktif": "Dr. Yuanita Setyastuti, S.IP., M.Si",
       "tim_pengajar": [
@@ -361,8 +361,8 @@
     {
       "id": "MK-06",
       "hari": "Sabtu",
-      "jam_mulai": "14.00",
-      "jam_selesai": "16.30",
+      "jam_mulai": "11.00",
+      "jam_selesai": "13.30",
       "mata_kuliah": "Media dan Teknologi Komunikasi",
       "dosen_pengajar_aktif": "Dr. Muhammad Alif, M.Si",
       "tim_pengajar": [
@@ -879,7 +879,7 @@
       "jam_mulai": "08.30",
       "jam_selesai": "11.00",
       "mata_kuliah": "Filsafat Ilmu Komunikasi",
-      "dosen_pengajar_aktif": "Dr. Fahrianoor, S.IP., M.Si",
+      "dosen_pengajar_aktif": "Prof. Dr. H. Bachruddin Ali Ahmad, M.Si",
       "tim_pengajar": [
         {
           "nama": "Prof. Dr. H. Bachruddin Ali Ahmad, M.Si",
@@ -946,7 +946,7 @@
           "sesi": 4,
           "tanggal": "2026-09-26",
           "metode": "Online",
-          "dosen_pengajar": "Dr. Fahrianoor, S.IP., M.Si",
+          "dosen_pengajar": "Prof. Dr. H. Bachruddin Ali Ahmad, M.Si",
           "topik": "Objek Formal dan Objek Material Ilmu Komunikasi",
           "tugas": "Review Jurnal Epistemologi"
         },
