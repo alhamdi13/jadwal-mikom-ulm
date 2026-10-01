@@ -1,10 +1,10 @@
-name: Broadcast Pengingat Kuliah H-1 Sore
+name: Konfirmasi Jadwal Kuliah Dosen H-1 Sore
 
 on:
   schedule:
-    # 09:00 UTC = 17:00 WITA (16:00 WIB)
-    # 4 = Kamis sore (pengingat kuliah Jum'at)
-    # 5 = Jum'at sore (pengingat kuliah Sabtu)
+    # 08:53 UTC = 16:53 WITA (15:53 WIB)
+    # 4 = Kamis sore (konfirmasi jadwal kuliah Jum'at ke Dosen Pengampu)
+    # 5 = Jum'at sore (konfirmasi jadwal kuliah Sabtu ke Dosen Pengampu)
     - cron: '53 8 * * 4,5'
   workflow_dispatch: # Memungkinkan tombol "Run workflow" manual di GitHub UI
 
@@ -23,7 +23,7 @@ jobs:
       - name: Install Dependencies
         run: npm install --no-audit --no-fund
 
-      - name: Run H-1 Evening Broadcast
+      - name: Run H-1 Lecturer Confirmation
         env:
           SESSION_DATA_BASE64: ${{ secrets.SESSION_DATA_BASE64 }}
           TZ: 'Asia/Makassar'
