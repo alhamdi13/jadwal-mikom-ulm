@@ -1,9 +1,9 @@
 /**
  * Skrip Uji Coba Mandiri (Dry-Run Test) Lengkap untuk MIKOM FISIP ULM Angkatan 2026
  * Menguji seluruh tier pengingat:
- * 1. H-1 Sore (17:00 WITA) - WAG + Japri Dosen
- * 2. Pagi Hari H (05:00 WITA) - WAG + Japri Dosen
- * 3. H-30 Menit - Pengingat Spesifik Per-Mata Kuliah ke WAG
+ * 1. H-1 Sore (16:53 WITA) - Japri Konfirmasi ke Dosen Pengampu (WAG dilewati menunggu konfirmasi dosen)
+ * 2. Pagi Hari H (04:53 WITA) - Siaran Rekap Jadwal ke WhatsApp Group (WAG)
+ * 3. H-30 Menit - Pengingat Spesifik Per-Mata Kuliah ke WAG & Dosen Bertugas
  */
 
 import {
@@ -43,16 +43,9 @@ async function runTests() {
     throw new Error('❌ Test 1 Gagal: 11 Sept harus berstatus ONLINE (Zoom Meeting)!');
   }
 
-  // Test 2: Pengingat H-1 Sore Hari ke WAG & Japri Dosen (Kamis Sore 10 Sept 2026)
-  console.log('🔹 [Test 2] Format Pengingat H-1 Sore (Kamis Sore untuk Kuliah Jum\'at 11 Sept):');
-  const msgH1WAG = formatHMinus1GroupMessage(jumatOnlineData, 'Jum\'at, 11 September 2026');
-  console.log(msgH1WAG);
-  console.log('----------------------------------------------------------------\n');
-  if (!msgH1WAG.includes('PENGINGAT KULIAH BESOK (H-1)')) {
-    throw new Error('❌ Test 2 Gagal: Pesan H-1 WAG tidak sesuai format!');
-  }
-
-  console.log('🔹 [Test 2b] Japri Konfirmasi H-1 Sore ke Dosen Pengampu:');
+  // Test 2: Konfirmasi H-1 Sore Hari ke Dosen Pengampu (Kamis Sore 10 Sept 2026)
+  // Catatan: Siaran ke WAG mahasiswa dilewati agar menunggu kepastian/konfirmasi dari dosen terlebih dahulu.
+  console.log('🔹 [Test 2] Japri Konfirmasi H-1 Sore ke Dosen Pengampu (Kamis Sore untuk Kuliah Jum\'at 11 Sept):');
   const lecturersTomorrow = await getLecturersSchedulesForDate('2026-09-11');
   for (const item of lecturersTomorrow) {
     const dosenH1Msg = formatHMinus1LecturerMessage(item, 'Jum\'at, 11 September 2026');
