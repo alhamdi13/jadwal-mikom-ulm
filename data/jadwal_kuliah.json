@@ -541,8 +541,8 @@
     {
       "id": "MK-05",
       "hari": "Sabtu",
-      "jam_mulai": "11.00",
-      "jam_selesai": "13.30",
+      "jam_mulai": "14.00",
+      "jam_selesai": "16.30",
       "mata_kuliah": "Perspektif Psikologi Komunikasi",
       "dosen_pengajar_aktif": "Dr. Yuanita Setyastuti, S.IP., M.Si",
       "tim_pengajar": [
@@ -881,8 +881,8 @@
     {
       "id": "MK-03",
       "hari": "Sabtu",
-      "jam_mulai": "14.00",
-      "jam_selesai": "16.30",
+      "jam_mulai": "11.00",
+      "jam_selesai": "13.30",
       "mata_kuliah": "CSR dan Komunikasi Pemberdayaan",
       "dosen_pengajar_aktif": "Dr. Muhammad Alif, M.Si",
       "tim_pengajar": [
