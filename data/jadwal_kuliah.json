@@ -190,9 +190,9 @@
     },
     {
       "id": "MK-06",
-      "hari": "Sabtu",
-      "jam_mulai": "11.00",
-      "jam_selesai": "13.30",
+      "hari": "Jum'at",
+      "jam_mulai": "18.45",
+      "jam_selesai": "21.15",
       "mata_kuliah": "Media dan Teknologi Komunikasi",
       "dosen_pengajar_aktif": "Dr. Muhammad Alif, M.Si",
       "tim_pengajar": [
@@ -214,7 +214,7 @@
       ],
       "tanggal_offline": [
         "2026-09-05",
-        "2026-10-03",
+        "2026-10-02",
         "2026-10-17",
         "2026-10-31",
         "2026-11-14",
@@ -267,7 +267,7 @@
         },
         {
           "sesi": 5,
-          "tanggal": "2026-10-03",
+          "tanggal": "2026-10-02",
           "metode": "Offline",
           "dosen_pengajar": "Dr. Muhammad Alif, M.Si",
           "topik": "Literasi Digital Kritis & Kesenjangan Digital (Digital Divide)",
@@ -541,8 +541,8 @@
     {
       "id": "MK-05",
       "hari": "Sabtu",
-      "jam_mulai": "14.00",
-      "jam_selesai": "16.30",
+      "jam_mulai": "11.00",
+      "jam_selesai": "13.30",
       "mata_kuliah": "Perspektif Psikologi Komunikasi",
       "dosen_pengajar_aktif": "Dr. Yuanita Setyastuti, S.IP., M.Si",
       "tim_pengajar": [
@@ -880,9 +880,9 @@
     },
     {
       "id": "MK-03",
-      "hari": "Jum'at",
-      "jam_mulai": "18.45",
-      "jam_selesai": "21.15",
+      "hari": "Sabtu",
+      "jam_mulai": "14.00",
+      "jam_selesai": "16.30",
       "mata_kuliah": "CSR dan Komunikasi Pemberdayaan",
       "dosen_pengajar_aktif": "Dr. Muhammad Alif, M.Si",
       "tim_pengajar": [
@@ -899,7 +899,7 @@
       ],
       "tanggal_offline": [
         "2026-09-04",
-        "2026-10-02",
+        "2026-10-03",
         "2026-10-16",
         "2026-10-30",
         "2026-11-13",
@@ -952,7 +952,7 @@
         },
         {
           "sesi": 5,
-          "tanggal": "2026-10-02",
+          "tanggal": "2026-10-03",
           "metode": "Offline",
           "dosen_pengajar": "Dr. Muhammad Alif, M.Si",
           "topik": "Desain Program CSR Berkelanjutan Sektor Industri",
