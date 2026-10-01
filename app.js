@@ -1591,9 +1591,9 @@ window.showToast = function(message) {
 const BOT_WORKFLOWS_DEF = [
   {
     file: 'h_minus_1_broadcast.yml',
-    title: '🔔 Bot Pengingat H-1 Sore',
+    title: '🔔 Bot Konfirmasi Dosen H-1 Sore',
     schedule: '⏰ Setiap Kamis & Jum\'at Sore (16:53 WITA)',
-    desc: 'Mengirimkan konfirmasi kesiapan ke dosen pengampu (Japri) dan pengingat kuliah esok hari ke WAG mahasiswa.'
+    desc: 'Mengirimkan pesan konfirmasi kepastian jadwal ke dosen pengampu (Japri) untuk memastikan kesiapan sebelum informasi final dibagikan ke WAG mahasiswa.'
   },
   {
     file: 'morning_broadcast.yml',
