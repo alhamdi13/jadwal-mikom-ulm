@@ -68,7 +68,11 @@ function checkExecutionTimeWindow() {
 async function runScheduledBroadcast() {
   console.log('====================================================');
   console.log(`⏰ MENJALANKAN SIARAN JADWAL KULIAH [MODE: ${broadcastMode.toUpperCase()}]`);
-  console.log(`📍 Target Grup : ${config.targetGroups?.[0]?.name || 'Belum diatur'} (${config.targetGroups?.[0]?.id || '-'})`);
+  if (broadcastMode === 'h_minus_1') {
+    console.log(`📍 Target       : Japri Konfirmasi Dosen Pengampu Esok Hari (WAG dilewati)`);
+  } else {
+    console.log(`📍 Target Grup  : ${config.targetGroups?.[0]?.name || 'Belum diatur'} (${config.targetGroups?.[0]?.id || '-'})`);
+  }
   console.log('====================================================');
 
   if (!checkExecutionTimeWindow()) {
