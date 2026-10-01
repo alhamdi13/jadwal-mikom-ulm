@@ -2197,9 +2197,13 @@ function flipAnimateKanban(actionCallback) {
 
 // Re-align standard progressive time presets when order changes
 function realignDayTimePresets(day) {
-  const list = day === "Jum'at" ? kanbanState.fridayCards : kanbanState.saturdayCards;
-  const presets = STANDARD_TIME_PRESETS[day] || [];
+  const isFriday = day === "Jum'at" || day === "friday" || (typeof day === 'string' && day.toLowerCase().includes('jum'));
+  const actualDay = isFriday ? "Jum'at" : "Sabtu";
+  const list = isFriday ? kanbanState.fridayCards : kanbanState.saturdayCards;
+  const presets = STANDARD_TIME_PRESETS[actualDay] || [];
   list.forEach((c, i) => {
+    c.hari = actualDay;
+    c.sesi = i + 1;
     if (presets[i]) {
       c.jam_mulai = presets[i].start;
       c.jam_selesai = presets[i].end;
@@ -2270,18 +2274,19 @@ window.renderKanbanBoard = function() {
 };
 
 function renderKanbanCardHtml(item, day) {
-  const otherDay = day === "Jum'at" ? "Sabtu" : "Jum'at";
+  const isFriday = day === "Jum'at" || (item.hari && item.hari.includes('Jum'));
+  const otherDay = isFriday ? "Sabtu" : "Jum'at";
   const isOnline = item.metode === 'Online';
   const conflictClass = item.hasConflict ? 'has-conflict' : '';
 
   return `
-    <div class="kanban-card ${conflictClass}" id="kanbanCard_${item.id}" data-course-id="${item.id}" data-day="${day}" draggable="true" ondragstart="handleDragStart(event, '${item.id}', '${day}')" ondragend="handleDragEnd(event)">
+    <div class="kanban-card ${conflictClass}" id="kanbanCard_${item.id}" data-course-id="${item.id}" data-day="${isFriday ? 'friday' : 'saturday'}" draggable="true" ondragstart="handleDragStart(event, '${item.id}')" ondragend="handleDragEnd(event)">
       
       <!-- Top Row: Handle, Time, and Active Toggle -->
       <div class="kanban-card-top">
         <div class="drag-handle-badge" title="Tahan & Seret kartu ini untuk memindahkan jadwal">
           <span class="drag-icon">⠿</span>
-          <span>Sesi ${item.sesi} (${item.sks} SKS)</span>
+          <span>Sesi ${item.sesi || 1} (${item.sks || 3} SKS)</span>
         </div>
 
         <button class="kanban-time-btn" onclick="openTimeSlotModal('${item.id}')" title="Klik untuk mengubah jam perkuliahan">
@@ -2309,7 +2314,7 @@ function renderKanbanCardHtml(item, day) {
 
       <!-- Bottom Row: 1-Click Day Swap, Status Checkbox, and Order Shift -->
       <div class="kanban-actions-footer">
-        <button class="kanban-quick-swap-btn" onclick="moveCardToDay('${item.id}', '${otherDay}')" title="Pindahkan mata kuliah ini ke hari ${otherDay}">
+        <button class="kanban-quick-swap-btn" onclick="moveCardToDay('${item.id}')" title="Pindahkan mata kuliah ini ke hari ${otherDay}">
           ⇄ Geser ke ${otherDay}
         </button>
 
@@ -2319,8 +2324,8 @@ function renderKanbanCardHtml(item, day) {
         </label>
 
         <div class="kanban-order-btns">
-          <button class="kanban-order-btn" onclick="shiftCardOrder('${item.id}', '${day}', -1)" title="Geser lebih awal (ke atas)">▲</button>
-          <button class="kanban-order-btn" onclick="shiftCardOrder('${item.id}', '${day}', 1)" title="Geser lebih lambat (ke bawah)">▼</button>
+          <button class="kanban-order-btn" onclick="shiftCardOrder('${item.id}', -1)" title="Geser lebih awal (ke atas)">▲</button>
+          <button class="kanban-order-btn" onclick="shiftCardOrder('${item.id}', 1)" title="Geser lebih lambat (ke bawah)">▼</button>
         </div>
       </div>
 
@@ -2329,10 +2334,11 @@ function renderKanbanCardHtml(item, day) {
 }
 
 // Drag and Drop Event Handlers (HTML5 Desktop)
-window.handleDragStart = function(e, courseId, sourceDay) {
-  currentDraggingCourse = { courseId, sourceDay };
+window.handleDragStart = function(e, courseId) {
+  const isFromFri = kanbanState.fridayCards.some(c => c.id === courseId);
+  currentDraggingCourse = { courseId, sourceDay: isFromFri ? "Jum'at" : "Sabtu" };
   if (e.dataTransfer) {
-    e.dataTransfer.setData('text/plain', JSON.stringify({ courseId, sourceDay }));
+    e.dataTransfer.setData('text/plain', JSON.stringify({ courseId }));
     e.dataTransfer.effectAllowed = 'move';
   }
   const cardEl = document.getElementById(`kanbanCard_${courseId}`);
@@ -2367,26 +2373,23 @@ window.handleDragLeave = function(e) {
   }
 };
 
-window.handleDrop = function(e, targetDay) {
+window.handleDrop = function(e, targetDayKey) {
   e.preventDefault();
   removeDropIndicators();
   document.querySelectorAll('.kanban-column').forEach(c => c.classList.remove('drag-over'));
 
   let courseId = null;
-  let sourceDay = null;
 
   try {
     const rawData = e.dataTransfer ? e.dataTransfer.getData('text/plain') : null;
     if (rawData) {
       const parsed = JSON.parse(rawData);
       courseId = parsed.courseId;
-      sourceDay = parsed.sourceDay;
     }
   } catch (err) {}
 
   if (!courseId && currentDraggingCourse) {
     courseId = currentDraggingCourse.courseId;
-    sourceDay = currentDraggingCourse.sourceDay;
   }
 
   if (!courseId) return;
@@ -2394,9 +2397,11 @@ window.handleDrop = function(e, targetDay) {
   const col = e.currentTarget;
   const container = col ? col.querySelector('.kanban-cards-container') : null;
   const afterElement = container ? getDragAfterElement(container, e.clientY) : null;
+  
+  const isTargetFriday = (targetDayKey === 'friday') || (col && col.classList.contains('col-friday')) || (typeof targetDayKey === 'string' && targetDayKey.toLowerCase().includes('jum'));
+  const targetDay = isTargetFriday ? "Jum'at" : "Sabtu";
 
-  // Process smooth reordering or transfer
-  executeDropReorder(courseId, sourceDay, targetDay, afterElement);
+  executeDropReorder(courseId, targetDay, afterElement);
 };
 
 window.handleDragEnd = function(e) {
@@ -2407,70 +2412,67 @@ window.handleDragEnd = function(e) {
 };
 
 // Core Drag & Drop Reordering Execution Engine with FLIP Animation
-function executeDropReorder(courseId, sourceDay, targetDay, afterElement) {
-  const sourceList = sourceDay === "Jum'at" ? kanbanState.fridayCards : kanbanState.saturdayCards;
-  const targetList = targetDay === "Jum'at" ? kanbanState.fridayCards : kanbanState.saturdayCards;
+function executeDropReorder(courseId, targetDay, afterElement) {
+  const isTargetFriday = targetDay === "Jum'at" || (typeof targetDay === 'string' && targetDay.toLowerCase().includes('jum'));
+  const targetList = isTargetFriday ? kanbanState.fridayCards : kanbanState.saturdayCards;
+  const actualTargetDay = isTargetFriday ? "Jum'at" : "Sabtu";
 
-  const cardIdx = sourceList.findIndex(c => c.id === courseId);
+  // Check which list currently contains the card
+  let isFromFriday = kanbanState.fridayCards.some(c => c.id === courseId);
+  let sourceList = isFromFriday ? kanbanState.fridayCards : kanbanState.saturdayCards;
+  let cardIdx = sourceList.findIndex(c => c.id === courseId);
   if (cardIdx === -1) return;
 
-  const cardObj = sourceList[cardIdx];
+  // 1. Remove card from source list first
+  const cardObj = sourceList.splice(cardIdx, 1)[0];
 
-  // Calculate target insertion index based on afterElement
+  // 2. Find insertion index in targetList based on afterElement
   let targetIdx = targetList.length;
   if (afterElement && afterElement.dataset && afterElement.dataset.courseId) {
     const foundIdx = targetList.findIndex(c => c.id === afterElement.dataset.courseId);
     if (foundIdx !== -1) targetIdx = foundIdx;
   }
 
-  if (sourceDay === targetDay) {
-    // Reorder within the same day
-    if (targetIdx > cardIdx) targetIdx--; // Adjust for item removal
-    if (targetIdx !== cardIdx) {
-      sourceList.splice(cardIdx, 1);
-      sourceList.splice(targetIdx, 0, cardObj);
-      realignDayTimePresets(targetDay);
+  // 3. Insert card into targetList
+  cardObj.hari = actualTargetDay;
+  targetList.splice(targetIdx, 0, cardObj);
 
-      flipAnimateKanban(renderKanbanBoard);
-      showToast(`⚡ Urutan jadwal ${targetDay} berhasil disesuaikan.`);
-    }
-  } else {
-    // Transfer across different days (Jum'at ⇄ Sabtu)
-    sourceList.splice(cardIdx, 1);
-    cardObj.hari = targetDay;
-    targetList.splice(targetIdx, 0, cardObj);
+  // 4. Realign time slots for both days
+  realignDayTimePresets("Jum'at");
+  realignDayTimePresets("Sabtu");
 
-    realignDayTimePresets(sourceDay);
-    realignDayTimePresets(targetDay);
-
-    flipAnimateKanban(renderKanbanBoard);
-    showToast(`🔀 [${cardObj.mata_kuliah}] dipindahkan ke ${targetDay.toUpperCase()}.`);
-  }
+  // 5. Trigger smooth FLIP animation and toast
+  flipAnimateKanban(renderKanbanBoard);
+  showToast(`⚡ Jadwal [${cardObj.mata_kuliah}] berhasil disesuaikan.`);
 }
 
 // 1-Click Smooth Card Transfer between Friday ⇄ Saturday
-window.moveCardToDay = function(courseId, targetDay) {
-  const isTargetFriday = targetDay === "Jum'at";
-  const sourceList = isTargetFriday ? kanbanState.saturdayCards : kanbanState.fridayCards;
-  const targetList = isTargetFriday ? kanbanState.fridayCards : kanbanState.saturdayCards;
+window.moveCardToDay = function(courseId) {
+  let isFromFriday = kanbanState.fridayCards.some(c => c.id === courseId);
+  let sourceList = isFromFriday ? kanbanState.fridayCards : kanbanState.saturdayCards;
+  let targetList = isFromFriday ? kanbanState.saturdayCards : kanbanState.fridayCards;
+  let newDay = isFromFriday ? "Sabtu" : "Jum'at";
 
   const idx = sourceList.findIndex(c => c.id === courseId);
   if (idx === -1) return;
 
   const cardObj = sourceList.splice(idx, 1)[0];
-  cardObj.hari = targetDay;
+  cardObj.hari = newDay;
   targetList.push(cardObj);
 
   realignDayTimePresets("Jum'at");
   realignDayTimePresets("Sabtu");
 
   flipAnimateKanban(renderKanbanBoard);
-  showToast(`🔀 Mata kuliah [${cardObj.mata_kuliah}] dipindahkan ke ${targetDay.toUpperCase()}`);
+  showToast(`🔀 [${cardObj.mata_kuliah}] dipindahkan ke hari ${newDay.toUpperCase()}`);
 };
 
 // 1-Click Smooth Order Shift (▲ Up / ▼ Down)
-window.shiftCardOrder = function(courseId, day, direction) {
-  const list = day === "Jum'at" ? kanbanState.fridayCards : kanbanState.saturdayCards;
+window.shiftCardOrder = function(courseId, direction) {
+  let isFriday = kanbanState.fridayCards.some(c => c.id === courseId);
+  let list = isFriday ? kanbanState.fridayCards : kanbanState.saturdayCards;
+  let day = isFriday ? "Jum'at" : "Sabtu";
+
   const idx = list.findIndex(c => c.id === courseId);
   if (idx === -1) return;
 
@@ -2485,7 +2487,7 @@ window.shiftCardOrder = function(courseId, day, direction) {
   realignDayTimePresets(day);
 
   flipAnimateKanban(renderKanbanBoard);
-  showToast(`⚡ Urutan jam perkuliahan hari ${day} berhasil disesuaikan.`);
+  showToast(`⚡ Urutan jadwal hari ${day} berhasil disesuaikan.`);
 };
 
 // Touch Drag & Drop Support for Mobile / Tablets
@@ -2566,9 +2568,8 @@ function initKanbanTouchSupport() {
             const container = col.querySelector('.kanban-cards-container');
             const afterElement = container ? getDragAfterElement(container, touch.clientY) : null;
             const courseId = card.dataset.courseId;
-            const sourceDay = card.dataset.day;
 
-            executeDropReorder(courseId, sourceDay, targetDay, afterElement);
+            executeDropReorder(courseId, targetDay, afterElement);
           }
         }
 
