@@ -86,33 +86,36 @@ export async function executeMorningBroadcast(sock, targetGroupOverride = null, 
 }
 
 /**
- * 2. Eksekusi Broadcast Pengingat H-1 Sore Hari (Kamis/Jumat Sore jam 17:00 WITA)
+ * 2. Eksekusi Konfirmasi H-1 Sore Hari ke Dosen Pengampu (Kamis/Jumat Sore jam 16:53 WITA)
+ * Catatan: Pengiriman informasi ke WAG mahasiswa pada H-1 sore ditiadakan karena perlu
+ * konfirmasi terlebih dahulu dari dosen pengampu (apakah jadwal tetap atau berubah).
+ * Informasi jadwal final resmi disiarkan ke WAG mahasiswa pada Pagi Hari H (04:53 WITA)
+ * atau diperbarui langsung oleh pengurus kelas setelah konfirmasi dosen.
  * @param {import('@whiskeysockets/baileys').WASocket} sock
  * @param {string|null} [targetGroupOverride]
  * @param {Date|number|string} [dateOffsetOrDate=1]
  */
 export async function executeHMinus1Broadcast(sock, targetGroupOverride = null, dateOffsetOrDate = 1) {
   const formattedTomorrowDate = getFormattedDate(dateOffsetOrDate);
-  console.log(`[Broadcast H-1 Sore] Memulai broadcast pengingat H-1 untuk jadwal: ${formattedTomorrowDate}`);
+  console.log(`[Konfirmasi Dosen H-1 Sore] Memulai proses konfirmasi jadwal H-1 untuk: ${formattedTomorrowDate}`);
 
   // 1. Ambil data jadwal esok hari
   const tomorrowScheduleData = await getScheduleForDate(dateOffsetOrDate);
 
   if (!tomorrowScheduleData.schedules || tomorrowScheduleData.schedules.length === 0) {
-    console.log(`[Broadcast H-1 Sore] Besok (${formattedTomorrowDate}) tidak ada jadwal perkuliahan. Broadcast H-1 dilewati.`);
+    console.log(`[Konfirmasi Dosen H-1 Sore] Besok (${formattedTomorrowDate}) tidak ada jadwal perkuliahan. Konfirmasi H-1 dilewati.`);
     return;
   }
 
-  // 2. Kirim Pengingat H-1 ke WhatsApp Group (WAG)
-  if (config.scheduler.enableGroupBroadcast) {
-    const groupMessage = formatHMinus1GroupMessage(tomorrowScheduleData, formattedTomorrowDate);
-    await sendToTargetGroups(sock, groupMessage, targetGroupOverride, 'Broadcast H-1 WAG');
-  }
+  // 2. Kirim ke WAG mahasiswa pada H-1 Sore DINONAKTIFKAN
+  // Alasan: Membutuhkan informasi kepastian dari dosen terlebih dahulu (apakah jadwal tetap/berubah).
+  // Informasi final ke grup mahasiswa baru disiarkan pada Pagi Hari H (04:53 WITA) via executeMorningBroadcast.
+  console.log(`[Konfirmasi Dosen H-1 Sore] Siaran ke WAG mahasiswa dilewati (menunggu konfirmasi dosen; jadwal final dikirim pagi Hari H).`);
 
-  // 3. Kirim Konfirmasi H-1 ke Dosen Pengampu Esok Hari
+  // 3. Kirim Konfirmasi H-1 ke Dosen Pengampu Esok Hari (Japri)
   if (config.scheduler.enableLecturerDirectMessage) {
     const lecturersTomorrow = await getLecturersSchedulesForDate(dateOffsetOrDate);
-    console.log(`[Broadcast Dosen H-1] Ditemukan ${lecturersTomorrow.length} dosen yang mengajar esok hari.`);
+    console.log(`[Konfirmasi Dosen H-1] Ditemukan ${lecturersTomorrow.length} dosen yang mengajar esok hari.`);
 
     for (const item of lecturersTomorrow) {
       const { dosen } = item;
@@ -123,14 +126,14 @@ export async function executeHMinus1Broadcast(sock, targetGroupOverride = null, 
 
       try {
         await sock.sendMessage(lecturerJid, { text: lecturerMsg });
-        console.log(`[Broadcast Dosen H-1] Berhasil kirim konfirmasi ke Dosen: ${dosen.nama} (${dosen.no_hp})`);
+        console.log(`[Konfirmasi Dosen H-1] Berhasil kirim konfirmasi ke Dosen: ${dosen.nama} (${dosen.no_hp})`);
       } catch (err) {
-        console.error(`[Broadcast Dosen H-1] Gagal mengirim ke Dosen ${dosen.nama} (${dosen.no_hp}):`, err.message);
+        console.error(`[Konfirmasi Dosen H-1] Gagal mengirim ke Dosen ${dosen.nama} (${dosen.no_hp}):`, err.message);
       }
     }
   }
 
-  console.log(`[Broadcast H-1 Sore] Selesai memproses pengingat H-1.`);
+  console.log(`[Konfirmasi Dosen H-1 Sore] Selesai memproses konfirmasi ke dosen pengampu.`);
 }
 
 /**
