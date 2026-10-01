@@ -189,175 +189,170 @@
       ]
     },
     {
-      "id": "MK-06",
-      "hari": "Jum'at",
-      "jam_mulai": "18.45",
-      "jam_selesai": "21.15",
-      "mata_kuliah": "Media dan Teknologi Komunikasi",
+      "id": "MK-03",
+      "hari": "Sabtu",
+      "jam_mulai": "11.00",
+      "jam_selesai": "13.30",
+      "mata_kuliah": "CSR dan Komunikasi Pemberdayaan",
       "dosen_pengajar_aktif": "Dr. Muhammad Alif, M.Si",
       "tim_pengajar": [
         {
-          "nama": "Dr. Yuanita Setyastuti, S.IP., M.Si",
-          "no_hp": "6282153883264",
+          "nama": "Dr. Irwansyah, S.Sos,. M.Si",
+          "no_hp": "6281348013888",
           "peran": "Koordinator Tim"
         },
         {
           "nama": "Dr. Muhammad Alif, M.Si",
           "no_hp": "6281294901982",
           "peran": "Anggota Tim"
-        },
-        {
-          "nama": "Dr. Atika, S.I.Kom., M.Si",
-          "no_hp": "6281341510487",
-          "peran": "Anggota Tim"
         }
       ],
       "tanggal_offline": [
-        "2026-09-05",
-        "2026-10-02",
-        "2026-10-17",
-        "2026-10-31",
-        "2026-11-14",
-        "2026-11-28",
-        "2026-12-12"
+        "2026-09-04",
+        "2026-10-03",
+        "2026-10-16",
+        "2026-10-30",
+        "2026-11-13",
+        "2026-11-27",
+        "2026-12-11"
       ],
       "tanggal_online": [
-        "2026-09-12",
-        "2026-09-19",
-        "2026-09-26",
-        "2026-10-10",
-        "2026-10-24",
-        "2026-11-07",
-        "2026-11-21",
-        "2026-12-05",
-        "2026-12-19"
+        "2026-09-11",
+        "2026-09-18",
+        "2026-09-25",
+        "2026-10-09",
+        "2026-10-23",
+        "2026-11-06",
+        "2026-11-20",
+        "2026-12-04",
+        "2026-12-18"
       ],
       "pertemuan": [
         {
           "sesi": 1,
-          "tanggal": "2026-09-05",
+          "tanggal": "2026-09-04",
           "metode": "Offline",
-          "dosen_pengajar": "Dr. Yuanita Setyastuti, S.IP., M.Si",
-          "topik": "Evolusi Teknologi Komunikasi & Determinisme Teknologi",
+          "dosen_pengajar": "Dr. Irwansyah, S.Sos,. M.Si",
+          "topik": "Pengantar Teori & Kebijakan CSR Kontemporer",
           "tugas": "-"
         },
         {
           "sesi": 2,
-          "tanggal": "2026-09-12",
+          "tanggal": "2026-09-11",
           "metode": "Online",
-          "dosen_pengajar": "Dr. Yuanita Setyastuti, S.IP., M.Si",
-          "topik": "Konvergensi Media & Transformasi Industri Informasi",
-          "tugas": "Studi Kasus Konvergensi Media"
+          "dosen_pengajar": "Dr. Irwansyah, S.Sos,. M.Si",
+          "topik": "Triple Bottom Line (People, Planet, Profit) & SDGs 2030",
+          "tugas": "Resume Regulasi CSR"
         },
         {
           "sesi": 3,
-          "tanggal": "2026-09-19",
+          "tanggal": "2026-09-18",
           "metode": "Online",
           "dosen_pengajar": "Dr. Muhammad Alif, M.Si",
-          "topik": "Ekonomi Politik Media Baru & Monopoli Platform Global",
+          "topik": "Model Komunikasi Partisipatif dalam Pemberdayaan",
           "tugas": "-"
         },
         {
           "sesi": 4,
-          "tanggal": "2026-09-26",
+          "tanggal": "2026-09-25",
           "metode": "Online",
           "dosen_pengajar": "Dr. Muhammad Alif, M.Si",
-          "topik": "Budaya Partisipatif, Prosumer, dan Ekosistem Konten",
-          "tugas": "Analisis Pola Konsumsi Konten"
+          "topik": "Pemetaan Sosial (Social Mapping) & Stakeholder Engagement",
+          "tugas": "Instrumen Social Mapping"
         },
         {
           "sesi": 5,
-          "tanggal": "2026-10-02",
+          "tanggal": "2026-10-03",
           "metode": "Offline",
           "dosen_pengajar": "Dr. Muhammad Alif, M.Si",
-          "topik": "Literasi Digital Kritis & Kesenjangan Digital (Digital Divide)",
+          "topik": "Desain Program CSR Berkelanjutan Sektor Industri",
           "tugas": "-"
         },
         {
           "sesi": 6,
-          "tanggal": "2026-10-10",
+          "tanggal": "2026-10-09",
           "metode": "Online",
-          "dosen_pengajar": "Dr. Muhammad Alif, M.Si",
-          "topik": "Kecerdasan Buatan (Generative AI) dalam Jurnalisme & PR",
-          "tugas": "Eksperimen Pemanfaatan AI"
+          "dosen_pengajar": "Dr. Irwansyah, S.Sos,. M.Si",
+          "topik": "Komunikasi Risiko Lingkungan & Mitigasi Konflik Komunitas",
+          "tugas": "Analisis Dampak Lingkungan"
         },
         {
           "sesi": 7,
-          "tanggal": "2026-10-17",
+          "tanggal": "2026-10-16",
           "metode": "Offline",
-          "dosen_pengajar": "Dr. Muhammad Alif, M.Si",
-          "topik": "Algoritma Media Sosial, Filter Bubble, & Ruang Gema",
+          "dosen_pengajar": "Dr. Irwansyah, S.Sos,. M.Si",
+          "topik": "Review Proposal Intervensi Komunitas",
           "tugas": "Persiapan Ujian Tengah Semester"
         },
         {
           "sesi": 8,
-          "tanggal": "2026-10-24",
+          "tanggal": "2026-10-23",
           "metode": "Online",
-          "dosen_pengajar": "Dr. Muhammad Alif, M.Si",
+          "dosen_pengajar": "Dr. Irwansyah, S.Sos,. M.Si",
           "topik": "Ujian Tengah Semester (UTS)",
-          "tugas": "Submit Ujian Tengah Semester"
+          "tugas": "Submit Proposal Program CSR"
         },
         {
           "sesi": 9,
-          "tanggal": "2026-10-31",
+          "tanggal": "2026-10-30",
           "metode": "Offline",
           "dosen_pengajar": "Dr. Muhammad Alif, M.Si",
-          "topik": "Big Data Analytics, Social Media Monitoring & Sentiment Analysis",
+          "topik": "Advokasi Kebijakan Publik & Gerakan Sosial Komunikasi",
           "tugas": "-"
         },
         {
           "sesi": 10,
-          "tanggal": "2026-11-07",
+          "tanggal": "2026-11-06",
           "metode": "Online",
           "dosen_pengajar": "Dr. Muhammad Alif, M.Si",
-          "topik": "Komunikasi Imersif: Virtual Reality, AR, & Metaverse",
-          "tugas": "Studi Imersif Teknologi"
+          "topik": "Media Sosial & Kampanye Digital Pemberdayaan Publik",
+          "tugas": "Analisis Kampanye Digital"
         },
         {
           "sesi": 11,
-          "tanggal": "2026-11-14",
+          "tanggal": "2026-11-13",
           "metode": "Offline",
-          "dosen_pengajar": "Dr. Atika, S.I.Kom., M.Si",
-          "topik": "Etika Teknologi Komunikasi, Privasi Data & Perlindungan Informasi",
+          "dosen_pengajar": "Dr. Muhammad Alif, M.Si",
+          "topik": "Evaluasi Dampak Sosial (Social Return on Investment / SROI)",
           "tugas": "-"
         },
         {
           "sesi": 12,
-          "tanggal": "2026-11-21",
+          "tanggal": "2026-11-20",
           "metode": "Online",
-          "dosen_pengajar": "Dr. Atika, S.I.Kom., M.Si",
-          "topik": "Regulasi Media Digital, UU ITE, & Tata Kelola AI Nasional",
-          "tugas": "Analisis Regulasi AI"
+          "dosen_pengajar": "Dr. Muhammad Alif, M.Si",
+          "topik": "Sustainability Reporting Berstandar GRI Standards",
+          "tugas": "Audit Laporan Keberlanjutan"
         },
         {
           "sesi": 13,
-          "tanggal": "2026-11-28",
+          "tanggal": "2026-11-27",
           "metode": "Offline",
-          "dosen_pengajar": "Dr. Atika, S.I.Kom., M.Si",
-          "topik": "Masa Depan Media, Otomasi Informasi, & Human-Computer Interaction",
+          "dosen_pengajar": "Dr. Muhammad Alif, M.Si",
+          "topik": "Studi Komparasi CSR Multinasional vs Lokal Kalsel",
           "tugas": "-"
         },
         {
           "sesi": 14,
-          "tanggal": "2026-12-05",
+          "tanggal": "2026-12-04",
           "metode": "Online",
-          "dosen_pengajar": "Dr. Atika, S.I.Kom., M.Si",
-          "topik": "Presentasi Riset Dampak Sosial Teknologi Komunikasi (Sesi 1)",
-          "tugas": "Slide Paparan Riset"
+          "dosen_pengajar": "Dr. Muhammad Alif, M.Si",
+          "topik": "Presentasi Riset Aksi Pemberdayaan Masyarakat (Sesi 1)",
+          "tugas": "Paper Publikasi Kelompok"
         },
         {
           "sesi": 15,
-          "tanggal": "2026-12-12",
+          "tanggal": "2026-12-11",
           "metode": "Offline",
-          "dosen_pengajar": "Dr. Atika, S.I.Kom., M.Si",
-          "topik": "Presentasi Riset Dampak Sosial Teknologi Komunikasi (Sesi 2)",
-          "tugas": "Revisi Final Paper"
+          "dosen_pengajar": "Dr. Muhammad Alif, M.Si",
+          "topik": "Presentasi Riset Aksi Pemberdayaan Masyarakat (Sesi 2)",
+          "tugas": "Revisi Naskah Jurnal"
         },
         {
           "sesi": 16,
-          "tanggal": "2026-12-19",
+          "tanggal": "2026-12-18",
           "metode": "Online",
-          "dosen_pengajar": "Dr. Atika, S.I.Kom., M.Si",
+          "dosen_pengajar": "Dr. Muhammad Alif, M.Si",
           "topik": "Ujian Akhir Semester (UAS)",
           "tugas": "Pengumpulan Artikel Akhir UAS"
         }
@@ -410,10 +405,10 @@
       "pertemuan": [
         {
           "sesi": 1,
-          "tanggal": "2026-09-05",
+          "tanggal": "2026-10-02",
           "metode": "Offline",
-          "dosen_pengajar": "Prof. Dr. H. Bachruddin Ali Ahmad, M.Si",
-          "topik": "Taksonomi & Tradisi Besar Teori Komunikasi (Robert Craig)",
+          "dosen_pengajar": "Dr. Fahrianoor, S.IP., M.Si",
+          "topik": "Tradisi Kritis: Frankfurt School & Hegemoni Budaya",
           "tugas": "-"
         },
         {
@@ -758,10 +753,10 @@
         },
         {
           "sesi": 2,
-          "tanggal": "2026-09-11",
-          "metode": "Online",
+          "tanggal": "2026-10-02",
+          "metode": "Offline",
           "dosen_pengajar": "Prof. Dr. H. Bachruddin Ali Ahmad, M.Si",
-          "topik": "Pendekatan Klasik & Hubungan Manusiawi dalam Organisasi",
+          "topik": "Kepemimpinan & Gaya Komunikasi Manajerial",
           "tugas": "Analisis Struktur Organisasi"
         },
         {
@@ -879,170 +874,175 @@
       ]
     },
     {
-      "id": "MK-03",
-      "hari": "Sabtu",
-      "jam_mulai": "11.00",
-      "jam_selesai": "13.30",
-      "mata_kuliah": "CSR dan Komunikasi Pemberdayaan",
+      "id": "MK-06",
+      "hari": "Jum'at",
+      "jam_mulai": "18.45",
+      "jam_selesai": "21.15",
+      "mata_kuliah": "Media dan Teknologi Komunikasi",
       "dosen_pengajar_aktif": "Dr. Muhammad Alif, M.Si",
       "tim_pengajar": [
         {
-          "nama": "Dr. Irwansyah, S.Sos,. M.Si",
-          "no_hp": "6281348013888",
+          "nama": "Dr. Yuanita Setyastuti, S.IP., M.Si",
+          "no_hp": "6282153883264",
           "peran": "Koordinator Tim"
         },
         {
           "nama": "Dr. Muhammad Alif, M.Si",
           "no_hp": "6281294901982",
           "peran": "Anggota Tim"
+        },
+        {
+          "nama": "Dr. Atika, S.I.Kom., M.Si",
+          "no_hp": "6281341510487",
+          "peran": "Anggota Tim"
         }
       ],
       "tanggal_offline": [
-        "2026-09-04",
-        "2026-10-03",
-        "2026-10-16",
-        "2026-10-30",
-        "2026-11-13",
-        "2026-11-27",
-        "2026-12-11"
+        "2026-09-05",
+        "2026-10-02",
+        "2026-10-17",
+        "2026-10-31",
+        "2026-11-14",
+        "2026-11-28",
+        "2026-12-12"
       ],
       "tanggal_online": [
-        "2026-09-11",
-        "2026-09-18",
-        "2026-09-25",
-        "2026-10-09",
-        "2026-10-23",
-        "2026-11-06",
-        "2026-11-20",
-        "2026-12-04",
-        "2026-12-18"
+        "2026-09-12",
+        "2026-09-19",
+        "2026-09-26",
+        "2026-10-10",
+        "2026-10-24",
+        "2026-11-07",
+        "2026-11-21",
+        "2026-12-05",
+        "2026-12-19"
       ],
       "pertemuan": [
         {
           "sesi": 1,
-          "tanggal": "2026-09-04",
+          "tanggal": "2026-09-05",
           "metode": "Offline",
-          "dosen_pengajar": "Dr. Irwansyah, S.Sos,. M.Si",
-          "topik": "Pengantar Teori & Kebijakan CSR Kontemporer",
+          "dosen_pengajar": "Dr. Yuanita Setyastuti, S.IP., M.Si",
+          "topik": "Evolusi Teknologi Komunikasi & Determinisme Teknologi",
           "tugas": "-"
         },
         {
           "sesi": 2,
-          "tanggal": "2026-09-11",
+          "tanggal": "2026-09-12",
           "metode": "Online",
-          "dosen_pengajar": "Dr. Irwansyah, S.Sos,. M.Si",
-          "topik": "Triple Bottom Line (People, Planet, Profit) & SDGs 2030",
-          "tugas": "Resume Regulasi CSR"
+          "dosen_pengajar": "Dr. Yuanita Setyastuti, S.IP., M.Si",
+          "topik": "Konvergensi Media & Transformasi Industri Informasi",
+          "tugas": "Studi Kasus Konvergensi Media"
         },
         {
           "sesi": 3,
-          "tanggal": "2026-09-18",
-          "metode": "Online",
+          "tanggal": "2026-10-02",
+          "metode": "Offline",
           "dosen_pengajar": "Dr. Muhammad Alif, M.Si",
-          "topik": "Model Komunikasi Partisipatif dalam Pemberdayaan",
+          "topik": "Literasi Digital Kritis & Kesenjangan Digital (Digital Divide)",
           "tugas": "-"
         },
         {
           "sesi": 4,
-          "tanggal": "2026-09-25",
+          "tanggal": "2026-09-26",
           "metode": "Online",
           "dosen_pengajar": "Dr. Muhammad Alif, M.Si",
-          "topik": "Pemetaan Sosial (Social Mapping) & Stakeholder Engagement",
-          "tugas": "Instrumen Social Mapping"
+          "topik": "Budaya Partisipatif, Prosumer, dan Ekosistem Konten",
+          "tugas": "Analisis Pola Konsumsi Konten"
         },
         {
           "sesi": 5,
-          "tanggal": "2026-10-03",
+          "tanggal": "2026-10-02",
           "metode": "Offline",
           "dosen_pengajar": "Dr. Muhammad Alif, M.Si",
-          "topik": "Desain Program CSR Berkelanjutan Sektor Industri",
+          "topik": "Literasi Digital Kritis & Kesenjangan Digital (Digital Divide)",
           "tugas": "-"
         },
         {
           "sesi": 6,
-          "tanggal": "2026-10-09",
+          "tanggal": "2026-10-10",
           "metode": "Online",
-          "dosen_pengajar": "Dr. Irwansyah, S.Sos,. M.Si",
-          "topik": "Komunikasi Risiko Lingkungan & Mitigasi Konflik Komunitas",
-          "tugas": "Analisis Dampak Lingkungan"
+          "dosen_pengajar": "Dr. Muhammad Alif, M.Si",
+          "topik": "Kecerdasan Buatan (Generative AI) dalam Jurnalisme & PR",
+          "tugas": "Eksperimen Pemanfaatan AI"
         },
         {
           "sesi": 7,
-          "tanggal": "2026-10-16",
+          "tanggal": "2026-10-17",
           "metode": "Offline",
-          "dosen_pengajar": "Dr. Irwansyah, S.Sos,. M.Si",
-          "topik": "Review Proposal Intervensi Komunitas",
+          "dosen_pengajar": "Dr. Muhammad Alif, M.Si",
+          "topik": "Algoritma Media Sosial, Filter Bubble, & Ruang Gema",
           "tugas": "Persiapan Ujian Tengah Semester"
         },
         {
           "sesi": 8,
-          "tanggal": "2026-10-23",
+          "tanggal": "2026-10-24",
           "metode": "Online",
-          "dosen_pengajar": "Dr. Irwansyah, S.Sos,. M.Si",
+          "dosen_pengajar": "Dr. Muhammad Alif, M.Si",
           "topik": "Ujian Tengah Semester (UTS)",
-          "tugas": "Submit Proposal Program CSR"
+          "tugas": "Submit Ujian Tengah Semester"
         },
         {
           "sesi": 9,
-          "tanggal": "2026-10-30",
+          "tanggal": "2026-10-31",
           "metode": "Offline",
           "dosen_pengajar": "Dr. Muhammad Alif, M.Si",
-          "topik": "Advokasi Kebijakan Publik & Gerakan Sosial Komunikasi",
+          "topik": "Big Data Analytics, Social Media Monitoring & Sentiment Analysis",
           "tugas": "-"
         },
         {
           "sesi": 10,
-          "tanggal": "2026-11-06",
+          "tanggal": "2026-11-07",
           "metode": "Online",
           "dosen_pengajar": "Dr. Muhammad Alif, M.Si",
-          "topik": "Media Sosial & Kampanye Digital Pemberdayaan Publik",
-          "tugas": "Analisis Kampanye Digital"
+          "topik": "Komunikasi Imersif: Virtual Reality, AR, & Metaverse",
+          "tugas": "Studi Imersif Teknologi"
         },
         {
           "sesi": 11,
-          "tanggal": "2026-11-13",
+          "tanggal": "2026-11-14",
           "metode": "Offline",
-          "dosen_pengajar": "Dr. Muhammad Alif, M.Si",
-          "topik": "Evaluasi Dampak Sosial (Social Return on Investment / SROI)",
+          "dosen_pengajar": "Dr. Atika, S.I.Kom., M.Si",
+          "topik": "Etika Teknologi Komunikasi, Privasi Data & Perlindungan Informasi",
           "tugas": "-"
         },
         {
           "sesi": 12,
-          "tanggal": "2026-11-20",
+          "tanggal": "2026-11-21",
           "metode": "Online",
-          "dosen_pengajar": "Dr. Muhammad Alif, M.Si",
-          "topik": "Sustainability Reporting Berstandar GRI Standards",
-          "tugas": "Audit Laporan Keberlanjutan"
+          "dosen_pengajar": "Dr. Atika, S.I.Kom., M.Si",
+          "topik": "Regulasi Media Digital, UU ITE, & Tata Kelola AI Nasional",
+          "tugas": "Analisis Regulasi AI"
         },
         {
           "sesi": 13,
-          "tanggal": "2026-11-27",
+          "tanggal": "2026-11-28",
           "metode": "Offline",
-          "dosen_pengajar": "Dr. Muhammad Alif, M.Si",
-          "topik": "Studi Komparasi CSR Multinasional vs Lokal Kalsel",
+          "dosen_pengajar": "Dr. Atika, S.I.Kom., M.Si",
+          "topik": "Masa Depan Media, Otomasi Informasi, & Human-Computer Interaction",
           "tugas": "-"
         },
         {
           "sesi": 14,
-          "tanggal": "2026-12-04",
+          "tanggal": "2026-12-05",
           "metode": "Online",
-          "dosen_pengajar": "Dr. Muhammad Alif, M.Si",
-          "topik": "Presentasi Riset Aksi Pemberdayaan Masyarakat (Sesi 1)",
-          "tugas": "Paper Publikasi Kelompok"
+          "dosen_pengajar": "Dr. Atika, S.I.Kom., M.Si",
+          "topik": "Presentasi Riset Dampak Sosial Teknologi Komunikasi (Sesi 1)",
+          "tugas": "Slide Paparan Riset"
         },
         {
           "sesi": 15,
-          "tanggal": "2026-12-11",
+          "tanggal": "2026-12-12",
           "metode": "Offline",
-          "dosen_pengajar": "Dr. Muhammad Alif, M.Si",
-          "topik": "Presentasi Riset Aksi Pemberdayaan Masyarakat (Sesi 2)",
-          "tugas": "Revisi Naskah Jurnal"
+          "dosen_pengajar": "Dr. Atika, S.I.Kom., M.Si",
+          "topik": "Presentasi Riset Dampak Sosial Teknologi Komunikasi (Sesi 2)",
+          "tugas": "Revisi Final Paper"
         },
         {
           "sesi": 16,
-          "tanggal": "2026-12-18",
+          "tanggal": "2026-12-19",
           "metode": "Online",
-          "dosen_pengajar": "Dr. Muhammad Alif, M.Si",
+          "dosen_pengajar": "Dr. Atika, S.I.Kom., M.Si",
           "topik": "Ujian Akhir Semester (UAS)",
           "tugas": "Pengumpulan Artikel Akhir UAS"
         }
