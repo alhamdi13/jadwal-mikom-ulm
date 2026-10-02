@@ -1182,6 +1182,7 @@ window.switchMobileNav = function(navTarget) {
   const lecturerSec = document.getElementById('lecturerSection');
   const broadcastSec = document.getElementById('broadcastSection');
   const infoTugasSec = document.getElementById('infoTugasSection');
+  const mobileDaySwitcher = document.getElementById('mobileDaySwitcher');
   const searchBox = document.querySelector('.search-box');
 
   if (navTarget === 'schedule') {
@@ -1190,6 +1191,7 @@ window.switchMobileNav = function(navTarget) {
     if (lecturerSec) lecturerSec.style.display = 'none';
     if (broadcastSec) broadcastSec.style.display = 'none';
     if (infoTugasSec) infoTugasSec.style.display = 'none';
+    if (mobileDaySwitcher) mobileDaySwitcher.style.display = '';
     if (searchBox) searchBox.style.display = '';
 
     const activeDayBtn = document.querySelector('.mobile-day-btn.active');
@@ -1199,12 +1201,39 @@ window.switchMobileNav = function(navTarget) {
     document.querySelectorAll('.tab-btn').forEach(b => {
       b.classList.toggle('active', b.getAttribute('data-tab') === dayKey);
     });
+  } else if (navTarget === 'calendar') {
+    if (scheduleSec) scheduleSec.style.display = 'none';
+    if (calendarSec) calendarSec.style.display = 'block';
+    if (lecturerSec) lecturerSec.style.display = 'none';
+    if (broadcastSec) broadcastSec.style.display = 'none';
+    if (infoTugasSec) infoTugasSec.style.display = 'none';
+    if (mobileDaySwitcher) mobileDaySwitcher.style.display = 'none';
+    if (searchBox) searchBox.style.display = 'none';
+    renderCalendar();
+
+    document.querySelectorAll('.tab-btn').forEach(b => {
+      b.classList.toggle('active', b.getAttribute('data-tab') === 'calendar');
+    });
+  } else if (navTarget === 'lecturers') {
+    if (scheduleSec) scheduleSec.style.display = 'none';
+    if (calendarSec) calendarSec.style.display = 'none';
+    if (lecturerSec) lecturerSec.style.display = 'block';
+    if (broadcastSec) broadcastSec.style.display = 'none';
+    if (infoTugasSec) infoTugasSec.style.display = 'none';
+    if (mobileDaySwitcher) mobileDaySwitcher.style.display = 'none';
+    if (searchBox) searchBox.style.display = 'none';
+    renderLecturerDirectory();
+
+    document.querySelectorAll('.tab-btn').forEach(b => {
+      b.classList.toggle('active', b.getAttribute('data-tab') === 'lecturers');
+    });
   } else if (navTarget === 'broadcast') {
     if (scheduleSec) scheduleSec.style.display = 'none';
     if (calendarSec) calendarSec.style.display = 'none';
     if (lecturerSec) lecturerSec.style.display = 'none';
     if (broadcastSec) broadcastSec.style.display = 'block';
     if (infoTugasSec) infoTugasSec.style.display = 'none';
+    if (mobileDaySwitcher) mobileDaySwitcher.style.display = 'none';
     if (searchBox) searchBox.style.display = 'none';
     renderBroadcastTab();
 
@@ -1217,6 +1246,7 @@ window.switchMobileNav = function(navTarget) {
     if (lecturerSec) lecturerSec.style.display = 'none';
     if (broadcastSec) broadcastSec.style.display = 'none';
     if (infoTugasSec) infoTugasSec.style.display = 'block';
+    if (mobileDaySwitcher) mobileDaySwitcher.style.display = 'none';
     if (searchBox) searchBox.style.display = 'none';
     renderTasks();
 
@@ -1238,6 +1268,7 @@ window.switchMobileScheduleDay = function(dayKey) {
   const lecturerSec = document.getElementById('lecturerSection');
   const broadcastSec = document.getElementById('broadcastSection');
   const infoTugasSec = document.getElementById('infoTugasSection');
+  const mobileDaySwitcher = document.getElementById('mobileDaySwitcher');
   const searchBox = document.querySelector('.search-box');
 
   if (scheduleSec) scheduleSec.style.display = 'block';
@@ -1245,6 +1276,7 @@ window.switchMobileScheduleDay = function(dayKey) {
   if (lecturerSec) lecturerSec.style.display = 'none';
   if (broadcastSec) broadcastSec.style.display = 'none';
   if (infoTugasSec) infoTugasSec.style.display = 'none';
+  if (mobileDaySwitcher) mobileDaySwitcher.style.display = '';
   if (searchBox) searchBox.style.display = '';
 
   document.querySelectorAll('.mobile-nav-item').forEach(btn => {
@@ -1277,6 +1309,8 @@ function initEventListeners() {
       const lecturerSec = document.getElementById('lecturerSection');
       const broadcastSec = document.getElementById('broadcastSection');
       const infoTugasSec = document.getElementById('infoTugasSection');
+      const mobileDaySwitcher = document.getElementById('mobileDaySwitcher');
+      const searchBox = document.querySelector('.search-box');
 
       if (scheduleSec) scheduleSec.style.display = (target === 'calendar' || target === 'lecturers' || target === 'broadcast' || target === 'info-tugas') ? 'none' : 'block';
       if (calendarSec) calendarSec.style.display = (target === 'calendar') ? 'block' : 'none';
@@ -1284,15 +1318,24 @@ function initEventListeners() {
       if (broadcastSec) broadcastSec.style.display = (target === 'broadcast') ? 'block' : 'none';
       if (infoTugasSec) infoTugasSec.style.display = (target === 'info-tugas') ? 'block' : 'none';
 
+      if (mobileDaySwitcher) {
+        mobileDaySwitcher.style.display = (target === 'calendar' || target === 'lecturers' || target === 'broadcast' || target === 'info-tugas') ? 'none' : '';
+      }
+      if (searchBox) {
+        searchBox.style.display = (target === 'calendar' || target === 'lecturers' || target === 'broadcast' || target === 'info-tugas') ? 'none' : '';
+      }
+
       document.querySelectorAll('.mobile-day-btn').forEach(mb => {
         mb.classList.toggle('active', mb.getAttribute('data-day') === target);
       });
 
       document.querySelectorAll('.mobile-nav-item').forEach(nav => {
-        if (target === 'broadcast') {
-          nav.classList.toggle('active', nav.getAttribute('data-nav') === 'broadcast');
-        } else if (target === 'info-tugas' || target === 'calendar' || target === 'lecturers') {
-          nav.classList.toggle('active', nav.getAttribute('data-nav') === 'info-tugas');
+        if (target === 'calendar') {
+          nav.classList.toggle('active', nav.getAttribute('data-nav') === 'calendar');
+        } else if (target === 'lecturers') {
+          nav.classList.toggle('active', nav.getAttribute('data-nav') === 'lecturers');
+        } else if (target === 'broadcast' || target === 'info-tugas') {
+          nav.classList.remove('active');
         } else {
           nav.classList.toggle('active', nav.getAttribute('data-nav') === 'schedule');
         }
@@ -1302,7 +1345,11 @@ function initEventListeners() {
         renderBroadcastTab();
       } else if (target === 'info-tugas') {
         renderTasks();
-      } else if (target !== 'calendar' && target !== 'lecturers') {
+      } else if (target === 'calendar') {
+        renderCalendar();
+      } else if (target === 'lecturers') {
+        renderLecturerDirectory();
+      } else {
         renderScheduleCards(target);
       }
     });

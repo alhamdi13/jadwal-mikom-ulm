@@ -28,10 +28,10 @@
       </div>
 
       <div class="top-actions">
-        <button class="quick-action-btn" id="btnTopBotControl" onclick="openBotControlModal()" style="background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.35);" title="Saklar On/Off Bot & Kontrol Cloud">
+        <button class="quick-action-btn admin-only-btn" id="btnTopBotControl" onclick="openBotControlModal()" style="background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.35);" title="Saklar On/Off Bot & Kontrol Cloud">
           🤖 Saklar & Kontrol Bot
         </button>
-        <button class="quick-action-btn btn-blue" onclick="openSettingsModal()" title="Ubah Ruangan Kuliah atau Link Zoom">
+        <button class="quick-action-btn btn-blue admin-only-btn" id="btnTopEditRoom" onclick="openSettingsModal()" title="Ubah Ruangan Kuliah atau Link Zoom">
           ⚙️ Edit Ruang & Zoom
         </button>
         <div class="wita-clock" id="witaClock">--:--:-- WITA</div>
@@ -887,23 +887,19 @@
     </div>
   </div>
 
-  <!-- Floating Mobile Bottom Navigation Bar (Dock) -->
+  <!-- Floating Mobile Bottom Navigation Bar (Dock) - Simple Student Mode -->
   <nav class="mobile-bottom-nav" id="mobileBottomNav">
     <button class="mobile-nav-item active" data-nav="schedule" onclick="switchMobileNav('schedule')" title="Jadwal Perkuliahan">
       <span class="mobile-nav-icon">🏠</span>
       <span class="mobile-nav-label">Jadwal</span>
     </button>
-    <button class="mobile-nav-item" data-nav="broadcast" onclick="switchMobileNav('broadcast')" title="Pengumuman WAG & Dosen">
-      <span class="mobile-nav-icon">📢</span>
-      <span class="mobile-nav-label">Broadcast</span>
+    <button class="mobile-nav-item" data-nav="calendar" onclick="switchMobileNav('calendar')" title="Kalender Semester">
+      <span class="mobile-nav-icon">📅</span>
+      <span class="mobile-nav-label">Kalender</span>
     </button>
-    <button class="mobile-nav-item" data-nav="info-tugas" onclick="switchMobileNav('info-tugas')" title="Papan Tugas & Kalender">
-      <span class="mobile-nav-icon">📝</span>
-      <span class="mobile-nav-label">Tugas & Info</span>
-    </button>
-    <button class="mobile-nav-item" data-nav="bot" onclick="openBotControlModal()" title="Pusat Saklar & Kontrol Bot">
-      <span class="mobile-nav-icon">🤖</span>
-      <span class="mobile-nav-label">Saklar Bot</span>
+    <button class="mobile-nav-item" data-nav="lecturers" onclick="switchMobileNav('lecturers')" title="Daftar Dosen">
+      <span class="mobile-nav-icon">👨‍🏫</span>
+      <span class="mobile-nav-label">Dosen</span>
     </button>
   </nav>
 

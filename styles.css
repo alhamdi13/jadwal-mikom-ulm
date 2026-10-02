@@ -1521,18 +1521,21 @@ body {
     margin-left: auto;
   }
 
-  /* Hide redundant desktop top buttons on mobile since they are in bottom nav dock */
-  #btnTopBotControl {
-    display: none;
+  /* Hide admin & control buttons on mobile (Simple Student View) */
+  #btnTopBotControl,
+  #btnTopEditRoom,
+  .admin-only-btn {
+    display: none !important;
+  }
+
+  /* Completely hide Admin Broadcast & Info/Tugas sections on Mobile */
+  #broadcastSection,
+  #infoTugasSection {
+    display: none !important;
   }
 
   .wita-clock {
     padding: 3px 8px;
-    font-size: 0.72rem;
-  }
-
-  .quick-action-btn.btn-blue {
-    padding: 5px 10px;
     font-size: 0.72rem;
   }
 
@@ -1675,24 +1678,25 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 2px;
+    gap: 3px;
     background: transparent;
     border: none;
     color: var(--text-muted);
     font-family: inherit;
-    font-size: 0.68rem;
+    font-size: 0.72rem;
     font-weight: 700;
-    padding: 6px 10px;
+    padding: 6px 12px;
     border-radius: var(--radius-md);
     cursor: pointer;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     touch-action: manipulation;
     position: relative;
     flex: 1;
+    max-width: 120px;
   }
 
   .mobile-nav-icon {
-    font-size: 1.25rem;
+    font-size: 1.35rem;
     transition: transform 0.2s ease;
   }
 
