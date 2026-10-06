@@ -982,11 +982,12 @@ window.shareRevisionToWA = function() {
   window.open(url, '_blank');
 };
 
-// 9. Section 5: Assignment Tracker (Info & Tugas) with Cloud Sync & Google Drive
+// 9. Section 5: Assignment Tracker (Info & Tugas) with Weekly Cycle, Cloud Sync & Google Drive
 const DEFAULT_INITIAL_TASKS = [
   {
     id: 'task-media-1',
     matkul: 'Media dan Teknologi Komunikasi',
+    pekan: 'current',
     title: 'Buat dalam bentuk makalah / Artikel Jurnal dan PPT untuk presentasi. Gunakan referensi terbaru, khususnya jurnal-jurnal 15 tahun terakhir (minimal Sinta 4 ke atas / Scopus). Dan jurnalnya harus benar-benar ada. Apabila jurnalnya tidak ada, akan mengurangi poin.',
     deadline: 'Kumpul filenya tanggal 9, Jam 12.00 WITA. Dibuat di Gdrive oleh Ketua Kelas.',
     notes: 'Pilih salah satu:\n1. Mahasiswa memilih satu media/organisasi yang mengalami transformasi akibat teknologi digital, misalnya Kompas, Tempo, TVRI, Netflix, TikTok, atau media lokal. Analisis perubahan produksi, distribusi, audiens, dan model bisnis. Buat dalam bentuk makalah dan PPT untuk presentasi.\n2. Memilih satu kasus viral/hoaks kemudian menganalisis pola penyebaran, aktor, framing, teknologi, dan strategi penanganannya.\n3. Mengkaji penggunaan generative AI seperti ChatGPT, Gemini, dll dan implikasinya bagi profesi komunikasi.',
@@ -997,6 +998,7 @@ const DEFAULT_INITIAL_TASKS = [
   {
     id: 'task-filsafat-1',
     matkul: 'Filsafat Ilmu Komunikasi',
+    pekan: 'current',
     title: 'Mengerjakan teori komunikasi dari buku yang dishare oleh pak Fahri ,',
     deadline: 'Kamis, 8 Oktober 2026',
     notes: 'Satu kelompok akan mengerjakan teori komunikasi dari buku yang dishare oleh pak Fahri , cukup satu teori saja ,\n\nagar bisa di presentasikan Minggu depan ,ada makalah dibuatkan,ppt di presentasikan, print out ke nazar dan softcopynya juga di kumpulkan\n\nDikumpulkan kamis 8 Oktober',
@@ -1009,6 +1011,55 @@ const DEFAULT_INITIAL_TASKS = [
 const CLOUD_SYNC_STORAGE_KEY = 'sijadwal_tasks';
 const CLOUD_SYNC_TIMESTAMP_KEY = 'sijadwal_tasks_last_sync';
 const CLOUD_SYNC_BIN_ID = 'mikom2026_papan_tugas';
+
+let currentTaskFilter = 'this-week';
+
+function getCurrentAcademicWeekInfo() {
+  const semesterStart = new Date('2026-08-31T00:00:00');
+  const now = new Date();
+  
+  const diffTime = now.getTime() - semesterStart.getTime();
+  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+  let weekNum = Math.floor(diffDays / 7) + 1;
+
+  if (weekNum < 1) weekNum = 1;
+  if (weekNum > 16) weekNum = 16;
+
+  const weekStart = new Date(semesterStart.getTime() + (weekNum - 1) * 7 * 24 * 60 * 60 * 1000);
+  const weekEnd = new Date(weekStart.getTime() + 6 * 24 * 60 * 60 * 1000);
+
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agt', 'Sep', 'Okt', 'Nov', 'Des'];
+  const startStr = `${weekStart.getDate()} ${months[weekStart.getMonth()]}`;
+  const endStr = `${weekEnd.getDate()} ${months[weekEnd.getMonth()]} ${weekEnd.getFullYear()}`;
+
+  return {
+    weekNum,
+    label: `Pekan ${weekNum} (${startStr} - ${endStr})`,
+    shortLabel: `Pekan ${weekNum}`,
+    isUts: weekNum === 8,
+    isUas: weekNum === 16
+  };
+}
+
+function isTaskInCurrentWeek(t) {
+  const currentWeek = getCurrentAcademicWeekInfo().weekNum;
+  
+  if (t.pekan === 'current') return true;
+  if (t.pekan && t.pekan !== 'general') {
+    return parseInt(t.pekan, 10) === currentWeek;
+  }
+  
+  // Default: if unfinished or created within the 7-day weekly window
+  if (!t.completed) return true;
+  
+  if (t.createdAt) {
+    const createdTime = new Date(t.createdAt).getTime();
+    const nowTime = new Date().getTime();
+    const daysDiff = (nowTime - createdTime) / (1000 * 60 * 60 * 24);
+    return daysDiff <= 7;
+  }
+  return true;
+}
 
 function getTasks() {
   const masterTasks = (ACADEMIC_DATA && ACADEMIC_DATA.daftar_tugas && ACADEMIC_DATA.daftar_tugas.length > 0)
@@ -1113,7 +1164,6 @@ function checkUrlTaskSync() {
         saveTasks(parsedTasks, true);
         renderTasks();
         showToast('🎉 Data papan tugas berhasil disinkronkan dari tautan bersama!');
-        // Bersihkan parameter URL tanpa reload halaman
         const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
         window.history.replaceState({ path: newUrl }, '', newUrl);
       }
@@ -1158,6 +1208,7 @@ window.copyDriveLink = function(url, event) {
 
 window.shareTasksToWAG = function() {
   const tasks = getTasks();
+  const weekInfo = getCurrentAcademicWeekInfo();
   const activeTasks = tasks.filter(t => !t.completed);
   
   if (tasks.length === 0) {
@@ -1165,10 +1216,10 @@ window.shareTasksToWAG = function() {
     return;
   }
 
-  let text = `📝 *CATATAN TUGAS & DEADLINE PERKULIAHAN*\n🎓 *Magister Ilmu Komunikasi FISIP ULM (Angkatan 2026)*\n━━━━━━━━━━━━━━━━━━━━\n\n`;
+  let text = `📝 *CATATAN TUGAS & DEADLINE PERKULIAHAN*\n🎓 *Magister Ilmu Komunikasi FISIP ULM (${weekInfo.label})*\n━━━━━━━━━━━━━━━━━━━━\n\n`;
 
   if (activeTasks.length > 0) {
-    text += `⏳ *TUGAS AKTIF / DEADLINE:* \n\n`;
+    text += `⏳ *TUGAS AKTIF / DEADLINE PEKAN INI:* \n\n`;
     activeTasks.forEach((t, i) => {
       text += `${i + 1}️⃣ *[${t.matkul}]*\n📌 *Judul:* ${t.title}\n⏰ *Deadline:* ${t.deadline || '-'}\n`;
       if (t.driveUrl) {
@@ -1177,7 +1228,7 @@ window.shareTasksToWAG = function() {
       text += `📝 *Catatan / Instruksi:* ${t.notes || '-'}\n\n`;
     });
   } else {
-    text += `🎉 *Semua tugas perkuliahan saat ini telah selesai!* ✨\n\n`;
+    text += `🎉 *Semua tugas perkuliahan untuk ${weekInfo.shortLabel} telah selesai!* ✨\n\n`;
   }
 
   const completedTasks = tasks.filter(t => t.completed);
@@ -1195,30 +1246,179 @@ window.shareTasksToWAG = function() {
   window.open(url, '_blank');
 };
 
+// Render Mobile & Desktop Weekly Tasks Widget on Home
+function renderWeeklyTasksWidget() {
+  const widget = document.getElementById('weeklyTasksWidget');
+  if (!widget) return;
+
+  const tasks = getTasks();
+  const weekInfo = getCurrentAcademicWeekInfo();
+  const weeklyTasks = tasks.filter(t => isTaskInCurrentWeek(t));
+  const activeWeeklyTasks = weeklyTasks.filter(t => !t.completed);
+
+  // Update cycle pill in Papan Tugas
+  const cycleText = document.getElementById('taskCurrentCycleText');
+  if (cycleText) {
+    cycleText.textContent = weekInfo.label;
+  }
+
+  // Update mobile bottom bar badge
+  updateMobileTaskBadge(activeWeeklyTasks.length);
+
+  if (activeWeeklyTasks.length === 0) {
+    widget.innerHTML = `
+      <div class="weekly-widget-header">
+        <div class="weekly-widget-title">
+          <span>📌</span>
+          <span>Tugas & Deadline ${weekInfo.shortLabel}</span>
+          <span class="weekly-count-badge all-done">✅ Semua Selesai</span>
+        </div>
+        <button class="btn-view-all-tasks" onclick="switchMobileNav('info-tugas')">
+          Papan Tugas ➔
+        </button>
+      </div>
+      <div class="weekly-empty-state">
+        ✨ <strong>Hebat! Tidak ada tanggungan tugas aktif untuk ${weekInfo.label}.</strong>
+        <p style="font-size: 0.76rem; margin-top: 4px; color: var(--text-muted);">
+          Semua tugas pekan ini telah diselesaikan. Klik "Papan Tugas" untuk melihat riwayat atau mencatat tugas baru.
+        </p>
+      </div>
+    `;
+    return;
+  }
+
+  widget.innerHTML = `
+    <div class="weekly-widget-header">
+      <div class="weekly-widget-title">
+        <span>📌</span>
+        <span>Tugas & Deadline ${weekInfo.shortLabel}</span>
+        <span class="weekly-count-badge">🔥 ${activeWeeklyTasks.length} Tugas Aktif</span>
+      </div>
+      <button class="btn-view-all-tasks" onclick="switchMobileNav('info-tugas')" title="Buka Papan Tugas Lengkap">
+        Lihat Semua (${tasks.length}) ➔
+      </button>
+    </div>
+
+    <div class="weekly-tasks-list">
+      ${activeWeeklyTasks.map(t => {
+        const driveUrl = (t.driveUrl || '').trim();
+        return `
+          <div class="weekly-task-mini-card" id="weekly-${t.id}">
+            <div class="weekly-task-top">
+              <span class="weekly-task-matkul">📚 ${t.matkul}</span>
+              ${t.deadline ? `<span class="weekly-task-deadline-tag">⏰ ${t.deadline}</span>` : ''}
+            </div>
+
+            <div class="weekly-task-title">${t.title}</div>
+
+            <div class="weekly-task-bottom">
+              <div>
+                ${driveUrl ? `
+                  <a href="${driveUrl}" target="_blank" rel="noopener noreferrer" class="weekly-task-btn-drive" title="Buka Google Drive">
+                    📂 Google Drive ↗
+                  </a>
+                ` : `
+                  <button class="btn-icon" style="font-size: 0.72rem; padding: 3px 6px;" onclick="openTaskModal('${t.id}')">
+                    + Link Drive
+                  </button>
+                `}
+              </div>
+
+              <div style="display: flex; gap: 6px;">
+                <button class="weekly-task-btn-toggle" onclick="toggleTaskStatus('${t.id}')" title="Tandai tugas ini selesai">
+                  ✔️ Selesai
+                </button>
+                <button class="btn-icon" style="font-size: 0.72rem; padding: 3px 6px;" onclick="openTaskModal('${t.id}')" title="Edit Tugas">
+                  ✏️
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('')}
+    </div>
+  `;
+}
+
+function updateMobileTaskBadge(count = null) {
+  const badge = document.getElementById('mobileTaskBadge');
+  if (!badge) return;
+
+  if (count === null) {
+    const tasks = getTasks();
+    const activeWeekly = tasks.filter(t => isTaskInCurrentWeek(t) && !t.completed);
+    count = activeWeekly.length;
+  }
+
+  if (count > 0) {
+    badge.textContent = count > 9 ? '9+' : count;
+    badge.classList.remove('hidden');
+    badge.style.display = 'inline-flex';
+  } else {
+    badge.classList.add('hidden');
+    badge.style.display = 'none';
+  }
+}
+
+window.setTaskFilter = function(filter) {
+  currentTaskFilter = filter;
+  document.querySelectorAll('.task-filter-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.getAttribute('data-task-filter') === filter);
+  });
+  renderTasks();
+};
+
 function renderTasks() {
   const container = document.getElementById('tasksContainer');
   if (!container) return;
 
   const tasks = getTasks();
+  const weekInfo = getCurrentAcademicWeekInfo();
 
-  if (tasks.length === 0) {
+  // Apply Filter
+  let filteredTasks = tasks;
+  if (currentTaskFilter === 'this-week') {
+    filteredTasks = tasks.filter(t => isTaskInCurrentWeek(t));
+  } else if (currentTaskFilter === 'completed') {
+    filteredTasks = tasks.filter(t => t.completed);
+  }
+
+  // Update Widget & Badges
+  renderWeeklyTasksWidget();
+  updateMobileTaskBadge();
+
+  if (filteredTasks.length === 0) {
+    let emptyMsg = 'Belum ada catatan tugas aktif untuk pekan ini.';
+    if (currentTaskFilter === 'completed') {
+      emptyMsg = 'Belum ada catatan tugas yang ditandai selesai.';
+    } else if (currentTaskFilter === 'this-week') {
+      emptyMsg = `🎉 Semua tugas untuk ${weekInfo.label} telah selesai!`;
+    }
+
     container.innerHTML = `
       <div class="empty-tasks-state">
         <span style="font-size: 2.2rem; display: block; margin-bottom: 8px;">🎉</span>
-        <strong style="font-size: 1rem; color: var(--text-primary);">Belum ada catatan tugas aktif</strong>
+        <strong style="font-size: 1rem; color: var(--text-primary);">${emptyMsg}</strong>
         <p style="font-size: 0.84rem; margin-top: 4px;">Klik tombol "➕ Tambah Tugas" di atas untuk mencatat tugas baru & link Google Drive.</p>
       </div>
     `;
     return;
   }
 
-  container.innerHTML = tasks.map(t => {
+  container.innerHTML = filteredTasks.map(t => {
     const driveUrl = (t.driveUrl || '').trim();
 
     return `
       <div class="task-card ${t.completed ? 'completed' : ''}" id="${t.id}">
         <div class="task-card-header">
-          <span class="task-matkul-tag">📚 ${t.matkul}</span>
+          <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+            <span class="task-matkul-tag">📚 ${t.matkul}</span>
+            ${t.pekan && t.pekan !== 'general' ? `
+              <span style="font-size: 0.7rem; font-weight: 700; color: #f59e0b; background: rgba(245, 158, 11, 0.12); padding: 2px 7px; border-radius: var(--radius-sm);">
+                🗓️ ${t.pekan === 'current' ? weekInfo.shortLabel : `Pekan ${t.pekan}`}
+              </span>
+            ` : ''}
+          </div>
           <span class="task-badge ${t.completed ? 'done' : 'pending'}">
             ${t.completed ? '✅ Selesai' : '⏳ Belum Selesai'}
           </span>
@@ -1277,6 +1477,7 @@ window.openTaskModal = function(taskId = null) {
   const matkulInput = document.getElementById('inputTaskMatkul');
   const titleInput = document.getElementById('inputTaskTitle');
   const deadlineInput = document.getElementById('inputTaskDeadline');
+  const pekanInput = document.getElementById('inputTaskPekan');
   const driveUrlInput = document.getElementById('inputTaskDriveUrl');
   const notesInput = document.getElementById('inputTaskNotes');
   const headerTitle = document.getElementById('taskModalHeaderTitle');
@@ -1294,6 +1495,7 @@ window.openTaskModal = function(taskId = null) {
     if (matkulInput) matkulInput.value = task.matkul;
     if (titleInput) titleInput.value = task.title || '';
     if (deadlineInput) deadlineInput.value = task.deadline || '';
+    if (pekanInput) pekanInput.value = task.pekan || 'current';
     if (driveUrlInput) driveUrlInput.value = task.driveUrl || '';
     if (notesInput) notesInput.value = task.notes || '';
 
@@ -1306,6 +1508,7 @@ window.openTaskModal = function(taskId = null) {
     if (idInput) idInput.value = '';
     if (titleInput) titleInput.value = '';
     if (deadlineInput) deadlineInput.value = '';
+    if (pekanInput) pekanInput.value = 'current';
     if (driveUrlInput) driveUrlInput.value = '';
     if (notesInput) notesInput.value = '';
 
@@ -1329,6 +1532,7 @@ window.saveTask = function() {
   const matkul = document.getElementById('inputTaskMatkul').value;
   const title = (document.getElementById('inputTaskTitle')?.value || '').trim();
   const deadline = (document.getElementById('inputTaskDeadline')?.value || '').trim();
+  const pekan = document.getElementById('inputTaskPekan')?.value || 'current';
   let driveUrl = (document.getElementById('inputTaskDriveUrl')?.value || '').trim();
   const notes = (document.getElementById('inputTaskNotes')?.value || '').trim();
 
@@ -1353,6 +1557,7 @@ window.saveTask = function() {
         matkul,
         title,
         deadline,
+        pekan,
         driveUrl,
         notes,
         updatedAt: new Date().toISOString()
@@ -1368,6 +1573,7 @@ window.saveTask = function() {
       matkul,
       title,
       deadline,
+      pekan,
       driveUrl,
       notes,
       completed: false,
@@ -1570,7 +1776,9 @@ function initEventListeners() {
           nav.classList.toggle('active', nav.getAttribute('data-nav') === 'calendar');
         } else if (target === 'lecturers') {
           nav.classList.toggle('active', nav.getAttribute('data-nav') === 'lecturers');
-        } else if (target === 'broadcast' || target === 'info-tugas') {
+        } else if (target === 'info-tugas') {
+          nav.classList.toggle('active', nav.getAttribute('data-nav') === 'info-tugas');
+        } else if (target === 'broadcast') {
           nav.classList.remove('active');
         } else {
           nav.classList.toggle('active', nav.getAttribute('data-nav') === 'schedule');

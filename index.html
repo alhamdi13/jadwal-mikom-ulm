@@ -57,6 +57,11 @@
           <div class="status-label">Status Perkuliahan Hari Ini</div>
           <div class="status-title">Memuat status...</div>
         </div>
+
+        <!-- Weekly Active Tasks Quick Widget (Fokus Tugas Minggu Berjalan) -->
+        <div class="weekly-tasks-widget" id="weeklyTasksWidget">
+          <!-- Rendered dynamically via app.js -->
+        </div>
       </div>
     </section>
 
@@ -288,6 +293,24 @@
             </div>
           </div>
 
+          <!-- Weekly Filter Bar & Cycle Pill -->
+          <div class="task-filter-bar">
+            <div class="task-filter-pills">
+              <button class="task-filter-btn active" data-task-filter="this-week" onclick="setTaskFilter('this-week')">
+                🔥 Pekan Ini (Aktif)
+              </button>
+              <button class="task-filter-btn" data-task-filter="all" onclick="setTaskFilter('all')">
+                📚 Semua Tugas
+              </button>
+              <button class="task-filter-btn" data-task-filter="completed" onclick="setTaskFilter('completed')">
+                ✅ Selesai / Riwayat
+              </button>
+            </div>
+            <div class="task-cycle-pill" id="taskCyclePill">
+              <span>🗓️ Siklus: <strong id="taskCurrentCycleText">Pekan Berjalan</strong></span>
+            </div>
+          </div>
+
           <div class="tasks-container" id="tasksContainer">
             <!-- Rendered dynamically by app.js -->
           </div>
@@ -459,9 +482,34 @@
           <input type="text" id="inputTaskTitle" class="form-input" placeholder="Contoh: Buat dalam bentuk makalah / Jurnal dan PPT...">
         </div>
 
-        <div class="form-group">
-          <label class="form-label">Batas Waktu Pengumpulan (Deadline)</label>
-          <input type="text" id="inputTaskDeadline" class="form-input" placeholder="Contoh: Kumpul filenya tanggal 9, Jam 12.00 WITA">
+        <div class="form-row" style="display: flex; gap: 10px; flex-wrap: wrap;">
+          <div class="form-group" style="flex: 1; min-width: 220px;">
+            <label class="form-label">Batas Waktu Pengumpulan (Deadline)</label>
+            <input type="text" id="inputTaskDeadline" class="form-input" placeholder="Contoh: Kamis, 8 Oktober 2026 (23.59 WITA)">
+          </div>
+          <div class="form-group" style="flex: 1; min-width: 200px;">
+            <label class="form-label">Siklus Pertemuan / Pekan</label>
+            <select id="inputTaskPekan" class="form-input">
+              <option value="current">🔥 Pekan Berjalan Ini (1 Minggu)</option>
+              <option value="1">Pekan 1 (4 - 5 Sept 2026)</option>
+              <option value="2">Pekan 2 (11 - 12 Sept 2026)</option>
+              <option value="3">Pekan 3 (18 - 19 Sept 2026)</option>
+              <option value="4">Pekan 4 (25 - 26 Sept 2026)</option>
+              <option value="5">Pekan 5 (2 - 3 Okt 2026)</option>
+              <option value="6">Pekan 6 (9 - 10 Okt 2026)</option>
+              <option value="7">Pekan 7 (16 - 17 Okt 2026)</option>
+              <option value="8">Pekan 8 (23 - 24 Okt 2026 - UTS)</option>
+              <option value="9">Pekan 9 (30 - 31 Okt 2026)</option>
+              <option value="10">Pekan 10 (6 - 7 Nov 2026)</option>
+              <option value="11">Pekan 11 (13 - 14 Nov 2026)</option>
+              <option value="12">Pekan 12 (20 - 21 Nov 2026)</option>
+              <option value="13">Pekan 13 (27 - 28 Nov 2026)</option>
+              <option value="14">Pekan 14 (4 - 5 Des 2026)</option>
+              <option value="15">Pekan 15 (11 - 12 Des 2026)</option>
+              <option value="16">Pekan 16 (18 - 19 Des 2026 - UAS)</option>
+              <option value="general">Tugas Semester / Mandiri</option>
+            </select>
+          </div>
         </div>
 
         <div class="form-group">
@@ -924,6 +972,13 @@
     <button class="mobile-nav-item active" data-nav="schedule" onclick="switchMobileNav('schedule')" title="Jadwal Perkuliahan">
       <span class="mobile-nav-icon">🏠</span>
       <span class="mobile-nav-label">Jadwal</span>
+    </button>
+    <button class="mobile-nav-item" data-nav="info-tugas" onclick="switchMobileNav('info-tugas')" title="Papan Tugas & Deadline Pekan Ini">
+      <span class="mobile-nav-icon" style="position: relative; display: inline-block;">
+        📝
+        <span class="mobile-task-badge" id="mobileTaskBadge">0</span>
+      </span>
+      <span class="mobile-nav-label">Tugas</span>
     </button>
     <button class="mobile-nav-item" data-nav="calendar" onclick="switchMobileNav('calendar')" title="Kalender Semester">
       <span class="mobile-nav-icon">📅</span>
