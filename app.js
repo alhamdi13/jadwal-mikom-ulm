@@ -1615,10 +1615,28 @@ window.deleteTask = function(taskId) {
 
 // 10. Event Listeners & Tab Navigation
 window.switchMobileNav = function(navTarget) {
+  if (!navTarget) return;
+
+  // 1. Update Mobile Bottom Nav Item Active State
   document.querySelectorAll('.mobile-nav-item').forEach(btn => {
     btn.classList.toggle('active', btn.getAttribute('data-nav') === navTarget);
   });
 
+  // 2. Update Desktop Tabs Active State
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    const tabKey = btn.getAttribute('data-tab');
+    if (navTarget === 'schedule') {
+      const activeDayBtn = document.querySelector('.mobile-day-btn.active');
+      const dayKey = activeDayBtn ? activeDayBtn.getAttribute('data-day') : 'today';
+      btn.classList.toggle('active', tabKey === dayKey);
+    } else {
+      btn.classList.toggle('active', tabKey === navTarget);
+    }
+  });
+
+  // 3. Sections & Widgets References
+  const todaySpotlight = document.getElementById('todaySpotlight');
+  const weeklyTasksWidget = document.getElementById('weeklyTasksWidget');
   const scheduleSec = document.getElementById('scheduleSection');
   const calendarSec = document.getElementById('calendarSection');
   const lecturerSec = document.getElementById('lecturerSection');
@@ -1628,98 +1646,83 @@ window.switchMobileNav = function(navTarget) {
   const searchBox = document.querySelector('.search-box');
 
   if (navTarget === 'schedule') {
+    if (todaySpotlight) todaySpotlight.style.display = '';
+    if (weeklyTasksWidget) weeklyTasksWidget.style.display = '';
+    if (mobileDaySwitcher) mobileDaySwitcher.style.display = '';
+    if (searchBox) searchBox.style.display = '';
+
     if (scheduleSec) scheduleSec.style.display = 'block';
     if (calendarSec) calendarSec.style.display = 'none';
     if (lecturerSec) lecturerSec.style.display = 'none';
     if (broadcastSec) broadcastSec.style.display = 'none';
     if (infoTugasSec) infoTugasSec.style.display = 'none';
-    if (mobileDaySwitcher) mobileDaySwitcher.style.display = '';
-    if (searchBox) searchBox.style.display = '';
 
     const activeDayBtn = document.querySelector('.mobile-day-btn.active');
     const dayKey = activeDayBtn ? activeDayBtn.getAttribute('data-day') : 'today';
     renderScheduleCards(dayKey);
-
-    document.querySelectorAll('.tab-btn').forEach(b => {
-      b.classList.toggle('active', b.getAttribute('data-tab') === dayKey);
-    });
-  } else if (navTarget === 'calendar') {
-    if (scheduleSec) scheduleSec.style.display = 'none';
-    if (calendarSec) calendarSec.style.display = 'block';
-    if (lecturerSec) lecturerSec.style.display = 'none';
-    if (broadcastSec) broadcastSec.style.display = 'none';
-    if (infoTugasSec) infoTugasSec.style.display = 'none';
-    if (mobileDaySwitcher) mobileDaySwitcher.style.display = 'none';
-    if (searchBox) searchBox.style.display = 'none';
-    renderCalendar();
-
-    document.querySelectorAll('.tab-btn').forEach(b => {
-      b.classList.toggle('active', b.getAttribute('data-tab') === 'calendar');
-    });
-  } else if (navTarget === 'lecturers') {
-    if (scheduleSec) scheduleSec.style.display = 'none';
-    if (calendarSec) calendarSec.style.display = 'none';
-    if (lecturerSec) lecturerSec.style.display = 'block';
-    if (broadcastSec) broadcastSec.style.display = 'none';
-    if (infoTugasSec) infoTugasSec.style.display = 'none';
-    if (mobileDaySwitcher) mobileDaySwitcher.style.display = 'none';
-    if (searchBox) searchBox.style.display = 'none';
-    renderLecturerDirectory();
-
-    document.querySelectorAll('.tab-btn').forEach(b => {
-      b.classList.toggle('active', b.getAttribute('data-tab') === 'lecturers');
-    });
-  } else if (navTarget === 'broadcast') {
-    if (scheduleSec) scheduleSec.style.display = 'none';
-    if (calendarSec) calendarSec.style.display = 'none';
-    if (lecturerSec) lecturerSec.style.display = 'none';
-    if (broadcastSec) broadcastSec.style.display = 'block';
-    if (infoTugasSec) infoTugasSec.style.display = 'none';
-    if (mobileDaySwitcher) mobileDaySwitcher.style.display = 'none';
-    if (searchBox) searchBox.style.display = 'none';
-    renderBroadcastTab();
-
-    document.querySelectorAll('.tab-btn').forEach(b => {
-      b.classList.toggle('active', b.getAttribute('data-tab') === 'broadcast');
-    });
   } else if (navTarget === 'info-tugas') {
+    if (todaySpotlight) todaySpotlight.style.display = 'none';
+    if (weeklyTasksWidget) weeklyTasksWidget.style.display = 'none';
+    if (mobileDaySwitcher) mobileDaySwitcher.style.display = 'none';
+    if (searchBox) searchBox.style.display = 'none';
+
     if (scheduleSec) scheduleSec.style.display = 'none';
     if (calendarSec) calendarSec.style.display = 'none';
     if (lecturerSec) lecturerSec.style.display = 'none';
     if (broadcastSec) broadcastSec.style.display = 'none';
     if (infoTugasSec) infoTugasSec.style.display = 'block';
+
+    renderTasks();
+  } else if (navTarget === 'calendar') {
+    if (todaySpotlight) todaySpotlight.style.display = 'none';
+    if (weeklyTasksWidget) weeklyTasksWidget.style.display = 'none';
     if (mobileDaySwitcher) mobileDaySwitcher.style.display = 'none';
     if (searchBox) searchBox.style.display = 'none';
-    renderTasks();
 
-    document.querySelectorAll('.tab-btn').forEach(b => {
-      b.classList.toggle('active', b.getAttribute('data-tab') === 'info-tugas');
-    });
+    if (scheduleSec) scheduleSec.style.display = 'none';
+    if (calendarSec) calendarSec.style.display = 'block';
+    if (lecturerSec) lecturerSec.style.display = 'none';
+    if (broadcastSec) broadcastSec.style.display = 'none';
+    if (infoTugasSec) infoTugasSec.style.display = 'none';
+
+    renderCalendar();
+  } else if (navTarget === 'lecturers') {
+    if (todaySpotlight) todaySpotlight.style.display = 'none';
+    if (weeklyTasksWidget) weeklyTasksWidget.style.display = 'none';
+    if (mobileDaySwitcher) mobileDaySwitcher.style.display = 'none';
+    if (searchBox) searchBox.style.display = 'none';
+
+    if (scheduleSec) scheduleSec.style.display = 'none';
+    if (calendarSec) calendarSec.style.display = 'none';
+    if (lecturerSec) lecturerSec.style.display = 'block';
+    if (broadcastSec) broadcastSec.style.display = 'none';
+    if (infoTugasSec) infoTugasSec.style.display = 'none';
+
+    renderLecturerDirectory();
+  } else if (navTarget === 'broadcast') {
+    if (todaySpotlight) todaySpotlight.style.display = 'none';
+    if (weeklyTasksWidget) weeklyTasksWidget.style.display = 'none';
+    if (mobileDaySwitcher) mobileDaySwitcher.style.display = 'none';
+    if (searchBox) searchBox.style.display = 'none';
+
+    if (scheduleSec) scheduleSec.style.display = 'none';
+    if (calendarSec) calendarSec.style.display = 'none';
+    if (lecturerSec) lecturerSec.style.display = 'none';
+    if (broadcastSec) broadcastSec.style.display = 'block';
+    if (infoTugasSec) infoTugasSec.style.display = 'none';
+
+    renderBroadcastTab();
   }
 
   window.scrollTo({ top: 0, behavior: 'smooth' });
 };
 
 window.switchMobileScheduleDay = function(dayKey) {
+  if (!dayKey) return;
+
   document.querySelectorAll('.mobile-day-btn').forEach(btn => {
     btn.classList.toggle('active', btn.getAttribute('data-day') === dayKey);
   });
-
-  const scheduleSec = document.getElementById('scheduleSection');
-  const calendarSec = document.getElementById('calendarSection');
-  const lecturerSec = document.getElementById('lecturerSection');
-  const broadcastSec = document.getElementById('broadcastSection');
-  const infoTugasSec = document.getElementById('infoTugasSection');
-  const mobileDaySwitcher = document.getElementById('mobileDaySwitcher');
-  const searchBox = document.querySelector('.search-box');
-
-  if (scheduleSec) scheduleSec.style.display = 'block';
-  if (calendarSec) calendarSec.style.display = 'none';
-  if (lecturerSec) lecturerSec.style.display = 'none';
-  if (broadcastSec) broadcastSec.style.display = 'none';
-  if (infoTugasSec) infoTugasSec.style.display = 'none';
-  if (mobileDaySwitcher) mobileDaySwitcher.style.display = '';
-  if (searchBox) searchBox.style.display = '';
 
   document.querySelectorAll('.mobile-nav-item').forEach(btn => {
     btn.classList.toggle('active', btn.getAttribute('data-nav') === 'schedule');
@@ -1728,6 +1731,27 @@ window.switchMobileScheduleDay = function(dayKey) {
   document.querySelectorAll('.tab-btn').forEach(b => {
     b.classList.toggle('active', b.getAttribute('data-tab') === dayKey);
   });
+
+  const todaySpotlight = document.getElementById('todaySpotlight');
+  const weeklyTasksWidget = document.getElementById('weeklyTasksWidget');
+  const scheduleSec = document.getElementById('scheduleSection');
+  const calendarSec = document.getElementById('calendarSection');
+  const lecturerSec = document.getElementById('lecturerSection');
+  const broadcastSec = document.getElementById('broadcastSection');
+  const infoTugasSec = document.getElementById('infoTugasSection');
+  const mobileDaySwitcher = document.getElementById('mobileDaySwitcher');
+  const searchBox = document.querySelector('.search-box');
+
+  if (todaySpotlight) todaySpotlight.style.display = '';
+  if (weeklyTasksWidget) weeklyTasksWidget.style.display = '';
+  if (mobileDaySwitcher) mobileDaySwitcher.style.display = '';
+  if (searchBox) searchBox.style.display = '';
+
+  if (scheduleSec) scheduleSec.style.display = 'block';
+  if (calendarSec) calendarSec.style.display = 'none';
+  if (lecturerSec) lecturerSec.style.display = 'none';
+  if (broadcastSec) broadcastSec.style.display = 'none';
+  if (infoTugasSec) infoTugasSec.style.display = 'none';
 
   renderScheduleCards(dayKey);
 };
@@ -1740,86 +1764,43 @@ function initEventListeners() {
     });
   }
 
+  // Desktop Tab Buttons
   document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
       const target = e.currentTarget.getAttribute('data-tab');
-      e.currentTarget.classList.add('active');
-
-      const scheduleSec = document.getElementById('scheduleSection');
-      const calendarSec = document.getElementById('calendarSection');
-      const lecturerSec = document.getElementById('lecturerSection');
-      const broadcastSec = document.getElementById('broadcastSection');
-      const infoTugasSec = document.getElementById('infoTugasSection');
-      const mobileDaySwitcher = document.getElementById('mobileDaySwitcher');
-      const searchBox = document.querySelector('.search-box');
-
-      if (scheduleSec) scheduleSec.style.display = (target === 'calendar' || target === 'lecturers' || target === 'broadcast' || target === 'info-tugas') ? 'none' : 'block';
-      if (calendarSec) calendarSec.style.display = (target === 'calendar') ? 'block' : 'none';
-      if (lecturerSec) lecturerSec.style.display = (target === 'lecturers') ? 'block' : 'none';
-      if (broadcastSec) broadcastSec.style.display = (target === 'broadcast') ? 'block' : 'none';
-      if (infoTugasSec) infoTugasSec.style.display = (target === 'info-tugas') ? 'block' : 'none';
-
-      if (mobileDaySwitcher) {
-        mobileDaySwitcher.style.display = (target === 'calendar' || target === 'lecturers' || target === 'broadcast' || target === 'info-tugas') ? 'none' : '';
-      }
-      if (searchBox) {
-        searchBox.style.display = (target === 'calendar' || target === 'lecturers' || target === 'broadcast' || target === 'info-tugas') ? 'none' : '';
-      }
-
-      document.querySelectorAll('.mobile-day-btn').forEach(mb => {
-        mb.classList.toggle('active', mb.getAttribute('data-day') === target);
-      });
-
-      document.querySelectorAll('.mobile-nav-item').forEach(nav => {
-        if (target === 'calendar') {
-          nav.classList.toggle('active', nav.getAttribute('data-nav') === 'calendar');
-        } else if (target === 'lecturers') {
-          nav.classList.toggle('active', nav.getAttribute('data-nav') === 'lecturers');
-        } else if (target === 'info-tugas') {
-          nav.classList.toggle('active', nav.getAttribute('data-nav') === 'info-tugas');
-        } else if (target === 'broadcast') {
-          nav.classList.remove('active');
-        } else {
-          nav.classList.toggle('active', nav.getAttribute('data-nav') === 'schedule');
-        }
-      });
-
-      if (target === 'broadcast') {
-        renderBroadcastTab();
-      } else if (target === 'info-tugas') {
-        renderTasks();
-      } else if (target === 'calendar') {
-        renderCalendar();
-      } else if (target === 'lecturers') {
-        renderLecturerDirectory();
+      if (['calendar', 'lecturers', 'broadcast', 'info-tugas'].includes(target)) {
+        window.switchMobileNav(target);
       } else {
-        renderScheduleCards(target);
+        window.switchMobileScheduleDay(target);
       }
     });
   });
 
-  // Dedicated Event Listeners for Floating Mobile Bottom Navigation
-  document.querySelectorAll('.mobile-nav-item').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      e.preventDefault();
-      const navTarget = btn.getAttribute('data-nav');
-      if (navTarget && typeof window.switchMobileNav === 'function') {
-        window.switchMobileNav(navTarget);
+  // Floating Mobile Bottom Navigation (Event Delegation)
+  const mobileNav = document.getElementById('mobileBottomNav');
+  if (mobileNav) {
+    mobileNav.addEventListener('click', (e) => {
+      const btn = e.target.closest('.mobile-nav-item');
+      if (btn) {
+        e.preventDefault();
+        const navTarget = btn.getAttribute('data-nav');
+        if (navTarget) window.switchMobileNav(navTarget);
       }
     });
-  });
+  }
 
-  // Dedicated Event Listeners for Mobile Day Switcher
-  document.querySelectorAll('.mobile-day-btn').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      e.preventDefault();
-      const dayTarget = btn.getAttribute('data-day');
-      if (dayTarget && typeof window.switchMobileScheduleDay === 'function') {
-        window.switchMobileScheduleDay(dayTarget);
+  // Mobile Day Switcher (Event Delegation)
+  const mobileDaySwitcher = document.getElementById('mobileDaySwitcher');
+  if (mobileDaySwitcher) {
+    mobileDaySwitcher.addEventListener('click', (e) => {
+      const btn = e.target.closest('.mobile-day-btn');
+      if (btn) {
+        e.preventDefault();
+        const dayTarget = btn.getAttribute('data-day');
+        if (dayTarget) window.switchMobileScheduleDay(dayTarget);
       }
     });
-  });
+  }
 }
 
 // 11. Helper Actions & Silabus 16 Pertemuan (RPS)
