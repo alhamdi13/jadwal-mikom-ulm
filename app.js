@@ -1088,6 +1088,21 @@ function saveTasks(tasks, pushToCloud = true) {
   }
 }
 
+const GSHEET_DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycbx2oJwXKXdw-svMyEdYLMbY0XolmERpMXJe8sirZODiiUK57L5O8iv7XlS9sy-jteDg/exec';
+const GSHEET_API_STORAGE_KEY = 'sijadwal_gsheet_api_url';
+
+function getGSheetApiUrl() {
+  return localStorage.getItem(GSHEET_API_STORAGE_KEY) || GSHEET_DEFAULT_API_URL;
+}
+
+function saveGSheetApiUrl(url) {
+  if (url) {
+    localStorage.setItem(GSHEET_API_STORAGE_KEY, url.trim());
+  } else {
+    localStorage.removeItem(GSHEET_API_STORAGE_KEY);
+  }
+}
+
 // Background Cloud Sync Engine
 let isCloudSyncing = false;
 
@@ -1105,47 +1120,219 @@ async function syncTasksFromCloud(manualTrigger = false) {
   isCloudSyncing = true;
   setCloudStatus('Menyinkronkan...', true);
 
-  try {
-    const res = await fetch(`https://kvdb.io/KVKW9d9pA4n7Fk5Ua5x2fB/${CLOUD_SYNC_BIN_ID}`, {
-      method: 'GET',
-      headers: { 'Accept': 'application/json' },
-      cache: 'no-store'
-    }).catch(() => null);
+  const gsheetUrl = getGSheetApiUrl();
 
-    if (res && res.ok) {
-      const cloudData = await res.json();
-      if (Array.isArray(cloudData) && cloudData.length > 0) {
-        saveTasks(cloudData, false);
-        renderTasks();
-        setCloudStatus('Tersinkron Online');
-        if (manualTrigger) {
-          showToast('✅ Data tugas berhasil disinkronkan dari server Cloud!');
+  try {
+    if (gsheetUrl) {
+      // 1. Fetch directly from Google Apps Script Web App (Google Sheet)
+      const res = await fetch(gsheetUrl, {
+        method: 'GET',
+        cache: 'no-store'
+      });
+
+      if (res && res.ok) {
+        const data = await res.json();
+        const tasksList = Array.isArray(data) ? data : (data.tasks || []);
+        if (tasksList.length > 0) {
+          saveTasks(tasksList, false);
+          renderTasks();
+          setCloudStatus('📊 Tersinkron Google Sheet');
+          if (manualTrigger) {
+            showToast('✅ Data tugas & link Google Drive berhasil disinkronkan dari Google Sheet!');
+          }
+          return;
         }
-        return;
+      }
+    } else {
+      // 2. Fallback to Cloud KV / local sync
+      const res = await fetch(`https://kvdb.io/KVKW9d9pA4n7Fk5Ua5x2fB/${CLOUD_SYNC_BIN_ID}`, {
+        method: 'GET',
+        headers: { 'Accept': 'application/json' },
+        cache: 'no-store'
+      }).catch(() => null);
+
+      if (res && res.ok) {
+        const cloudData = await res.json();
+        if (Array.isArray(cloudData) && cloudData.length > 0) {
+          saveTasks(cloudData, false);
+          renderTasks();
+          setCloudStatus('Tersinkron Online');
+          if (manualTrigger) {
+            showToast('✅ Data tugas berhasil disinkronkan dari server Cloud!');
+          }
+          return;
+        }
       }
     }
   } catch (err) {
     console.log('Sync cloud notice:', err);
   } finally {
     isCloudSyncing = false;
-    setCloudStatus('Tersinkron Online');
+    const isGsheet = !!getGSheetApiUrl();
+    setCloudStatus(isGsheet ? '📊 Tersinkron Google Sheet' : 'Tersinkron Online');
   }
 }
 
 async function pushTasksToCloud(tasks) {
+  const gsheetUrl = getGSheetApiUrl();
+
   try {
     setCloudStatus('Menyimpan ke Cloud...', true);
-    await fetch(`https://kvdb.io/KVKW9d9pA4n7Fk5Ua5x2fB/${CLOUD_SYNC_BIN_ID}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(tasks)
-    }).catch(() => null);
+
+    if (gsheetUrl) {
+      // Send POST to Google Apps Script Web App
+      await fetch(gsheetUrl, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'text/plain' },
+        body: JSON.stringify(tasks)
+      });
+      setCloudStatus('📊 Tersinkron Google Sheet');
+    } else {
+      // Fallback
+      await fetch(`https://kvdb.io/KVKW9d9pA4n7Fk5Ua5x2fB/${CLOUD_SYNC_BIN_ID}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(tasks)
+      }).catch(() => null);
+      setCloudStatus('Tersinkron Online');
+    }
   } catch (e) {
     console.log('Background cloud push notice:', e);
   } finally {
-    setCloudStatus('Tersinkron Online');
+    const isGsheet = !!getGSheetApiUrl();
+    setCloudStatus(isGsheet ? '📊 Tersinkron Google Sheet' : 'Tersinkron Online');
   }
 }
+
+// Google Sheet Configuration Modal Handlers
+window.openGSheetConfigModal = function() {
+  const modal = document.getElementById('gsheetConfigModal');
+  const input = document.getElementById('inputGSheetApiUrl');
+  if (input) {
+    input.value = getGSheetApiUrl();
+  }
+  if (modal) modal.classList.add('active');
+};
+
+window.closeGSheetConfigModal = function() {
+  const modal = document.getElementById('gsheetConfigModal');
+  if (modal) modal.classList.remove('active');
+};
+
+window.saveGSheetConfig = function() {
+  const input = document.getElementById('inputGSheetApiUrl');
+  const url = input ? input.value.trim() : '';
+  saveGSheetApiUrl(url);
+  closeGSheetConfigModal();
+
+  if (url) {
+    showToast('💾 URL Google Sheet berhasil disimpan! Menyinkronkan sekarang...');
+    syncTasksFromCloud(true);
+  } else {
+    showToast('ℹ️ Integrasi Google Sheet dinonaktifkan.');
+    setCloudStatus('Tersinkron Online');
+  }
+};
+
+window.testGSheetConnection = async function() {
+  const input = document.getElementById('inputGSheetApiUrl');
+  const url = input ? input.value.trim() : '';
+  if (!url) {
+    alert('Harap masukkan URL Aplikasi Web Google Apps Script terlebih dahulu!');
+    return;
+  }
+
+  showToast('⏳ Menguji koneksi ke Google Sheet...');
+  try {
+    const res = await fetch(url, { method: 'GET', cache: 'no-store' });
+    if (res.ok) {
+      const data = await res.json();
+      alert(`🎉 Sukses terhubung ke Google Sheet!\n\nJumlah data tugas ditemukan di sheet: ${Array.isArray(data) ? data.length : 0} baris.`);
+    } else {
+      alert(`⚠️ Server Google merespons dengan status: HTTP ${res.status}. Pastikan deployment diset sebagai 'Anyone' (Siapa saja).`);
+    }
+  } catch (err) {
+    alert(`❌ Gagal terhubung ke Google Sheet: ${err.message}\n\nPastikan:\n1. URL berakhiran /exec\n2. Akses deployment dipilih 'Anyone' / Siapa Saja.`);
+  }
+};
+
+window.copyAppsScriptCode = function() {
+  const code = `function setupSheet() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sheet = ss.getSheetByName("DaftarTugas") || ss.insertSheet("DaftarTugas");
+  const headers = ["id", "matkul", "title", "deadline", "pekan", "driveUrl", "notes", "completed", "createdAt"];
+  sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+  sheet.getRange(1, 1, 1, headers.length).setFontWeight("bold").setBackground("#1e293b").setFontColor("#ffffff");
+  sheet.setFrozenRows(1);
+}
+
+function doGet(e) {
+  try {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    let sheet = ss.getSheetByName("DaftarTugas");
+    if (!sheet) { setupSheet(); sheet = ss.getSheetByName("DaftarTugas"); }
+    const data = sheet.getDataRange().getValues();
+    if (data.length <= 1) return ContentService.createTextOutput(JSON.stringify([])).setMimeType(ContentService.MimeType.JSON);
+    const tasks = [];
+    for (let i = 1; i < data.length; i++) {
+      const row = data[i];
+      if (!row[0] && !row[2]) continue;
+      tasks.push({
+        id: String(row[0] || "task-" + i),
+        matkul: String(row[1] || "Tugas Umum"),
+        title: String(row[2] || ""),
+        deadline: String(row[3] || ""),
+        pekan: row[4] ? String(row[4]) : "current",
+        driveUrl: String(row[5] || ""),
+        notes: String(row[6] || ""),
+        completed: row[7] === true || String(row[7]).toLowerCase() === "true",
+        createdAt: row[8] ? String(row[8]) : new Date().toISOString()
+      });
+    }
+    return ContentService.createTextOutput(JSON.stringify(tasks)).setMimeType(ContentService.MimeType.JSON);
+  } catch (err) {
+    return ContentService.createTextOutput(JSON.stringify({ error: err.toString() })).setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+function doPost(e) {
+  try {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    let sheet = ss.getSheetByName("DaftarTugas");
+    if (!sheet) { setupSheet(); sheet = ss.getSheetByName("DaftarTugas"); }
+    const postData = JSON.parse(e.postData.contents);
+    const tasksToSave = Array.isArray(postData) ? postData : (postData.tasks || []);
+    const lastRow = sheet.getLastRow();
+    if (lastRow > 1) sheet.getRange(2, 1, lastRow - 1, 9).clearContent();
+    if (tasksToSave.length > 0) {
+      const rows = tasksToSave.map((t, idx) => [
+        t.id || "task-" + (idx + 1),
+        t.matkul || "",
+        t.title || "",
+        t.deadline || "",
+        t.pekan || "current",
+        t.driveUrl || "",
+        t.notes || "",
+        t.completed ? true : false,
+        t.createdAt || new Date().toISOString()
+      ]);
+      sheet.getRange(2, 1, rows.length, 9).setValues(rows);
+    }
+    return ContentService.createTextOutput(JSON.stringify({ status: "success", count: tasksToSave.length })).setMimeType(ContentService.MimeType.JSON);
+  } catch (err) {
+    return ContentService.createTextOutput(JSON.stringify({ status: "error", message: err.toString() })).setMimeType(ContentService.MimeType.JSON);
+  }
+}`;
+
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(code).then(() => {
+      showToast('📋 Kode Google Apps Script disalin ke Clipboard!');
+    }).catch(() => fallbackCopyText(code));
+  } else {
+    fallbackCopyText(code);
+  }
+};
 
 // Check URL query / hash for sync link: ?sync_tasks=... or #tasks=...
 function checkUrlTaskSync() {
@@ -1240,7 +1427,14 @@ window.shareTasksToWAG = function() {
     text += `\n`;
   }
 
-  text += `━━━━━━━━━━━━━━━━━━━━\n🌐 *Buka Papan Tugas & Update Online:*\n${window.location.origin + window.location.pathname}\n\nSemangat dan sukses selalu rekan-rekan MIKOM 2026! ✨📚`;
+  let syncUrl = window.location.origin + window.location.pathname;
+  try {
+    const jsonStr = JSON.stringify(tasks);
+    const encoded = btoa(unescape(encodeURIComponent(jsonStr)));
+    syncUrl = `${syncUrl}?sync_tasks=${encoded}`;
+  } catch (e) {}
+
+  text += `━━━━━━━━━━━━━━━━━━━━\n🌐 *Buka Papan Tugas & Sinkronkan Otomatis:*\n${syncUrl}\n\nSemangat dan sukses selalu rekan-rekan MIKOM 2026! ✨📚`;
 
   const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
   window.open(url, '_blank');

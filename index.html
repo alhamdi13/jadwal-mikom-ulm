@@ -278,6 +278,9 @@
               </p>
             </div>
             <div class="task-header-actions" style="display: flex; gap: 8px; flex-wrap: wrap;">
+              <button class="quick-action-btn btn-ghost" onclick="openGSheetConfigModal()" title="Hubungkan Google Sheet sebagai Database Tugas Real-time">
+                📊 Google Sheet Sync
+              </button>
               <button class="quick-action-btn btn-ghost" onclick="syncTasksFromCloud(true)" title="Sinkronkan pembaruan tugas dari cloud server">
                 🔄 Sinkronkan
               </button>
@@ -963,6 +966,61 @@
         <button class="quick-action-btn btn-green" id="btnConfirmCommit" onclick="executeCloudCommit()">
           💾 Konfirmasi & Sinkronkan Sekarang
         </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Hubungkan Google Sheet Backend -->
+  <div class="modal-overlay" id="gsheetConfigModal" onclick="closeGSheetConfigModal()">
+    <div class="modal-content" style="max-width: 600px;" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 1.3rem;">📊</span>
+          <div>
+            <h3 style="font-size: 1.1rem; font-weight: 800; margin: 0;">Hubungkan Database Google Sheet</h3>
+            <p style="font-size: 0.78rem; color: var(--text-secondary); margin: 2px 0 0 0;">
+              Simpan dan sinkronkan tugas beserta link Google Drive secara otomatis & gratis seumur hidup.
+            </p>
+          </div>
+        </div>
+        <button class="modal-close-btn" onclick="closeGSheetConfigModal()">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: var(--radius-md); padding: 14px; margin-bottom: 16px;">
+          <h4 style="font-size: 0.88rem; font-weight: 700; color: #10b981; margin: 0 0 6px 0;">🚀 Keunggulan Google Sheet Backend:</h4>
+          <ul style="font-size: 0.8rem; color: var(--text-secondary); padding-left: 18px; margin: 0; line-height: 1.5;">
+            <li>Link Google Drive & tugas yang di-update dari HP langsung tersimpan ke Google Sheet.</li>
+            <li>Siapa pun yang membuka web dari HP mana pun akan otomatis melihat link Google Drive terbaru.</li>
+            <li>Bisa diedit langsung dari aplikasi Google Sheets di HP Ketua Kelas / PJ tugas.</li>
+          </ul>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">URL Aplikasi Web Google Apps Script (Web App URL)</label>
+          <input type="url" id="inputGSheetApiUrl" class="form-input" placeholder="https://script.google.com/macros/s/.../exec">
+          <span style="font-size: 0.74rem; color: var(--text-muted); display: block; margin-top: 4px;">
+            Didapat dari hasil Deployment "Aplikasi Web" di Google Apps Script sheet Anda.
+          </span>
+        </div>
+
+        <div style="background: var(--bg-surface); padding: 12px; border-radius: var(--radius-sm); border: 1px dashed var(--border-subtle); margin-top: 14px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <strong style="font-size: 0.82rem; color: var(--text-primary);">📄 Kode Google Apps Script:</strong>
+            <button class="btn-icon" style="font-size: 0.74rem; padding: 4px 8px;" onclick="copyAppsScriptCode()">📋 Salin Kode Script</button>
+          </div>
+          <p style="font-size: 0.76rem; color: var(--text-muted); margin: 0;">
+            Buat Google Sheet baru ➔ Menu <strong>Ekstensi > Apps Script</strong> ➔ Tempelkan kode ➔ Terapkan sebagai <strong>Aplikasi Web (Siapa saja memiliki akses)</strong>.
+          </p>
+        </div>
+      </div>
+
+      <div class="modal-footer" style="justify-content: space-between;">
+        <button class="btn-icon" onclick="closeGSheetConfigModal()">Tutup</button>
+        <div style="display: flex; gap: 8px;">
+          <button class="quick-action-btn btn-ghost" onclick="testGSheetConnection()">⚡ Tes Koneksi</button>
+          <button class="quick-action-btn btn-green" onclick="saveGSheetConfig()">💾 Simpan & Aktifkan Sync</button>
+        </div>
       </div>
     </div>
   </div>
