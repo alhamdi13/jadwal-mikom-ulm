@@ -13,7 +13,9 @@ document.addEventListener('DOMContentLoaded', () => {
   renderCalendar();
   renderLecturerDirectory();
   renderBroadcastTab();
+  checkUrlTaskSync();
   renderTasks();
+  syncTasksFromCloud();
   initEventListeners();
 });
 
@@ -980,31 +982,40 @@ window.shareRevisionToWA = function() {
   window.open(url, '_blank');
 };
 
-// 9. Section 5: Assignment Tracker (Info & Tugas)
+// 9. Section 5: Assignment Tracker (Info & Tugas) with Cloud Sync & Google Drive
 const DEFAULT_INITIAL_TASKS = [
   {
-    id: 'task-1',
-    matkul: 'Filsafat Ilmu Komunikasi',
-    title: 'Mempelajari Silabus & Rangkuman Epistemologi Ilmu Komunikasi',
-    deadline: 'Jum\'at, 18 September 2026 (14.00 WITA)',
-    notes: 'Pelajari konsep ontologi, epistemologi, dan aksiologi dalam tradisi keilmuan komunikasi.',
+    id: 'task-media-1',
+    matkul: 'Media dan Teknologi Komunikasi',
+    title: 'Buat dalam bentuk makalah / Artikel Jurnal dan PPT untuk presentasi. Gunakan referensi terbaru, khususnya jurnal-jurnal 15 tahun terakhir (minimal Sinta 4 ke atas / Scopus). Dan jurnalnya harus benar-benar ada. Apabila jurnalnya tidak ada, akan mengurangi poin.',
+    deadline: 'Kumpul filenya tanggal 9, Jam 12.00 WITA. Dibuat di Gdrive oleh Ketua Kelas.',
+    notes: 'Pilih salah satu:\n1. Mahasiswa memilih satu media/organisasi yang mengalami transformasi akibat teknologi digital, misalnya Kompas, Tempo, TVRI, Netflix, TikTok, atau media lokal. Analisis perubahan produksi, distribusi, audiens, dan model bisnis. Buat dalam bentuk makalah dan PPT untuk presentasi.\n2. Memilih satu kasus viral/hoaks kemudian menganalisis pola penyebaran, aktor, framing, teknologi, dan strategi penanganannya.\n3. Mengkaji penggunaan generative AI seperti ChatGPT, Gemini, dll dan implikasinya bagi profesi komunikasi.',
+    driveUrl: '',
     completed: false,
-    createdAt: new Date().toISOString()
+    createdAt: '2026-10-06T10:00:00.000Z'
   },
   {
-    id: 'task-2',
-    matkul: 'Perspektif Komunikasi Organisasi',
-    title: 'Analisis Studi Kasus Komunikasi Korporasi Modern',
-    deadline: 'Sabtu, 19 September 2026 (16.00 WITA)',
-    notes: 'Kelompok 3-4 orang, analisis dinamika komunikasi internal sektor publik atau swasta.',
+    id: 'task-filsafat-1',
+    matkul: 'Filsafat Ilmu Komunikasi',
+    title: 'Mengerjakan teori komunikasi dari buku yang dishare oleh pak Fahri ,',
+    deadline: 'Kamis, 8 Oktober 2026',
+    notes: 'Satu kelompok akan mengerjakan teori komunikasi dari buku yang dishare oleh pak Fahri , cukup satu teori saja ,\n\nagar bisa di presentasikan Minggu depan ,ada makalah dibuatkan,ppt di presentasikan, print out ke nazar dan softcopynya juga di kumpulkan\n\nDikumpulkan kamis 8 Oktober',
+    driveUrl: '',
     completed: false,
-    createdAt: new Date().toISOString()
+    createdAt: '2026-10-06T10:00:00.000Z'
   }
 ];
 
+const CLOUD_SYNC_STORAGE_KEY = 'sijadwal_tasks';
+const CLOUD_SYNC_TIMESTAMP_KEY = 'sijadwal_tasks_last_sync';
+const CLOUD_SYNC_BIN_ID = 'mikom2026_papan_tugas';
+
 function getTasks() {
-  const masterTasks = (ACADEMIC_DATA && ACADEMIC_DATA.daftar_tugas) ? ACADEMIC_DATA.daftar_tugas : DEFAULT_INITIAL_TASKS;
-  const saved = localStorage.getItem('sijadwal_tasks');
+  const masterTasks = (ACADEMIC_DATA && ACADEMIC_DATA.daftar_tugas && ACADEMIC_DATA.daftar_tugas.length > 0)
+    ? ACADEMIC_DATA.daftar_tugas
+    : DEFAULT_INITIAL_TASKS;
+
+  const saved = localStorage.getItem(CLOUD_SYNC_STORAGE_KEY);
   if (saved) {
     try {
       const parsed = JSON.parse(saved);
@@ -1018,9 +1029,132 @@ function getTasks() {
   return masterTasks;
 }
 
-function saveTasks(tasks) {
-  localStorage.setItem('sijadwal_tasks', JSON.stringify(tasks));
+function saveTasks(tasks, pushToCloud = true) {
+  localStorage.setItem(CLOUD_SYNC_STORAGE_KEY, JSON.stringify(tasks));
+  localStorage.setItem(CLOUD_SYNC_TIMESTAMP_KEY, new Date().toISOString());
+  if (pushToCloud) {
+    pushTasksToCloud(tasks);
+  }
 }
+
+// Background Cloud Sync Engine
+let isCloudSyncing = false;
+
+function setCloudStatus(statusText, isSyncing = false) {
+  const pill = document.getElementById('cloudStatusPill');
+  const txt = document.getElementById('cloudStatusText');
+  if (!pill || !txt) return;
+
+  txt.textContent = statusText;
+  pill.classList.toggle('syncing', isSyncing);
+}
+
+async function syncTasksFromCloud(manualTrigger = false) {
+  if (isCloudSyncing) return;
+  isCloudSyncing = true;
+  setCloudStatus('Menyinkronkan...', true);
+
+  try {
+    const res = await fetch(`https://kvdb.io/KVKW9d9pA4n7Fk5Ua5x2fB/${CLOUD_SYNC_BIN_ID}`, {
+      method: 'GET',
+      headers: { 'Accept': 'application/json' },
+      cache: 'no-store'
+    }).catch(() => null);
+
+    if (res && res.ok) {
+      const cloudData = await res.json();
+      if (Array.isArray(cloudData) && cloudData.length > 0) {
+        saveTasks(cloudData, false);
+        renderTasks();
+        setCloudStatus('Tersinkron Online');
+        if (manualTrigger) {
+          showToast('✅ Data tugas berhasil disinkronkan dari server Cloud!');
+        }
+        return;
+      }
+    }
+  } catch (err) {
+    console.log('Sync cloud notice:', err);
+  } finally {
+    isCloudSyncing = false;
+    setCloudStatus('Tersinkron Online');
+  }
+}
+
+async function pushTasksToCloud(tasks) {
+  try {
+    setCloudStatus('Menyimpan ke Cloud...', true);
+    await fetch(`https://kvdb.io/KVKW9d9pA4n7Fk5Ua5x2fB/${CLOUD_SYNC_BIN_ID}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(tasks)
+    }).catch(() => null);
+  } catch (e) {
+    console.log('Background cloud push notice:', e);
+  } finally {
+    setCloudStatus('Tersinkron Online');
+  }
+}
+
+// Check URL query / hash for sync link: ?sync_tasks=... or #tasks=...
+function checkUrlTaskSync() {
+  try {
+    const urlParams = new URLSearchParams(window.location.search);
+    let rawData = urlParams.get('sync_tasks') || urlParams.get('tasks');
+    
+    if (!rawData && window.location.hash.startsWith('#tasks=')) {
+      rawData = window.location.hash.substring(7);
+    }
+
+    if (rawData) {
+      const decoded = decodeURIComponent(escape(atob(rawData)));
+      const parsedTasks = JSON.parse(decoded);
+      if (Array.isArray(parsedTasks) && parsedTasks.length > 0) {
+        saveTasks(parsedTasks, true);
+        renderTasks();
+        showToast('🎉 Data papan tugas berhasil disinkronkan dari tautan bersama!');
+        // Bersihkan parameter URL tanpa reload halaman
+        const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+        window.history.replaceState({ path: newUrl }, '', newUrl);
+      }
+    }
+  } catch (e) {
+    console.warn('Gagal membaca sync dari URL:', e);
+  }
+}
+
+// Generate shareable link to share current tasks
+window.shareTaskBoardLink = function() {
+  const tasks = getTasks();
+  try {
+    const jsonStr = JSON.stringify(tasks);
+    const encoded = btoa(unescape(encodeURIComponent(jsonStr)));
+    const baseUrl = window.location.origin + window.location.pathname;
+    const shareUrl = `${baseUrl}?sync_tasks=${encoded}`;
+
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(shareUrl).then(() => {
+        showToast('🔗 Link update papan tugas disalin! Bagikan ke WAG agar otomatis tersinkron di semua HP mahasiswa.');
+      }).catch(() => fallbackCopyText(shareUrl));
+    } else {
+      fallbackCopyText(shareUrl);
+    }
+  } catch (e) {
+    showToast('ℹ️ Gagal membuat link sinkron: ' + e.message);
+  }
+};
+
+window.copyDriveLink = function(url, event) {
+  if (event) event.stopPropagation();
+  if (!url) return;
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(url).then(() => {
+      showToast('📋 Link Google Drive berhasil disalin ke Clipboard!');
+    }).catch(() => fallbackCopyText(url));
+  } else {
+    fallbackCopyText(url);
+  }
+};
 
 window.shareTasksToWAG = function() {
   const tasks = getTasks();
@@ -1036,7 +1170,11 @@ window.shareTasksToWAG = function() {
   if (activeTasks.length > 0) {
     text += `⏳ *TUGAS AKTIF / DEADLINE:* \n\n`;
     activeTasks.forEach((t, i) => {
-      text += `${i + 1}️⃣ *[${t.matkul}]*\n📌 *Judul:* ${t.title}\n⏰ *Deadline:* ${t.deadline || '-'}\n📝 *Catatan:* ${t.notes || '-'}\n\n`;
+      text += `${i + 1}️⃣ *[${t.matkul}]*\n📌 *Judul:* ${t.title}\n⏰ *Deadline:* ${t.deadline || '-'}\n`;
+      if (t.driveUrl) {
+        text += `📂 *Link Google Drive:* ${t.driveUrl}\n`;
+      }
+      text += `📝 *Catatan / Instruksi:* ${t.notes || '-'}\n\n`;
     });
   } else {
     text += `🎉 *Semua tugas perkuliahan saat ini telah selesai!* ✨\n\n`;
@@ -1051,7 +1189,7 @@ window.shareTasksToWAG = function() {
     text += `\n`;
   }
 
-  text += `━━━━━━━━━━━━━━━━━━━━\nSemangat dan sukses selalu rekan-rekan MIKOM 2026! ✨📚`;
+  text += `━━━━━━━━━━━━━━━━━━━━\n🌐 *Buka Papan Tugas & Update Online:*\n${window.location.origin + window.location.pathname}\n\nSemangat dan sukses selalu rekan-rekan MIKOM 2026! ✨📚`;
 
   const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
   window.open(url, '_blank');
@@ -1066,15 +1204,17 @@ function renderTasks() {
   if (tasks.length === 0) {
     container.innerHTML = `
       <div class="empty-tasks-state">
-        <span style="font-size: 2rem; display: block; margin-bottom: 8px;">🎉</span>
-        <strong>Belum ada catatan tugas aktif</strong>
-        <p style="font-size: 0.82rem; margin-top: 4px;">Klik tombol "➕ Tambah Tugas" di atas untuk mencatat tugas baru.</p>
+        <span style="font-size: 2.2rem; display: block; margin-bottom: 8px;">🎉</span>
+        <strong style="font-size: 1rem; color: var(--text-primary);">Belum ada catatan tugas aktif</strong>
+        <p style="font-size: 0.84rem; margin-top: 4px;">Klik tombol "➕ Tambah Tugas" di atas untuk mencatat tugas baru & link Google Drive.</p>
       </div>
     `;
     return;
   }
 
   container.innerHTML = tasks.map(t => {
+    const driveUrl = (t.driveUrl || '').trim();
+
     return `
       <div class="task-card ${t.completed ? 'completed' : ''}" id="${t.id}">
         <div class="task-card-header">
@@ -1086,13 +1226,41 @@ function renderTasks() {
 
         <h4 class="task-title">${t.title}</h4>
         ${t.deadline ? `<div class="task-deadline">⏰ Deadline: ${t.deadline}</div>` : ''}
+
+        ${driveUrl ? `
+          <div class="task-gdrive-banner">
+            <div class="gdrive-left">
+              <span class="gdrive-icon">📁</span>
+              <div class="gdrive-texts">
+                <span class="gdrive-label">Folder / File Google Drive</span>
+                <span class="gdrive-hint" title="${driveUrl}">${driveUrl}</span>
+              </div>
+            </div>
+            <div class="gdrive-buttons">
+              <a href="${driveUrl}" target="_blank" rel="noopener noreferrer" class="btn-gdrive-open" title="Buka Folder Google Drive Tugas">
+                <span>Buka Drive</span> ↗
+              </a>
+              <button class="btn-gdrive-copy" onclick="copyDriveLink('${driveUrl}', event)" title="Salin Link Google Drive">
+                📋 Salin
+              </button>
+            </div>
+          </div>
+        ` : `
+          <button class="btn-add-drive-link" onclick="openTaskModal('${t.id}')" title="Tambahkan link folder Google Drive untuk tugas ini">
+            📁 + Tambah Link Google Drive
+          </button>
+        `}
+
         ${t.notes ? `<div class="task-notes">${t.notes}</div>` : ''}
 
         <div class="task-actions">
           <button class="task-btn toggle-btn" onclick="toggleTaskStatus('${t.id}')">
             ${t.completed ? '↩️ Tandai Belum Selesai' : '✔️ Tandai Selesai'}
           </button>
-          <button class="task-btn delete-btn" onclick="deleteTask('${t.id}')">
+          <button class="task-btn edit-btn" onclick="openTaskModal('${t.id}')" title="Edit isi tugas, deadline, dan link Google Drive">
+            ✏️ Edit
+          </button>
+          <button class="task-btn delete-btn" onclick="deleteTask('${t.id}')" title="Hapus catatan tugas">
             🗑️ Hapus
           </button>
         </div>
@@ -1101,13 +1269,51 @@ function renderTasks() {
   }).join('');
 }
 
-window.openTaskModal = function() {
+window.openTaskModal = function(taskId = null) {
   const overlay = document.getElementById('taskModalOverlay');
   if (!overlay) return;
 
-  document.getElementById('inputTaskTitle').value = '';
-  document.getElementById('inputTaskDeadline').value = '';
-  document.getElementById('inputTaskNotes').value = '';
+  const idInput = document.getElementById('inputTaskId');
+  const matkulInput = document.getElementById('inputTaskMatkul');
+  const titleInput = document.getElementById('inputTaskTitle');
+  const deadlineInput = document.getElementById('inputTaskDeadline');
+  const driveUrlInput = document.getElementById('inputTaskDriveUrl');
+  const notesInput = document.getElementById('inputTaskNotes');
+  const headerTitle = document.getElementById('taskModalHeaderTitle');
+  const headerSub = document.getElementById('taskModalHeaderSub');
+  const headerIcon = document.getElementById('taskModalIcon');
+  const btnSave = document.getElementById('btnSaveTask');
+
+  if (taskId) {
+    // EDIT MODE
+    const tasks = getTasks();
+    const task = tasks.find(t => t.id === taskId);
+    if (!task) return;
+
+    if (idInput) idInput.value = task.id;
+    if (matkulInput) matkulInput.value = task.matkul;
+    if (titleInput) titleInput.value = task.title || '';
+    if (deadlineInput) deadlineInput.value = task.deadline || '';
+    if (driveUrlInput) driveUrlInput.value = task.driveUrl || '';
+    if (notesInput) notesInput.value = task.notes || '';
+
+    if (headerTitle) headerTitle.textContent = '✏️ Edit Catatan Tugas Kuliah';
+    if (headerSub) headerSub.textContent = 'Perbarui data rincian tugas, deadline, dan link Google Drive.';
+    if (headerIcon) headerIcon.textContent = '✏️';
+    if (btnSave) btnSave.innerHTML = '💾 Simpan Perubahan Tugas';
+  } else {
+    // ADD NEW MODE
+    if (idInput) idInput.value = '';
+    if (titleInput) titleInput.value = '';
+    if (deadlineInput) deadlineInput.value = '';
+    if (driveUrlInput) driveUrlInput.value = '';
+    if (notesInput) notesInput.value = '';
+
+    if (headerTitle) headerTitle.textContent = '➕ Tambah Catatan Tugas Kuliah';
+    if (headerSub) headerSub.textContent = 'Tugas ini akan otomatis tersinkronisasi dan dapat dilihat oleh seluruh mahasiswa.';
+    if (headerIcon) headerIcon.textContent = '📝';
+    if (btnSave) btnSave.innerHTML = '➕ Simpan Catatan Tugas';
+  }
 
   overlay.classList.add('active');
 };
@@ -1118,37 +1324,67 @@ window.closeTaskModal = function(e) {
   if (overlay) overlay.classList.remove('active');
 };
 
-window.saveNewTask = function() {
+window.saveTask = function() {
+  const id = (document.getElementById('inputTaskId')?.value || '').trim();
   const matkul = document.getElementById('inputTaskMatkul').value;
-  const title = document.getElementById('inputTaskTitle').value.trim();
-  const deadline = document.getElementById('inputTaskDeadline').value.trim();
-  const notes = document.getElementById('inputTaskNotes').value.trim();
+  const title = (document.getElementById('inputTaskTitle')?.value || '').trim();
+  const deadline = (document.getElementById('inputTaskDeadline')?.value || '').trim();
+  let driveUrl = (document.getElementById('inputTaskDriveUrl')?.value || '').trim();
+  const notes = (document.getElementById('inputTaskNotes')?.value || '').trim();
 
   if (!title) {
-    alert('Judul Tugas tidak boleh kosong!');
+    alert('Judul Tugas / Instruksi Utama tidak boleh kosong!');
     return;
   }
 
-  const tasks = getTasks();
-  const newTask = {
-    id: 'task-' + Date.now(),
-    matkul,
-    title,
-    deadline,
-    notes,
-    completed: false,
-    createdAt: new Date().toISOString()
-  };
+  // Format Drive URL if provided without protocol
+  if (driveUrl && !driveUrl.startsWith('http://') && !driveUrl.startsWith('https://')) {
+    driveUrl = 'https://' + driveUrl;
+  }
 
-  tasks.unshift(newTask);
-  saveTasks(tasks);
-  renderTasks();
+  const tasks = getTasks();
+
+  if (id) {
+    // Update existing task
+    const index = tasks.findIndex(t => t.id === id);
+    if (index !== -1) {
+      tasks[index] = {
+        ...tasks[index],
+        matkul,
+        title,
+        deadline,
+        driveUrl,
+        notes,
+        updatedAt: new Date().toISOString()
+      };
+      saveTasks(tasks);
+      renderTasks();
+      showToast('✅ Catatan tugas berhasil diperbarui & disinkronkan!');
+    }
+  } else {
+    // Add new task
+    const newTask = {
+      id: 'task-' + Date.now(),
+      matkul,
+      title,
+      deadline,
+      driveUrl,
+      notes,
+      completed: false,
+      createdAt: new Date().toISOString()
+    };
+    tasks.unshift(newTask);
+    saveTasks(tasks);
+    renderTasks();
+    showToast('✅ Catatan tugas baru berhasil ditambahkan & disinkronkan!');
+  }
 
   const overlay = document.getElementById('taskModalOverlay');
   if (overlay) overlay.classList.remove('active');
-
-  showToast('✅ Catatan tugas baru berhasil ditambahkan!');
 };
+
+// Backwards compatibility alias
+window.saveNewTask = window.saveTask;
 
 window.toggleTaskStatus = function(taskId) {
   const tasks = getTasks();

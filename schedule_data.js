@@ -9,43 +9,41 @@ const DEFAULT_ZOOM_CONFIG = {
 
 // Cek apakah ada konfigurasi Zoom kustom yang disimpan di browser (localStorage)
 function getActiveZoomConfig() {
-  if (typeof localStorage !== 'undefined') {
-    const saved = localStorage.getItem('sijadwal_custom_zoom');
-    if (saved) {
-      try {
+  try {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      const saved = window.localStorage.getItem('sijadwal_custom_zoom');
+      if (saved) {
         return { ...DEFAULT_ZOOM_CONFIG, ...JSON.parse(saved) };
-      } catch (e) {
-        console.error('Gagal memuat zoom kustom dari localStorage:', e);
       }
     }
-  }
+  } catch (e) {}
   return { ...DEFAULT_ZOOM_CONFIG };
 }
 
 // Cek apakah ada ruangan kustom yang disimpan di browser (localStorage)
 function getActiveRuangConfig() {
-  if (typeof localStorage !== 'undefined') {
-    const saved = localStorage.getItem('sijadwal_custom_ruangan');
-    if (saved) return saved;
-  }
+  try {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      const saved = window.localStorage.getItem('sijadwal_custom_ruangan');
+      if (saved) return saved;
+    }
+  } catch (e) {}
   return "G1.103";
 }
 
 // Cek apakah ada jadwal kustom yang disimpan di browser (localStorage)
 function getActiveJadwalConfig(defaultJadwal) {
-  if (typeof localStorage !== 'undefined') {
-    const saved = localStorage.getItem('sijadwal_custom_jadwal');
-    if (saved) {
-      try {
+  try {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      const saved = window.localStorage.getItem('sijadwal_custom_jadwal');
+      if (saved) {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed) && parsed.length > 0) {
           return parsed;
         }
-      } catch (e) {
-        console.error('Gagal memuat jadwal kustom dari localStorage:', e);
       }
     }
-  }
+  } catch (e) {}
   return defaultJadwal;
 }
 
@@ -452,20 +450,24 @@ const ACADEMIC_DATA = {
   ],
   daftar_tugas: [
     {
-      id: 'task-1',
-      matkul: 'Filsafat Ilmu Komunikasi',
-      title: 'Mempelajari Silabus & Rangkuman Epistemologi Ilmu Komunikasi',
-      deadline: "Jum'at, 18 September 2026 (14.00 WITA)",
-      notes: 'Pelajari konsep ontologi, epistemologi, dan aksiologi dalam tradisi keilmuan komunikasi.',
-      completed: false
+      id: 'task-media-1',
+      matkul: 'Media dan Teknologi Komunikasi',
+      title: 'Buat dalam bentuk makalah / Artikel Jurnal dan PPT untuk presentasi. Gunakan referensi terbaru, khususnya jurnal-jurnal 15 tahun terakhir (minimal Sinta 4 ke atas / Scopus). Dan jurnalnya harus benar-benar ada. Apabila jurnalnya tidak ada, akan mengurangi poin.',
+      deadline: 'Kumpul filenya tanggal 9, Jam 12.00 WITA. Dibuat di Gdrive oleh Ketua Kelas.',
+      notes: 'Pilih salah satu:\n1. Mahasiswa memilih satu media/organisasi yang mengalami transformasi akibat teknologi digital, misalnya Kompas, Tempo, TVRI, Netflix, TikTok, atau media lokal. Analisis perubahan produksi, distribusi, audiens, dan model bisnis. Buat dalam bentuk makalah dan PPT untuk presentasi.\n2. Memilih satu kasus viral/hoaks kemudian menganalisis pola penyebaran, aktor, framing, teknologi, dan strategi penanganannya.\n3. Mengkaji penggunaan generative AI seperti ChatGPT, Gemini, dll dan implikasinya bagi profesi komunikasi.',
+      driveUrl: '',
+      completed: false,
+      createdAt: '2026-10-06T10:00:00.000Z'
     },
     {
-      id: 'task-2',
-      matkul: 'Perspektif Komunikasi Organisasi',
-      title: 'Analisis Studi Kasus Komunikasi Korporasi Modern',
-      deadline: 'Sabtu, 19 September 2026 (16.00 WITA)',
-      notes: 'Kelompok 3-4 orang, analisis dinamika komunikasi internal sektor publik atau swasta.',
-      completed: false
+      id: 'task-filsafat-1',
+      matkul: 'Filsafat Ilmu Komunikasi',
+      title: 'Mengerjakan teori komunikasi dari buku yang dishare oleh pak Fahri ,',
+      deadline: 'Kamis, 8 Oktober 2026',
+      notes: 'Satu kelompok akan mengerjakan teori komunikasi dari buku yang dishare oleh pak Fahri , cukup satu teori saja ,\n\nagar bisa di presentasikan Minggu depan ,ada makalah dibuatkan,ppt di presentasikan, print out ke nazar dan softcopynya juga di kumpulkan\n\nDikumpulkan kamis 8 Oktober',
+      driveUrl: '',
+      completed: false,
+      createdAt: '2026-10-06T10:00:00.000Z'
     }
   ]
 };

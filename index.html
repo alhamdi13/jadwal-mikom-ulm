@@ -259,15 +259,27 @@
         <div class="mading-card">
           <div class="mading-header">
             <div>
-              <h2 style="font-size: 1.25rem; font-weight: 800; display: flex; align-items: center; gap: 8px;">
-                <span>📝</span> Papan Tugas & Deadline Perkuliahan
-              </h2>
-              <p style="font-size: 0.83rem; color: var(--text-secondary); margin-top: 2px;">
-                Catatan tugas, PR, dan instruksi perkuliahan MIKOM Angkatan 2026.
+              <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                <h2 style="font-size: 1.25rem; font-weight: 800; display: flex; align-items: center; gap: 8px; margin: 0;">
+                  <span>📝</span> Papan Tugas & Deadline Perkuliahan
+                </h2>
+                <div class="cloud-status-pill" id="cloudStatusPill" title="Status sinkronisasi real-time">
+                  <span class="cloud-pulse-dot"></span>
+                  <span id="cloudStatusText">Tersinkron Online</span>
+                </div>
+              </div>
+              <p style="font-size: 0.83rem; color: var(--text-secondary); margin-top: 4px;">
+                Catatan tugas, PR, link Google Drive, dan instruksi perkuliahan MIKOM Angkatan 2026. Dapat diedit & dilihat bersama seluruh mahasiswa.
               </p>
             </div>
-            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-              <button class="quick-action-btn btn-green" onclick="shareTasksToWAG()" title="Kirim rekap catatan tugas ke grup WhatsApp kelas">
+            <div class="task-header-actions" style="display: flex; gap: 8px; flex-wrap: wrap;">
+              <button class="quick-action-btn btn-ghost" onclick="syncTasksFromCloud(true)" title="Sinkronkan pembaruan tugas dari cloud server">
+                🔄 Sinkronkan
+              </button>
+              <button class="quick-action-btn btn-orange" onclick="shareTaskBoardLink()" title="Salin link update tugas ke clipboard untuk dibagikan ke teman/WAG">
+                🔗 Bagikan Link Update
+              </button>
+              <button class="quick-action-btn btn-green" onclick="shareTasksToWAG()" title="Kirim rekap catatan tugas lengkap dengan link Google Drive ke grup WhatsApp">
                 📢 Bagikan ke WAG
               </button>
               <button class="quick-action-btn btn-blue" onclick="openTaskModal()">
@@ -412,48 +424,68 @@
 
   <!-- Modal 2: Tambah / Edit Catatan Tugas Kuliah -->
   <div class="modal-overlay" id="taskModalOverlay" onclick="closeTaskModal(event)">
-    <div class="modal-content" onclick="event.stopPropagation()">
+    <div class="modal-content" style="max-width: 560px;" onclick="event.stopPropagation()">
       <div class="modal-header">
         <div style="display: flex; align-items: center; gap: 8px;">
-          <span style="font-size: 1.3rem;">📝</span>
-          <h3 style="font-size: 1.15rem; font-weight: 800;">Tambah Catatan Tugas Kuliah</h3>
+          <span style="font-size: 1.3rem;" id="taskModalIcon">📝</span>
+          <div>
+            <h3 style="font-size: 1.15rem; font-weight: 800; margin: 0;" id="taskModalHeaderTitle">Tambah Catatan Tugas Kuliah</h3>
+            <p style="font-size: 0.78rem; color: var(--text-secondary); margin: 2px 0 0 0;" id="taskModalHeaderSub">
+              Tugas ini akan otomatis tersinkronisasi dan dapat dilihat oleh seluruh mahasiswa.
+            </p>
+          </div>
         </div>
         <button class="modal-close-btn" onclick="closeTaskModal()">&times;</button>
       </div>
 
       <div class="modal-body">
+        <input type="hidden" id="inputTaskId" value="">
+
         <div class="form-group">
           <label class="form-label">Mata Kuliah</label>
           <select id="inputTaskMatkul" class="form-input">
+            <option value="Media dan Teknologi Komunikasi">Media dan Teknologi Komunikasi</option>
             <option value="Filsafat Ilmu Komunikasi">Filsafat Ilmu Komunikasi</option>
             <option value="Perspektif Komunikasi Organisasi">Perspektif Komunikasi Organisasi</option>
             <option value="CSR dan Komunikasi Pemberdayaan">CSR dan Komunikasi Pemberdayaan</option>
             <option value="Perspektif dan Teori Komunikasi">Perspektif dan Teori Komunikasi</option>
             <option value="Perspektif Psikologi Komunikasi">Perspektif Psikologi Komunikasi</option>
-            <option value="Media dan Teknologi Komunikasi">Media dan Teknologi Komunikasi</option>
             <option value="Tugas Umum / Prodi">Tugas Umum / Pengumuman Prodi</option>
           </select>
         </div>
 
         <div class="form-group">
-          <label class="form-label">Judul Tugas / PR</label>
-          <input type="text" id="inputTaskTitle" class="form-input" placeholder="Contoh: Review Jurnal Teori Komunikasi Bab 1-3">
+          <label class="form-label">Judul Tugas / Instruksi Utama <span style="color: #ef4444;">*</span></label>
+          <input type="text" id="inputTaskTitle" class="form-input" placeholder="Contoh: Buat dalam bentuk makalah / Jurnal dan PPT...">
         </div>
 
         <div class="form-group">
           <label class="form-label">Batas Waktu Pengumpulan (Deadline)</label>
-          <input type="text" id="inputTaskDeadline" class="form-input" placeholder="Contoh: Jum'at, 25 September 2026 (23.59 WITA)">
+          <input type="text" id="inputTaskDeadline" class="form-input" placeholder="Contoh: Kumpul filenya tanggal 9, Jam 12.00 WITA">
         </div>
 
         <div class="form-group">
-          <label class="form-label">Keterangan / Instruksi Dosen</label>
-          <textarea id="inputTaskNotes" class="form-input" style="min-height: 80px; resize: vertical;" placeholder="Format PDF dikirim via email / Google Classroom..."></textarea>
+          <label class="form-label" style="display: flex; justify-content: space-between; align-items: center;">
+            <span style="display: flex; align-items: center; gap: 6px;">
+              <span>📁</span> Link Google Drive / Folder Pengumpulan
+            </span>
+            <span style="font-size: 0.74rem; color: var(--text-muted); font-weight: normal;">(Opsional)</span>
+          </label>
+          <input type="url" id="inputTaskDriveUrl" class="form-input" placeholder="https://drive.google.com/drive/folders/... atau link dokumen">
+          <p style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 4px; line-height: 1.4;">
+            💡 Tempel link folder Google Drive kelas untuk mempermudah seluruh mahasiswa mengakses dan mengunggah tugas.
+          </p>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Rincian Keterangan / Pilihan Topik / Catatan Dosen</label>
+          <textarea id="inputTaskNotes" class="form-input" style="min-height: 100px; resize: vertical;" placeholder="Tuliskan petunjuk detail pengerjaan tugas, pembagian kelompok, atau ketentuan referensi di sini..."></textarea>
         </div>
       </div>
 
       <div class="modal-footer">
         <button class="btn-icon" onclick="closeTaskModal()">Batal</button>
-        <button class="quick-action-btn btn-blue" onclick="saveNewTask()">
+        <button class="quick-action-btn btn-blue" id="btnSaveTask" onclick="saveTask()">
           ➕ Simpan Catatan Tugas
         </button>
       </div>

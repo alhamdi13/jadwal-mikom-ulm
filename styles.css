@@ -1111,7 +1111,84 @@ body {
 .tasks-container {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
+}
+
+/* Cloud Sync Status Indicator */
+.cloud-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  color: #10b981;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: var(--radius-full);
+  letter-spacing: 0.02em;
+}
+
+.cloud-status-pill.syncing {
+  background: rgba(59, 130, 246, 0.12);
+  border-color: rgba(59, 130, 246, 0.3);
+  color: #38bdf8;
+}
+
+.cloud-pulse-dot {
+  width: 7px;
+  height: 7px;
+  background-color: #10b981;
+  border-radius: 50%;
+  display: inline-block;
+  box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+  animation: cloudPulse 2s infinite;
+}
+
+.cloud-status-pill.syncing .cloud-pulse-dot {
+  background-color: #38bdf8;
+  box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.7);
+  animation: cloudPulse 1s infinite;
+}
+
+@keyframes cloudPulse {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+  }
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 0 6px rgba(16, 185, 129, 0);
+  }
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+  }
+}
+
+.quick-action-btn.btn-ghost {
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+}
+
+.quick-action-btn.btn-ghost:hover {
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  border-color: var(--primary);
+}
+
+.quick-action-btn.btn-orange {
+  background: linear-gradient(135deg, #ea580c, #f97316);
+  color: #fff;
+  border: 1px solid rgba(249, 115, 22, 0.4);
+  box-shadow: 0 2px 8px rgba(234, 88, 12, 0.25);
+}
+
+.quick-action-btn.btn-orange:hover {
+  background: linear-gradient(135deg, #c2410c, #ea580c);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(234, 88, 12, 0.35);
 }
 
 .task-card {
@@ -1121,11 +1198,12 @@ body {
   padding: 16px;
   transition: var(--transition-fast);
   border-left: 4px solid var(--accent-warning);
+  position: relative;
 }
 
 .task-card.completed {
   border-left-color: var(--primary);
-  opacity: 0.75;
+  opacity: 0.8;
 }
 
 .task-card:hover {
@@ -1138,7 +1216,7 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
   gap: 8px;
 }
 
@@ -1154,8 +1232,11 @@ body {
 .task-badge {
   font-size: 0.72rem;
   font-weight: 700;
-  padding: 2px 8px;
+  padding: 3px 8px;
   border-radius: var(--radius-full);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .task-badge.pending {
@@ -1171,11 +1252,11 @@ body {
 }
 
 .task-title {
-  font-size: 0.95rem;
+  font-size: 0.98rem;
   font-weight: 700;
   color: var(--text-primary);
-  margin-bottom: 6px;
-  line-height: 1.4;
+  margin-bottom: 8px;
+  line-height: 1.45;
 }
 
 .task-card.completed .task-title {
@@ -1184,28 +1265,157 @@ body {
 }
 
 .task-deadline {
-  font-size: 0.8rem;
+  font-size: 0.82rem;
   font-weight: 600;
   color: #f87171;
   display: flex;
   align-items: center;
-  gap: 5px;
-  margin-bottom: 8px;
+  gap: 6px;
+  margin-bottom: 10px;
+  background: rgba(239, 68, 68, 0.08);
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  width: fit-content;
 }
 
 .task-card.completed .task-deadline {
   color: var(--text-muted);
+  background: rgba(100, 116, 139, 0.1);
 }
 
 .task-notes {
-  font-size: 0.82rem;
+  font-size: 0.84rem;
   color: var(--text-secondary);
   background: var(--bg-main);
-  padding: 8px 12px;
+  padding: 10px 14px;
   border-radius: var(--radius-sm);
   margin-bottom: 12px;
-  line-height: 1.5;
+  line-height: 1.55;
   white-space: pre-line;
+  border: 1px solid var(--border-subtle);
+}
+
+/* Google Drive Banner & Link Card */
+.task-gdrive-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.08), rgba(16, 185, 129, 0.08));
+  border: 1px solid rgba(59, 130, 246, 0.25);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  margin-bottom: 12px;
+  transition: var(--transition-fast);
+}
+
+.task-gdrive-banner:hover {
+  border-color: rgba(59, 130, 246, 0.5);
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.12), rgba(16, 185, 129, 0.12));
+}
+
+.gdrive-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  flex: 1;
+}
+
+.gdrive-icon {
+  font-size: 1.3rem;
+  flex-shrink: 0;
+}
+
+.gdrive-texts {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.gdrive-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #38bdf8;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.gdrive-hint {
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 320px;
+}
+
+.gdrive-buttons {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.btn-gdrive-open {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #2563eb;
+  color: #fff !important;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 5px 10px;
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  transition: var(--transition-fast);
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.3);
+}
+
+.btn-gdrive-open:hover {
+  background: #1d4ed8;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(37, 99, 235, 0.4);
+}
+
+.btn-gdrive-copy {
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  padding: 5px 8px;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.btn-gdrive-copy:hover {
+  color: var(--text-primary);
+  border-color: #2563eb;
+}
+
+.btn-add-drive-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.74rem;
+  color: #60a5fa;
+  background: rgba(59, 130, 246, 0.08);
+  border: 1px dashed rgba(59, 130, 246, 0.3);
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  margin-bottom: 10px;
+  transition: var(--transition-fast);
+}
+
+.btn-add-drive-link:hover {
+  background: rgba(59, 130, 246, 0.15);
+  border-color: #3b82f6;
+  color: #93c5fd;
 }
 
 .task-actions {
@@ -1213,8 +1423,9 @@ body {
   justify-content: flex-end;
   align-items: center;
   gap: 8px;
-  padding-top: 8px;
+  padding-top: 10px;
   border-top: 1px solid var(--border-subtle);
+  flex-wrap: wrap;
 }
 
 .task-btn {
@@ -1223,10 +1434,13 @@ body {
   color: var(--text-secondary);
   border-radius: var(--radius-sm);
   padding: 5px 10px;
-  font-size: 0.75rem;
+  font-size: 0.76rem;
   font-weight: 600;
   cursor: pointer;
   transition: var(--transition-fast);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .task-btn:hover {
@@ -1234,18 +1448,39 @@ body {
   border-color: var(--primary);
 }
 
+.task-btn.edit-btn {
+  color: #38bdf8;
+  border-color: rgba(56, 189, 248, 0.3);
+  background: rgba(56, 189, 248, 0.08);
+}
+
+.task-btn.edit-btn:hover {
+  background: #0284c7;
+  color: white;
+  border-color: #0284c7;
+}
+
 .task-btn.toggle-btn {
   color: var(--primary-light);
   border-color: rgba(5, 150, 105, 0.3);
+  background: rgba(5, 150, 105, 0.08);
 }
 
 .task-btn.toggle-btn:hover {
   background: var(--primary);
   color: white;
+  border-color: var(--primary);
+}
+
+.task-btn.delete-btn {
+  color: #f87171;
+  border-color: rgba(239, 68, 68, 0.2);
+  background: rgba(239, 68, 68, 0.06);
 }
 
 .task-btn.delete-btn:hover {
-  color: #ef4444;
+  color: #fff;
+  background: #ef4444;
   border-color: #ef4444;
 }
 
