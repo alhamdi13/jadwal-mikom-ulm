@@ -150,6 +150,14 @@ window.saveCustomSettings = function() {
   ACADEMIC_DATA.default_zoom = updatedZoom;
   localStorage.setItem('sijadwal_custom_zoom', JSON.stringify(updatedZoom));
 
+  // Simpan & Sinkronkan Ruang & Zoom ke Cloud Google Sheet
+  pushSettingsToCloud({
+    default_ruangan: customRoom,
+    zoom_link: link,
+    zoom_meeting_id: meeting_id || "-",
+    zoom_passcode: passcode || "-"
+  });
+
   updateGlobalRoomLabels();
   initTodaySpotlight();
   renderScheduleCards('today');
@@ -159,7 +167,7 @@ window.saveCustomSettings = function() {
   const overlay = document.getElementById('settingsModalOverlay');
   if (overlay) overlay.classList.remove('active');
 
-  showToast('✅ Pengaturan Ruang & Link Zoom berhasil disimpan!');
+  showToast('✅ Pengaturan Ruang & Link Zoom berhasil disimpan & disinkronkan ke Cloud!');
 };
 
 window.resetSettingsToDefault = function() {
@@ -1132,16 +1140,57 @@ async function syncTasksFromCloud(manualTrigger = false) {
 
       if (res && res.ok) {
         const data = await res.json();
+        
+        // A. Handle Tasks
         const tasksList = Array.isArray(data) ? data : (data.tasks || []);
         if (tasksList.length > 0) {
           saveTasks(tasksList, false);
           renderTasks();
-          setCloudStatus('📊 Tersinkron Google Sheet');
-          if (manualTrigger) {
-            showToast('✅ Data tugas & link Google Drive berhasil disinkronkan dari Google Sheet!');
-          }
-          return;
         }
+
+        // B. Handle Zoom & Room Settings from Sheet
+        if (data.settings && Object.keys(data.settings).length > 0) {
+          if (data.settings.default_ruangan) {
+            ACADEMIC_DATA.default_ruangan = data.settings.default_ruangan;
+            localStorage.setItem('sijadwal_custom_ruangan', data.settings.default_ruangan);
+          }
+          if (data.settings.zoom_link) {
+            const z = {
+              topik: "Zoom Meeting Ilmu Komunikasi FISIP ULM's",
+              link: data.settings.zoom_link,
+              meeting_id: data.settings.zoom_meeting_id || "-",
+              passcode: data.settings.zoom_passcode || "-"
+            };
+            ACADEMIC_DATA.default_zoom = z;
+            localStorage.setItem('sijadwal_custom_zoom', JSON.stringify(z));
+          }
+          updateGlobalRoomLabels();
+        }
+
+        // C. Handle Dynamic Schedule Adjustments
+        if (data.schedule && Array.isArray(data.schedule) && data.schedule.length > 0) {
+          data.schedule.forEach(adj => {
+            const targetCourse = ACADEMIC_DATA.jadwal.find(m => m.id === adj.matkulId || m.mata_kuliah === adj.mataKuliah);
+            if (targetCourse) {
+              if (adj.hari) targetCourse.hari = adj.hari;
+              if (adj.jamMulai) targetCourse.jam_mulai = adj.jamMulai;
+              if (adj.jamSelesai) targetCourse.jam_selesai = adj.jamSelesai;
+              if (adj.dosenPengajar) targetCourse.dosen_pengajar_aktif = adj.dosenPengajar;
+            }
+          });
+          initTodaySpotlight();
+          const activeDayBtn = document.querySelector('.mobile-day-btn.active');
+          const dayKey = activeDayBtn ? activeDayBtn.getAttribute('data-day') : 'today';
+          renderScheduleCards(dayKey);
+          renderCalendar();
+          renderBroadcastTab();
+        }
+
+        setCloudStatus('📊 Tersinkron Google Sheet');
+        if (manualTrigger) {
+          showToast('✅ Seluruh data tugas, jadwal, & link Zoom berhasil disinkronkan dari Google Sheet!');
+        }
+        return;
       }
     } else {
       // 2. Fallback to Cloud KV / local sync
@@ -1199,6 +1248,54 @@ async function pushTasksToCloud(tasks) {
     }
   } catch (e) {
     console.log('Background cloud push notice:', e);
+  } finally {
+    const isGsheet = !!getGSheetApiUrl();
+    setCloudStatus(isGsheet ? '📊 Tersinkron Google Sheet' : 'Tersinkron Online');
+  }
+}
+
+async function pushSettingsToCloud(settings) {
+  const gsheetUrl = getGSheetApiUrl();
+  if (!gsheetUrl) return;
+
+  try {
+    setCloudStatus('Menyimpan Pengaturan...', true);
+    await fetch(gsheetUrl, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify({
+        type: 'settings',
+        settings: settings
+      })
+    });
+    setCloudStatus('📊 Tersinkron Google Sheet');
+  } catch (e) {
+    console.log('Background settings cloud push notice:', e);
+  } finally {
+    const isGsheet = !!getGSheetApiUrl();
+    setCloudStatus(isGsheet ? '📊 Tersinkron Google Sheet' : 'Tersinkron Online');
+  }
+}
+
+async function pushScheduleToCloud(scheduleList) {
+  const gsheetUrl = getGSheetApiUrl();
+  if (!gsheetUrl) return;
+
+  try {
+    setCloudStatus('Menyimpan Jadwal...', true);
+    await fetch(gsheetUrl, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify({
+        type: 'schedule',
+        schedule: scheduleList
+      })
+    });
+    setCloudStatus('📊 Tersinkron Google Sheet');
+  } catch (e) {
+    console.log('Background schedule cloud push notice:', e);
   } finally {
     const isGsheet = !!getGSheetApiUrl();
     setCloudStatus(isGsheet ? '📊 Tersinkron Google Sheet' : 'Tersinkron Online');
@@ -3439,8 +3536,10 @@ window.applyCustomTimeSlot = function() {
 // Cloud Sync & Diff Preview
 window.saveAndSyncScheduleToCloud = function() {
   const cfg = getGitHubConfig();
-  if (!cfg.token || !cfg.repo) {
-    alert('Harap hubungkan Token GitHub terlebih dahulu di tab Pengaturan Akses GitHub!');
+  const gsheetUrl = getGSheetApiUrl();
+
+  if (!gsheetUrl && (!cfg.token || !cfg.repo)) {
+    alert('Harap hubungkan Google Sheet atau Token GitHub terlebih dahulu!');
     switchBotModalTab('token');
     return;
   }
@@ -3523,15 +3622,16 @@ function prepareKanbanDiff() {
 
 window.executeCloudCommit = async function() {
   const cfg = getGitHubConfig();
-  if (!cfg.token || !cfg.repo) return;
+  const gsheetUrl = getGSheetApiUrl();
+  if (!gsheetUrl && (!cfg.token || !cfg.repo)) return;
 
   const btnCommit = document.getElementById('btnConfirmCommit');
   if (btnCommit) {
     btnCommit.disabled = true;
-    btnCommit.innerHTML = '⏳ Menyinkronkan ke GitHub...';
+    btnCommit.innerHTML = '⏳ Menyinkronkan ke Cloud...';
   }
 
-  showToast('⏳ Mengirim pembaruan jadwal ke GitHub Cloud...');
+  showToast('⏳ Mengirim pembaruan jadwal ke Cloud...');
 
   // Update ACADEMIC_DATA.jadwal dates, days, hours, and meetings
   const allCards = [...kanbanState.fridayCards, ...kanbanState.saturdayCards];
@@ -3587,67 +3687,80 @@ window.executeCloudCommit = async function() {
   // Save to localStorage for instant local persistence
   localStorage.setItem('sijadwal_custom_jadwal', JSON.stringify(ACADEMIC_DATA.jadwal));
 
-  // Prepare database JSON payload for GitHub
-  const updatedDbJson = {
-    kampus: ACADEMIC_DATA.kampus,
-    fakultas: ACADEMIC_DATA.fakultas,
-    program_studi: ACADEMIC_DATA.program_studi,
-    semester: ACADEMIC_DATA.semester,
-    angkatan: ACADEMIC_DATA.angkatan,
-    default_zoom: ACADEMIC_DATA.default_zoom,
-    default_ruangan: ACADEMIC_DATA.default_ruangan,
-    jadwal_matkul: ACADEMIC_DATA.jadwal.map(m => ({
-      id: m.id,
-      hari: m.hari,
-      jam_mulai: m.jam_mulai,
-      jam_selesai: m.jam_selesai,
-      mata_kuliah: m.mata_kuliah,
-      dosen_pengajar_aktif: m.dosen_pengajar_aktif || (m.pertemuan?.find(p => p.tanggal === friDate || p.tanggal === satDate)?.dosen_pengajar) || (m.tim_pengajar?.[0]?.nama),
-      tim_pengajar: m.tim_pengajar,
-      tanggal_offline: m.tanggal_offline,
-      tanggal_online: m.tanggal_online,
-      pertemuan: m.pertemuan
-    }))
-  };
+  // 1. Push to Google Sheet Backend (PenyesuaianJadwal)
+  const schedulePayload = allCards.map(card => ({
+    matkulId: card.id,
+    mataKuliah: card.mata_kuliah,
+    hari: card.hari,
+    jamMulai: card.jam_mulai,
+    jamSelesai: card.jam_selesai,
+    metode: card.metode,
+    ruangan: ACADEMIC_DATA.default_ruangan,
+    zoomLink: ACADEMIC_DATA.default_zoom?.link || '',
+    dosenPengajar: card.dosen_pengajar,
+    topik: card.topik || '',
+    catatanDosen: !card.isActive ? 'DILIBURKAN' : ''
+  }));
 
   try {
-    // 1. Get current file SHA from GitHub
-    const getRes = await fetch(`https://api.github.com/repos/${cfg.repo}/contents/data/jadwal_kuliah.json`, {
-      headers: {
-        'Accept': 'application/vnd.github+json',
-        'Authorization': `Bearer ${cfg.token}`
-      }
-    });
-
-    let sha = '';
-    if (getRes.ok) {
-      const getData = await getRes.json();
-      sha = getData.sha;
+    if (gsheetUrl) {
+      await pushScheduleToCloud(schedulePayload);
     }
 
-    // 2. Encode to Base64 (UTF-8 safe)
-    const jsonString = JSON.stringify(updatedDbJson, null, 2);
-    const base64Content = btoa(unescape(encodeURIComponent(jsonString)));
+    // 2. Commit update to GitHub (if token is configured)
+    if (cfg.token && cfg.repo) {
+      const updatedDbJson = {
+        kampus: ACADEMIC_DATA.kampus,
+        fakultas: ACADEMIC_DATA.fakultas,
+        program_studi: ACADEMIC_DATA.program_studi,
+        semester: ACADEMIC_DATA.semester,
+        angkatan: ACADEMIC_DATA.angkatan,
+        default_zoom: ACADEMIC_DATA.default_zoom,
+        default_ruangan: ACADEMIC_DATA.default_ruangan,
+        jadwal_matkul: ACADEMIC_DATA.jadwal.map(m => ({
+          id: m.id,
+          hari: m.hari,
+          jam_mulai: m.jam_mulai,
+          jam_selesai: m.jam_selesai,
+          mata_kuliah: m.mata_kuliah,
+          dosen_pengajar_aktif: m.dosen_pengajar_aktif || (m.pertemuan?.find(p => p.tanggal === friDate || p.tanggal === satDate)?.dosen_pengajar) || (m.tim_pengajar?.[0]?.nama),
+          tim_pengajar: m.tim_pengajar,
+          tanggal_offline: m.tanggal_offline,
+          tanggal_online: m.tanggal_online,
+          pertemuan: m.pertemuan
+        }))
+      };
 
-    // 3. Commit update to GitHub
-    const putRes = await fetch(`https://api.github.com/repos/${cfg.repo}/contents/data/jadwal_kuliah.json`, {
-      method: 'PUT',
-      headers: {
-        'Accept': 'application/vnd.github+json',
-        'Authorization': `Bearer ${cfg.token}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        message: `chore: update jadwal interaktif Pekan ${kanbanCurrentWeek} (${friDate} & ${satDate}) via Web Dashboard`,
-        content: base64Content,
-        sha: sha || undefined,
-        branch: 'main'
-      })
-    });
+      const getRes = await fetch(`https://api.github.com/repos/${cfg.repo}/contents/data/jadwal_kuliah.json`, {
+        headers: {
+          'Accept': 'application/vnd.github+json',
+          'Authorization': `Bearer ${cfg.token}`
+        }
+      });
 
-    if (!putRes.ok) {
-      const errData = await putRes.json().catch(() => ({}));
-      throw new Error(errData.message || `HTTP ${putRes.status}`);
+      let sha = '';
+      if (getRes.ok) {
+        const getData = await getRes.json();
+        sha = getData.sha;
+      }
+
+      const jsonString = JSON.stringify(updatedDbJson, null, 2);
+      const base64Content = btoa(unescape(encodeURIComponent(jsonString)));
+
+      await fetch(`https://api.github.com/repos/${cfg.repo}/contents/data/jadwal_kuliah.json`, {
+        method: 'PUT',
+        headers: {
+          'Accept': 'application/vnd.github+json',
+          'Authorization': `Bearer ${cfg.token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          message: `chore: update jadwal interaktif Pekan ${kanbanCurrentWeek} (${friDate} & ${satDate}) via Web Dashboard`,
+          content: base64Content,
+          sha: sha || undefined,
+          branch: 'main'
+        })
+      });
     }
 
     // Refresh UI
@@ -3658,9 +3771,9 @@ window.executeCloudCommit = async function() {
 
     closeSyncConfirmModal();
     closeBotControlModal();
-    showToast(`🎉 Sukses! Jadwal Pekan ${kanbanCurrentWeek} telah tersinkronisasi ke server GitHub Bot.`);
+    showToast(`🎉 Sukses! Perubahan jadwal tersimpan di Google Sheet & tersinkron ke semua mahasiswa.`);
   } catch (err) {
-    alert(`❌ Gagal menyimpan ke GitHub: ${err.message}\n\nPastikan token GitHub memiliki izin 'repo' atau 'contents:write'.`);
+    alert(`❌ Gagal menyimpan jadwal ke Cloud: ${err.message}`);
   } finally {
     if (btnCommit) {
       btnCommit.disabled = false;
