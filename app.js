@@ -1798,6 +1798,28 @@ function initEventListeners() {
       }
     });
   });
+
+  // Dedicated Event Listeners for Floating Mobile Bottom Navigation
+  document.querySelectorAll('.mobile-nav-item').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const navTarget = btn.getAttribute('data-nav');
+      if (navTarget && typeof window.switchMobileNav === 'function') {
+        window.switchMobileNav(navTarget);
+      }
+    });
+  });
+
+  // Dedicated Event Listeners for Mobile Day Switcher
+  document.querySelectorAll('.mobile-day-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const dayTarget = btn.getAttribute('data-day');
+      if (dayTarget && typeof window.switchMobileScheduleDay === 'function') {
+        window.switchMobileScheduleDay(dayTarget);
+      }
+    });
+  });
 }
 
 // 11. Helper Actions & Silabus 16 Pertemuan (RPS)

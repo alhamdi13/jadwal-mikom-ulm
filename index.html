@@ -81,19 +81,19 @@
 
       <!-- Mobile Focused 4-Day Switcher -->
       <div class="mobile-day-switcher" id="mobileDaySwitcher">
-        <button class="mobile-day-btn active" data-day="today" onclick="switchMobileScheduleDay('today')">
+        <button type="button" class="mobile-day-btn active" data-day="today" onclick="switchMobileScheduleDay('today')">
           <span class="day-icon">🔥</span>
           <span>Hari Ini</span>
         </button>
-        <button class="mobile-day-btn" data-day="jumat" onclick="switchMobileScheduleDay('jumat')">
+        <button type="button" class="mobile-day-btn" data-day="jumat" onclick="switchMobileScheduleDay('jumat')">
           <span class="day-icon">🗓️</span>
           <span>Jum'at</span>
         </button>
-        <button class="mobile-day-btn" data-day="sabtu" onclick="switchMobileScheduleDay('sabtu')">
+        <button type="button" class="mobile-day-btn" data-day="sabtu" onclick="switchMobileScheduleDay('sabtu')">
           <span class="day-icon">🗓️</span>
           <span>Sabtu</span>
         </button>
-        <button class="mobile-day-btn" data-day="all" onclick="switchMobileScheduleDay('all')">
+        <button type="button" class="mobile-day-btn" data-day="all" onclick="switchMobileScheduleDay('all')">
           <span class="day-icon">📚</span>
           <span>Semua</span>
         </button>
@@ -969,22 +969,22 @@
 
   <!-- Floating Mobile Bottom Navigation Bar (Dock) - Simple Student Mode -->
   <nav class="mobile-bottom-nav" id="mobileBottomNav">
-    <button class="mobile-nav-item active" data-nav="schedule" onclick="switchMobileNav('schedule')" title="Jadwal Perkuliahan">
+    <button type="button" class="mobile-nav-item active" data-nav="schedule" onclick="switchMobileNav('schedule')" title="Jadwal Perkuliahan">
       <span class="mobile-nav-icon">🏠</span>
       <span class="mobile-nav-label">Jadwal</span>
     </button>
-    <button class="mobile-nav-item" data-nav="info-tugas" onclick="switchMobileNav('info-tugas')" title="Papan Tugas & Deadline Pekan Ini">
+    <button type="button" class="mobile-nav-item" data-nav="info-tugas" onclick="switchMobileNav('info-tugas')" title="Papan Tugas & Deadline Pekan Ini">
       <span class="mobile-nav-icon" style="position: relative; display: inline-block;">
         📝
         <span class="mobile-task-badge" id="mobileTaskBadge">0</span>
       </span>
       <span class="mobile-nav-label">Tugas</span>
     </button>
-    <button class="mobile-nav-item" data-nav="calendar" onclick="switchMobileNav('calendar')" title="Kalender Semester">
+    <button type="button" class="mobile-nav-item" data-nav="calendar" onclick="switchMobileNav('calendar')" title="Kalender Semester">
       <span class="mobile-nav-icon">📅</span>
       <span class="mobile-nav-label">Kalender</span>
     </button>
-    <button class="mobile-nav-item" data-nav="lecturers" onclick="switchMobileNav('lecturers')" title="Daftar Dosen">
+    <button type="button" class="mobile-nav-item" data-nav="lecturers" onclick="switchMobileNav('lecturers')" title="Daftar Dosen">
       <span class="mobile-nav-icon">👨‍🏫</span>
       <span class="mobile-nav-label">Dosen</span>
     </button>
