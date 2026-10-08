@@ -705,8 +705,8 @@
     {
       "id": "MK-03",
       "hari": "Jum'at",
-      "jam_mulai": "18.45",
-      "jam_selesai": "21.15",
+      "jam_mulai": "14.00",
+      "jam_selesai": "16.30",
       "mata_kuliah": "CSR dan Komunikasi Pemberdayaan",
       "dosen_pengajar_aktif": "Dr. Muhammad Alif, M.Si",
       "tim_pengajar": [
@@ -744,10 +744,10 @@
       "pertemuan": [
         {
           "sesi": 1,
-          "tanggal": "2026-09-04",
-          "metode": "Offline",
-          "dosen_pengajar": "Dr. Irwansyah, S.Sos,. M.Si",
-          "topik": "Pengantar Teori & Kebijakan CSR Kontemporer",
+          "tanggal": "2026-10-09",
+          "metode": "Online",
+          "dosen_pengajar": "Dr. Muhammad Alif, M.Si",
+          "topik": "Komunikasi Risiko Lingkungan & Mitigasi Konflik Komunitas",
           "tugas": "-"
         },
         {
