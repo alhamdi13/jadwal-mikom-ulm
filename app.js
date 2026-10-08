@@ -121,7 +121,57 @@ window.closeSettingsModal = function(e) {
   if (overlay) overlay.classList.remove('active');
 };
 
-window.saveCustomSettings = function() {
+async function commitMeetingSettingsToGitHub(cfg, customRoom, updatedZoom) {
+  try {
+    const getRes = await fetch(`https://api.github.com/repos/${cfg.repo}/contents/data/jadwal_kuliah.json`, {
+      headers: {
+        'Accept': 'application/vnd.github+json',
+        'Authorization': `Bearer ${cfg.token}`
+      }
+    });
+
+    let sha = '';
+    let currentDb = {};
+    if (getRes.ok) {
+      const getData = await getRes.json();
+      sha = getData.sha;
+      try {
+        const decodedContent = decodeURIComponent(escape(atob(getData.content.replace(/\s/g, ''))));
+        currentDb = JSON.parse(decodedContent);
+      } catch (e) {}
+    }
+
+    currentDb.default_ruangan = customRoom;
+    currentDb.default_zoom = updatedZoom;
+
+    const jsonString = JSON.stringify(currentDb, null, 2);
+    const base64Content = btoa(unescape(encodeURIComponent(jsonString)));
+
+    const putRes = await fetch(`https://api.github.com/repos/${cfg.repo}/contents/data/jadwal_kuliah.json`, {
+      method: 'PUT',
+      headers: {
+        'Accept': 'application/vnd.github+json',
+        'Authorization': `Bearer ${cfg.token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        message: `chore: update link meeting & ruang kuliah (${customRoom} / ${updatedZoom.topik || 'Online'}) via Web Dashboard`,
+        content: base64Content,
+        sha: sha || undefined
+      })
+    });
+
+    if (putRes.ok) {
+      showToast('☁️ Berhasil disimpan & disinkronkan ke GitHub Cloud! Bot reminder otomatis tersinkron.');
+    } else {
+      console.warn('Gagal commit settings ke GitHub API:', await putRes.text());
+    }
+  } catch (err) {
+    console.error('Error committing meeting settings to GitHub:', err);
+  }
+}
+
+window.saveCustomSettings = async function() {
   const customRoom = document.getElementById('inputCustomRuangan').value.trim() || 'G1.103';
   const topik = document.getElementById('inputZoomTopik').value.trim();
   const link = document.getElementById('inputZoomLink').value.trim();
@@ -130,7 +180,7 @@ window.saveCustomSettings = function() {
   const instruksi_link = document.getElementById('inputZoomInstruksi').value.trim();
 
   if (!link) {
-    alert('Tautan / URL Zoom tidak boleh kosong!');
+    alert('Tautan / URL Rapat Online (Google Meet / Zoom) tidak boleh kosong!');
     return;
   }
 
@@ -138,25 +188,34 @@ window.saveCustomSettings = function() {
   ACADEMIC_DATA.default_ruangan = customRoom;
   localStorage.setItem('sijadwal_custom_ruangan', customRoom);
 
-  // Simpan zoom
+  // Simpan zoom / google meet
   const updatedZoom = {
-    topik: topik || "Zoom Meeting Ilmu Komunikasi FISIP ULM's",
+    topik: topik || "Google Meet Kuliah MIKOM FISIP ULM",
     link,
     meeting_id: meeting_id || "-",
     passcode: passcode || "-",
-    instruksi_link
+    instruksi_link: instruksi_link || link
   };
 
   ACADEMIC_DATA.default_zoom = updatedZoom;
   localStorage.setItem('sijadwal_custom_zoom', JSON.stringify(updatedZoom));
 
-  // Simpan & Sinkronkan Ruang & Zoom ke Cloud Google Sheet
+  // 1. Simpan & Sinkronkan Ruang & Zoom ke Cloud Google Sheet (jika ada)
   pushSettingsToCloud({
     default_ruangan: customRoom,
     zoom_link: link,
     zoom_meeting_id: meeting_id || "-",
     zoom_passcode: passcode || "-"
   });
+
+  // 2. Simpan & Sinkronkan langsung ke GitHub Repository (jika Token GitHub terhubung)
+  const ghCfg = getGitHubConfig();
+  if (ghCfg.token && ghCfg.repo) {
+    showToast('⏳ Menyinkronkan perubahan ke GitHub Cloud Bot...');
+    await commitMeetingSettingsToGitHub(ghCfg, customRoom, updatedZoom);
+  } else {
+    showToast('✅ Pengaturan disimpan di website! Hubungkan Token GitHub di menu "Saklar & Kontrol Bot" agar otomatis tersinkron ke Bot WA.');
+  }
 
   updateGlobalRoomLabels();
   initTodaySpotlight();
@@ -166,8 +225,6 @@ window.saveCustomSettings = function() {
   
   const overlay = document.getElementById('settingsModalOverlay');
   if (overlay) overlay.classList.remove('active');
-
-  showToast('✅ Pengaturan Ruang & Link Zoom berhasil disimpan & disinkronkan ke Cloud!');
 };
 
 window.resetSettingsToDefault = function() {
