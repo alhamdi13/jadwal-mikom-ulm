@@ -2,6 +2,22 @@ import { config } from './config.js';
 
 const NUMBER_EMOJIS = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟'];
 
+function formatOnlineMeetingBlock(zoomObj) {
+  if (!zoomObj || !zoomObj.link) return '';
+  const isMeet = zoomObj.link.includes('meet.google.com') || (zoomObj.topik && zoomObj.topik.toLowerCase().includes('google meet'));
+  const platformName = isMeet ? 'Google Meet' : 'Zoom Meeting';
+
+  let block = `📍 *Metode:* 🌐 *ONLINE (${platformName})*\n`;
+  block += `🔗 *Link ${platformName}:*\n${zoomObj.link}\n`;
+  if (zoomObj.meeting_id && zoomObj.meeting_id !== '-' && !isMeet) {
+    block += `🔑 *Meeting ID:* ${zoomObj.meeting_id}\n`;
+  }
+  if (zoomObj.passcode && zoomObj.passcode !== '-' && !isMeet) {
+    block += `🔐 *Passcode:* ${zoomObj.passcode}\n`;
+  }
+  return block;
+}
+
 /**
  * Format pesan jadwal untuk WhatsApp Group (WAG) Mahasiswa
  */
@@ -48,10 +64,7 @@ export function formatGroupScheduleMessage(scheduleData, formattedDate) {
     }
 
     if (isOnline) {
-      msg += `📍 *Metode:* 🌐 *ONLINE (Daring)*\n`;
-      if (item.zoom?.link) msg += `🔗 *Link Zoom Meeting:*\n${item.zoom.link}\n`;
-      if (item.zoom?.meeting_id) msg += `🔑 *Meeting ID:* ${item.zoom.meeting_id}\n`;
-      if (item.zoom?.passcode) msg += `🔐 *Passcode:* ${item.zoom.passcode}\n`;
+      msg += formatOnlineMeetingBlock(item.zoom);
     } else {
       msg += `📍 *Metode:* 🟢 *OFFLINE (Tatap Muka)*\n`;
       msg += `🏢 *Lokasi Ruangan:* Ruang *${item.ruangan || 'G1.103'}*\n`;
@@ -153,10 +166,7 @@ export function formatLecturerDirectMessage(lecturerGroup, formattedDate) {
     }
 
     if (isOnline) {
-      msg += `📍 *Metode Perkuliahan:* 🌐 *ONLINE (Daring)*\n`;
-      if (item.zoom?.link) msg += `🔗 *Link Zoom Meeting:*\n${item.zoom.link}\n`;
-      if (item.zoom?.meeting_id) msg += `🔑 *Meeting ID:* ${item.zoom.meeting_id}\n`;
-      if (item.zoom?.passcode) msg += `🔐 *Passcode:* ${item.zoom.passcode}\n`;
+      msg += formatOnlineMeetingBlock(item.zoom);
     } else {
       msg += `📍 *Metode Perkuliahan:* 🟢 *OFFLINE (Tatap Muka)*\n`;
       msg += `🏢 *Ruangan Kelas:* Ruang *${item.ruangan || 'G1.103'}*\n`;
@@ -218,10 +228,7 @@ export function formatHMinus1GroupMessage(scheduleData, formattedTomorrowDate) {
     }
 
     if (isOnline) {
-      msg += `📍 *Metode:* 🌐 *ONLINE (Daring)*\n`;
-      if (item.zoom?.link) msg += `🔗 *Link Zoom Meeting:*\n${item.zoom.link}\n`;
-      if (item.zoom?.meeting_id) msg += `🔑 *Meeting ID:* ${item.zoom.meeting_id}\n`;
-      if (item.zoom?.passcode) msg += `🔐 *Passcode:* ${item.zoom.passcode}\n`;
+      msg += formatOnlineMeetingBlock(item.zoom);
     } else {
       msg += `📍 *Metode:* 🟢 *OFFLINE (Tatap Muka)*\n`;
       msg += `🏢 *Lokasi Ruangan:* Ruang *${item.ruangan || 'G1.103'}*\n`;
@@ -279,10 +286,7 @@ export function formatHMinus1LecturerMessage(lecturerGroup, formattedTomorrowDat
     }
 
     if (isOnline) {
-      msg += `📍 *Metode Perkuliahan:* 🌐 *ONLINE (Daring)*\n`;
-      if (item.zoom?.link) msg += `🔗 *Link Zoom Meeting:*\n${item.zoom.link}\n`;
-      if (item.zoom?.meeting_id) msg += `🔑 *Meeting ID:* ${item.zoom.meeting_id}\n`;
-      if (item.zoom?.passcode) msg += `🔐 *Passcode:* ${item.zoom.passcode}\n`;
+      msg += formatOnlineMeetingBlock(item.zoom);
     } else {
       msg += `📍 *Metode Perkuliahan:* 🟢 *OFFLINE (Tatap Muka)*\n`;
       msg += `🏢 *Ruangan Kelas:* Ruang *${item.ruangan || 'G1.103'}*\n`;
@@ -330,10 +334,7 @@ export function formatCourseReminderMessage(courseItem, generalInfo, formattedDa
   }
 
   if (isOnline) {
-    msg += `📍 *Metode:* 🌐 *ONLINE (Daring)*\n`;
-    if (courseItem.zoom?.link) msg += `🔗 *Link Zoom Langsung:*\n${courseItem.zoom.link}\n\n`;
-    if (courseItem.zoom?.meeting_id) msg += `🔑 *Meeting ID:* \`${courseItem.zoom.meeting_id}\`\n`;
-    if (courseItem.zoom?.passcode) msg += `🔐 *Passcode:* \`${courseItem.zoom.passcode}\`\n`;
+    msg += formatOnlineMeetingBlock(courseItem.zoom);
   } else {
     msg += `📍 *Metode:* 🟢 *OFFLINE (Tatap Muka)*\n`;
     msg += `🏢 *Lokasi Ruangan:* Ruang *${courseItem.ruangan || 'G1.103'}*\n`;
@@ -372,10 +373,7 @@ export function formatCourseReminderLecturerMessage(courseItem, generalInfo, for
   msg += `⏰ *Waktu Perkuliahan:* *${courseItem.jam_mulai} - ${courseItem.jam_selesai} WITA*\n\n`;
 
   if (isOnline) {
-    msg += `📍 *Metode Perkuliahan:* 🌐 *ONLINE (Zoom Meeting)*\n`;
-    if (courseItem.zoom?.link) msg += `🔗 *Link Zoom Langsung:*\n${courseItem.zoom.link}\n\n`;
-    if (courseItem.zoom?.meeting_id) msg += `🔑 *Meeting ID:* \`${courseItem.zoom.meeting_id}\`\n`;
-    if (courseItem.zoom?.passcode) msg += `🔐 *Passcode:* \`${courseItem.zoom.passcode}\`\n`;
+    msg += formatOnlineMeetingBlock(courseItem.zoom);
   } else {
     msg += `📍 *Metode Perkuliahan:* 🟢 *OFFLINE (Tatap Muka)*\n`;
     msg += `🏢 *Lokasi Ruangan:* Ruang *${courseItem.ruangan || 'G1.103'}* (Gedung Pascasarjana FISIP ULM)\n`;
@@ -415,14 +413,22 @@ Perintah yang tersedia:
  * Format pencarian / zoom
  */
 export function formatZoomSearchResult(results, defaultZoom, defaultRuangan) {
-  let msg = `🔗 *INFORMASI LINK ZOOM & RUANGAN KULIAH* 🔗\n`;
+  const isMeet = defaultZoom?.link?.includes('meet.google.com') || (defaultZoom?.topik && defaultZoom?.topik.toLowerCase().includes('google meet'));
+  const platformName = isMeet ? 'Google Meet' : 'Zoom Meeting';
+
+  let msg = `🔗 *INFORMASI LINK PERKULIAHAN DARING & RUANGAN* 🔗\n`;
   msg += `🏛️ *Magister Ilmu Komunikasi FISIP ULM*\n`;
   msg += `━━━━━━━━━━━━━━━━━━━━\n\n`;
 
-  msg += `🌐 *Link Zoom Meeting (Kuliah Daring):*\n`;
-  msg += `🔗 ${defaultZoom?.link || 'https://zoom.us'}\n`;
-  msg += `🔑 Meeting ID: ${defaultZoom?.meeting_id || '-'}\n`;
-  msg += `🔐 Passcode: ${defaultZoom?.passcode || '-'}\n\n`;
+  msg += `🌐 *Link ${platformName} (Kuliah Daring):*\n`;
+  msg += `🔗 ${defaultZoom?.link || 'https://meet.google.com'}\n`;
+  if (defaultZoom?.meeting_id && defaultZoom.meeting_id !== '-' && !isMeet) {
+    msg += `🔑 Meeting ID: ${defaultZoom.meeting_id}\n`;
+  }
+  if (defaultZoom?.passcode && defaultZoom.passcode !== '-' && !isMeet) {
+    msg += `🔐 Passcode: ${defaultZoom.passcode}\n`;
+  }
+  msg += `\n`;
 
   msg += `🏢 *Ruangan Kelas (Kuliah Tatap Muka):*\n`;
   msg += `🚪 Ruang: *${defaultRuangan || 'G1.103'}*\n\n`;
