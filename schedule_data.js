@@ -1,10 +1,10 @@
 // Data Resmi Jadwal Kuliah Magister Ilmu Komunikasi FISIP ULM Angkatan 2026
 const DEFAULT_ZOOM_CONFIG = {
-  topik: "Zoom Meeting Ilmu Komunikasi FISIP ULM's",
-  link: "https://lambungmangkurat.zoom.us/j/92196687315?pwd=afqgrBa43AILWMsBbalN3KwiXQCVij.1",
-  meeting_id: "921 9668 7315",
-  passcode: "743342",
-  instruksi_link: "https://lambungmangkurat.zoom.us/meetings/92196687315/invitations?signature=3ElCfHYRu8r2Vrva50qf7m8cgkpxRAeUsn67teVuNMw"
+  topik: "Google Meet Kuliah MIKOM FISIP ULM",
+  link: "https://meet.google.com/zgx-yozw-boh",
+  meeting_id: "zgx-yozw-boh",
+  passcode: "-",
+  instruksi_link: "https://meet.google.com/zgx-yozw-boh"
 };
 
 // Cek apakah ada konfigurasi Zoom kustom yang disimpan di browser (localStorage)
