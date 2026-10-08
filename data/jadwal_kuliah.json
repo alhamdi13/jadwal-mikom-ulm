@@ -5,359 +5,13 @@
   "semester": "Semester Ganjil (Semester I) T.A 2026/2027",
   "angkatan": "2026",
   "default_zoom": {
-    "topik": "Google Meet Kuliah MIKOM FISIP ULM",
+    "topik": "Zoom Meeting Ilmu Komunikasi FISIP ULM's",
     "link": "https://meet.google.com/zgx-yozw-boh",
     "meeting_id": "zgx-yozw-boh",
-    "passcode": "-",
-    "instruksi_link": "https://meet.google.com/zgx-yozw-boh"
+    "passcode": "-"
   },
   "default_ruangan": "G1.103",
   "jadwal_matkul": [
-    {
-      "id": "MK-04",
-      "hari": "Jum'at",
-      "jam_mulai": "14.00",
-      "jam_selesai": "16.30",
-      "mata_kuliah": "Perspektif dan Teori Komunikasi",
-      "dosen_pengajar_aktif": "Dr. Fahrianoor, S.IP., M.Si",
-      "tim_pengajar": [
-        {
-          "nama": "Prof. Dr. H. Bachruddin Ali Ahmad, M.Si",
-          "no_hp": "628125103033",
-          "peran": "Koordinator Tim"
-        },
-        {
-          "nama": "Dr. Fahrianoor, S.IP., M.Si",
-          "no_hp": "6281223198491",
-          "peran": "Anggota Tim"
-        },
-        {
-          "nama": "Dr. Siswanto, S.Sos., M.Si",
-          "no_hp": "6281218591982",
-          "peran": "Anggota Tim"
-        }
-      ],
-      "tanggal_offline": [
-        "2026-09-05",
-        "2026-10-02",
-        "2026-10-17",
-        "2026-10-31",
-        "2026-11-14",
-        "2026-11-28",
-        "2026-12-12"
-      ],
-      "tanggal_online": [
-        "2026-09-12",
-        "2026-09-19",
-        "2026-09-25",
-        "2026-10-09",
-        "2026-10-24",
-        "2026-11-07",
-        "2026-11-21",
-        "2026-12-05",
-        "2026-12-19"
-      ],
-      "pertemuan": [
-        {
-          "sesi": 1,
-          "tanggal": "2026-10-09",
-          "metode": "Online",
-          "dosen_pengajar": "Dr. Fahrianoor, S.IP., M.Si",
-          "topik": "Teori Komunikasi Politik: Agenda Setting, Framing, & Priming",
-          "tugas": "-"
-        },
-        {
-          "sesi": 2,
-          "tanggal": "2026-09-12",
-          "metode": "Online",
-          "dosen_pengajar": "Prof. Dr. H. Bachruddin Ali Ahmad, M.Si",
-          "topik": "Tradisi Retorika & Semiotika dalam Komunikasi Massa",
-          "tugas": "Analisis Semiotika Media"
-        },
-        {
-          "sesi": 3,
-          "tanggal": "2026-09-19",
-          "metode": "Online",
-          "dosen_pengajar": "Prof. Dr. H. Bachruddin Ali Ahmad, M.Si",
-          "topik": "Tradisi Fenomenologi & Sibernetika Sistem Informasi",
-          "tugas": "-"
-        },
-        {
-          "sesi": 4,
-          "tanggal": "2026-09-25",
-          "metode": "Online",
-          "dosen_pengajar": "Dr. Fahrianoor, S.IP., M.Si",
-          "topik": "Tradisi Sosio-Psikologis & Sosio-Kultural",
-          "tugas": "Studi Dinamika Kelompok"
-        },
-        {
-          "sesi": 5,
-          "tanggal": "2026-10-02",
-          "metode": "Offline",
-          "dosen_pengajar": "Dr. Fahrianoor, S.IP., M.Si",
-          "topik": "Tradisi Kritis: Frankfurt School & Hegemoni Budaya",
-          "tugas": "-"
-        },
-        {
-          "sesi": 6,
-          "tanggal": "2026-10-10",
-          "metode": "Online",
-          "dosen_pengajar": "Dr. Fahrianoor, S.IP., M.Si",
-          "topik": "Teori Komunikasi Politik: Agenda Setting, Framing, & Priming",
-          "tugas": "Analisis Framing Berita"
-        },
-        {
-          "sesi": 7,
-          "tanggal": "2026-10-17",
-          "metode": "Offline",
-          "dosen_pengajar": "Dr. Fahrianoor, S.IP., M.Si",
-          "topik": "Ruang Publik (Public Sphere) & Demokrasi Deliberatif",
-          "tugas": "Persiapan Ujian Tengah Semester"
-        },
-        {
-          "sesi": 8,
-          "tanggal": "2026-10-24",
-          "metode": "Online",
-          "dosen_pengajar": "Dr. Fahrianoor, S.IP., M.Si",
-          "topik": "Ujian Tengah Semester (UTS)",
-          "tugas": "Submit Naskah UTS"
-        },
-        {
-          "sesi": 9,
-          "tanggal": "2026-10-31",
-          "metode": "Offline",
-          "dosen_pengajar": "Dr. Fahrianoor, S.IP., M.Si",
-          "topik": "Teori Spiral of Silence & Diskursus Opini Publik Digital",
-          "tugas": "-"
-        },
-        {
-          "sesi": 10,
-          "tanggal": "2026-11-07",
-          "metode": "Online",
-          "dosen_pengajar": "Dr. Fahrianoor, S.IP., M.Si",
-          "topik": "Teori Konstruksi Sosial atas Realitas di Media Baru",
-          "tugas": "Resume Konstruksi Sosial"
-        },
-        {
-          "sesi": 11,
-          "tanggal": "2026-11-14",
-          "metode": "Offline",
-          "dosen_pengajar": "Dr. Siswanto, S.Sos., M.Si",
-          "topik": "Network Society Theory (Manuel Castells) & Algoritma",
-          "tugas": "-"
-        },
-        {
-          "sesi": 12,
-          "tanggal": "2026-11-21",
-          "metode": "Online",
-          "dosen_pengajar": "Dr. Siswanto, S.Sos., M.Si",
-          "topik": "Mediatization Theory & Ekologi Media Kontemporer",
-          "tugas": "Draft Artikel Teori"
-        },
-        {
-          "sesi": 13,
-          "tanggal": "2026-11-28",
-          "metode": "Offline",
-          "dosen_pengajar": "Dr. Siswanto, S.Sos., M.Si",
-          "topik": "Teori Resepsi Audiens Aktif & Platformisasi Digital",
-          "tugas": "-"
-        },
-        {
-          "sesi": 14,
-          "tanggal": "2026-12-05",
-          "metode": "Online",
-          "dosen_pengajar": "Dr. Siswanto, S.Sos., M.Si",
-          "topik": "Bedah Matriks Teori & Kerangka Analisis Skripsi/Tesis",
-          "tugas": "Slide Paparan Teori"
-        },
-        {
-          "sesi": 15,
-          "tanggal": "2026-12-12",
-          "metode": "Offline",
-          "dosen_pengajar": "Dr. Siswanto, S.Sos., M.Si",
-          "topik": "Seminar Mini Proposal Teori Komunikasi",
-          "tugas": "Finalisasi Draft UAS"
-        },
-        {
-          "sesi": 16,
-          "tanggal": "2026-12-19",
-          "metode": "Online",
-          "dosen_pengajar": "Dr. Siswanto, S.Sos., M.Si",
-          "topik": "Ujian Akhir Semester (UAS)",
-          "tugas": "Pengumpulan Artikel Akhir UAS"
-        }
-      ]
-    },
-    {
-      "id": "MK-05",
-      "hari": "Sabtu",
-      "jam_mulai": "11.00",
-      "jam_selesai": "13.30",
-      "mata_kuliah": "Perspektif Psikologi Komunikasi",
-      "dosen_pengajar_aktif": "Dr. Yuanita Setyastuti, S.IP., M.Si",
-      "tim_pengajar": [
-        {
-          "nama": "Dr. Yuanita Setyastuti, S.IP., M.Si",
-          "no_hp": "6282153883264",
-          "peran": "Koordinator Tim"
-        },
-        {
-          "nama": "Dr. Novaria Maulina, S.I.Kom., M.I.Kom",
-          "no_hp": "6281351997788",
-          "peran": "Anggota Tim"
-        }
-      ],
-      "tanggal_offline": [
-        "2026-09-05",
-        "2026-10-03",
-        "2026-10-17",
-        "2026-10-31",
-        "2026-11-14",
-        "2026-11-28",
-        "2026-12-12"
-      ],
-      "tanggal_online": [
-        "2026-09-12",
-        "2026-09-19",
-        "2026-09-26",
-        "2026-10-10",
-        "2026-10-24",
-        "2026-11-07",
-        "2026-11-21",
-        "2026-12-05",
-        "2026-12-19"
-      ],
-      "pertemuan": [
-        {
-          "sesi": 1,
-          "tanggal": "2026-09-05",
-          "metode": "Offline",
-          "dosen_pengajar": "Dr. Yuanita Setyastuti, S.IP., M.Si",
-          "topik": "Karakteristik Manusia Komunikan & Pendekatan Psikologi",
-          "tugas": "-"
-        },
-        {
-          "sesi": 2,
-          "tanggal": "2026-10-10",
-          "metode": "Online",
-          "dosen_pengajar": "Dr. Yuanita Setyastuti, S.IP., M.Si",
-          "topik": "Sistem Komunikasi Massa & Pengaruh Psikologis Media",
-          "tugas": "Eksperimen Kognisi Sederhana"
-        },
-        {
-          "sesi": 3,
-          "tanggal": "2026-09-19",
-          "metode": "Online",
-          "dosen_pengajar": "Dr. Yuanita Setyastuti, S.IP., M.Si",
-          "topik": "Psikologi Komunikasi Interpersonal: Konsep Diri & Atraksi",
-          "tugas": "-"
-        },
-        {
-          "sesi": 4,
-          "tanggal": "2026-09-26",
-          "metode": "Online",
-          "dosen_pengajar": "Dr. Yuanita Setyastuti, S.IP., M.Si",
-          "topik": "Hubungan Interpersonal: Tahapan, Konflik & Resolusi",
-          "tugas": "Analisis Hubungan Interpersonal"
-        },
-        {
-          "sesi": 5,
-          "tanggal": "2026-10-03",
-          "metode": "Offline",
-          "dosen_pengajar": "Dr. Yuanita Setyastuti, S.IP., M.Si",
-          "topik": "Psikologi Komunikasi Kelompok & Konformitas Sosial",
-          "tugas": "-"
-        },
-        {
-          "sesi": 6,
-          "tanggal": "2026-10-10",
-          "metode": "Online",
-          "dosen_pengajar": "Dr. Yuanita Setyastuti, S.IP., M.Si",
-          "topik": "Sistem Komunikasi Massa & Pengaruh Psikologis Media",
-          "tugas": "Studi Dampak Emosional Media"
-        },
-        {
-          "sesi": 7,
-          "tanggal": "2026-10-17",
-          "metode": "Offline",
-          "dosen_pengajar": "Dr. Yuanita Setyastuti, S.IP., M.Si",
-          "topik": "Review Psikologi Komunikasi & Persiapan Evaluasi",
-          "tugas": "Persiapan Ujian Tengah Semester"
-        },
-        {
-          "sesi": 8,
-          "tanggal": "2026-10-24",
-          "metode": "Online",
-          "dosen_pengajar": "Dr. Yuanita Setyastuti, S.IP., M.Si",
-          "topik": "Ujian Tengah Semester (UTS)",
-          "tugas": "Submit Ujian Tengah Semester"
-        },
-        {
-          "sesi": 9,
-          "tanggal": "2026-10-31",
-          "metode": "Offline",
-          "dosen_pengajar": "Dr. Novaria Maulina, S.I.Kom., M.I.Kom",
-          "topik": "Teori Sikap, Perubahan Sikap & Model Persuasi (ELM)",
-          "tugas": "-"
-        },
-        {
-          "sesi": 10,
-          "tanggal": "2026-11-07",
-          "metode": "Online",
-          "dosen_pengajar": "Dr. Novaria Maulina, S.I.Kom., M.I.Kom",
-          "topik": "Psikologi Khalayak di Ruang Digital (FOMO, Doomscrolling)",
-          "tugas": "Analisis Perilaku Medsos"
-        },
-        {
-          "sesi": 11,
-          "tanggal": "2026-11-14",
-          "metode": "Offline",
-          "dosen_pengajar": "Dr. Novaria Maulina, S.I.Kom., M.I.Kom",
-          "topik": "Identitas Diri Virtual, Avatar & Interaksi Parasosial",
-          "tugas": "-"
-        },
-        {
-          "sesi": 12,
-          "tanggal": "2026-11-21",
-          "metode": "Online",
-          "dosen_pengajar": "Dr. Novaria Maulina, S.I.Kom., M.I.Kom",
-          "topik": "Psikologi Cyberbullying, Agresi Verbal & Disinhibisi Online",
-          "tugas": "Desain Riset Perilaku Cyber"
-        },
-        {
-          "sesi": 13,
-          "tanggal": "2026-11-28",
-          "metode": "Offline",
-          "dosen_pengajar": "Dr. Novaria Maulina, S.I.Kom., M.I.Kom",
-          "topik": "Kesehatan Mental, Beban Informasi & Well-Being Digital",
-          "tugas": "-"
-        },
-        {
-          "sesi": 14,
-          "tanggal": "2026-12-05",
-          "metode": "Online",
-          "dosen_pengajar": "Dr. Novaria Maulina, S.I.Kom., M.I.Kom",
-          "topik": "Presentasi Kajian Kasus Psikologi Komunikasi (Sesi 1)",
-          "tugas": "Slide Presentasi Paper"
-        },
-        {
-          "sesi": 15,
-          "tanggal": "2026-12-12",
-          "metode": "Offline",
-          "dosen_pengajar": "Dr. Novaria Maulina, S.I.Kom., M.I.Kom",
-          "topik": "Presentasi Kajian Kasus Psikologi Komunikasi (Sesi 2)",
-          "tugas": "Revisi Final Paper"
-        },
-        {
-          "sesi": 16,
-          "tanggal": "2026-12-19",
-          "metode": "Online",
-          "dosen_pengajar": "Dr. Novaria Maulina, S.I.Kom., M.I.Kom",
-          "topik": "Ujian Akhir Semester (UAS)",
-          "tugas": "Pengumpulan Artikel Akhir UAS"
-        }
-      ]
-    },
     {
       "id": "MK-01",
       "hari": "Sabtu",
@@ -530,6 +184,176 @@
           "dosen_pengajar": "Prof. Dr. H. Bachruddin Ali Ahmad, M.Si",
           "topik": "Ujian Akhir Semester (UAS)",
           "tugas": "Submit Artikel Final UAS"
+        }
+      ]
+    },
+    {
+      "id": "MK-05",
+      "hari": "Sabtu",
+      "jam_mulai": "11.00",
+      "jam_selesai": "13.30",
+      "mata_kuliah": "Perspektif Psikologi Komunikasi",
+      "dosen_pengajar_aktif": "Dr. Yuanita Setyastuti, S.IP., M.Si",
+      "tim_pengajar": [
+        {
+          "nama": "Dr. Yuanita Setyastuti, S.IP., M.Si",
+          "no_hp": "6282153883264",
+          "peran": "Koordinator Tim"
+        },
+        {
+          "nama": "Dr. Novaria Maulina, S.I.Kom., M.I.Kom",
+          "no_hp": "6281351997788",
+          "peran": "Anggota Tim"
+        }
+      ],
+      "tanggal_offline": [
+        "2026-09-05",
+        "2026-10-03",
+        "2026-10-17",
+        "2026-10-31",
+        "2026-11-14",
+        "2026-11-28",
+        "2026-12-12"
+      ],
+      "tanggal_online": [
+        "2026-09-12",
+        "2026-09-19",
+        "2026-09-26",
+        "2026-10-10",
+        "2026-10-24",
+        "2026-11-07",
+        "2026-11-21",
+        "2026-12-05",
+        "2026-12-19"
+      ],
+      "pertemuan": [
+        {
+          "sesi": 1,
+          "tanggal": "2026-09-05",
+          "metode": "Offline",
+          "dosen_pengajar": "Dr. Yuanita Setyastuti, S.IP., M.Si",
+          "topik": "Karakteristik Manusia Komunikan & Pendekatan Psikologi",
+          "tugas": "-"
+        },
+        {
+          "sesi": 2,
+          "tanggal": "2026-10-10",
+          "metode": "Online",
+          "dosen_pengajar": "Dr. Yuanita Setyastuti, S.IP., M.Si",
+          "topik": "Sistem Komunikasi Massa & Pengaruh Psikologis Media",
+          "tugas": "Eksperimen Kognisi Sederhana"
+        },
+        {
+          "sesi": 3,
+          "tanggal": "2026-09-19",
+          "metode": "Online",
+          "dosen_pengajar": "Dr. Yuanita Setyastuti, S.IP., M.Si",
+          "topik": "Psikologi Komunikasi Interpersonal: Konsep Diri & Atraksi",
+          "tugas": "-"
+        },
+        {
+          "sesi": 4,
+          "tanggal": "2026-09-26",
+          "metode": "Online",
+          "dosen_pengajar": "Dr. Yuanita Setyastuti, S.IP., M.Si",
+          "topik": "Hubungan Interpersonal: Tahapan, Konflik & Resolusi",
+          "tugas": "Analisis Hubungan Interpersonal"
+        },
+        {
+          "sesi": 5,
+          "tanggal": "2026-10-03",
+          "metode": "Offline",
+          "dosen_pengajar": "Dr. Yuanita Setyastuti, S.IP., M.Si",
+          "topik": "Psikologi Komunikasi Kelompok & Konformitas Sosial",
+          "tugas": "-"
+        },
+        {
+          "sesi": 6,
+          "tanggal": "2026-10-10",
+          "metode": "Online",
+          "dosen_pengajar": "Dr. Yuanita Setyastuti, S.IP., M.Si",
+          "topik": "Sistem Komunikasi Massa & Pengaruh Psikologis Media",
+          "tugas": "Studi Dampak Emosional Media"
+        },
+        {
+          "sesi": 7,
+          "tanggal": "2026-10-17",
+          "metode": "Offline",
+          "dosen_pengajar": "Dr. Yuanita Setyastuti, S.IP., M.Si",
+          "topik": "Review Psikologi Komunikasi & Persiapan Evaluasi",
+          "tugas": "Persiapan Ujian Tengah Semester"
+        },
+        {
+          "sesi": 8,
+          "tanggal": "2026-10-24",
+          "metode": "Online",
+          "dosen_pengajar": "Dr. Yuanita Setyastuti, S.IP., M.Si",
+          "topik": "Ujian Tengah Semester (UTS)",
+          "tugas": "Submit Ujian Tengah Semester"
+        },
+        {
+          "sesi": 9,
+          "tanggal": "2026-10-31",
+          "metode": "Offline",
+          "dosen_pengajar": "Dr. Novaria Maulina, S.I.Kom., M.I.Kom",
+          "topik": "Teori Sikap, Perubahan Sikap & Model Persuasi (ELM)",
+          "tugas": "-"
+        },
+        {
+          "sesi": 10,
+          "tanggal": "2026-11-07",
+          "metode": "Online",
+          "dosen_pengajar": "Dr. Novaria Maulina, S.I.Kom., M.I.Kom",
+          "topik": "Psikologi Khalayak di Ruang Digital (FOMO, Doomscrolling)",
+          "tugas": "Analisis Perilaku Medsos"
+        },
+        {
+          "sesi": 11,
+          "tanggal": "2026-11-14",
+          "metode": "Offline",
+          "dosen_pengajar": "Dr. Novaria Maulina, S.I.Kom., M.I.Kom",
+          "topik": "Identitas Diri Virtual, Avatar & Interaksi Parasosial",
+          "tugas": "-"
+        },
+        {
+          "sesi": 12,
+          "tanggal": "2026-11-21",
+          "metode": "Online",
+          "dosen_pengajar": "Dr. Novaria Maulina, S.I.Kom., M.I.Kom",
+          "topik": "Psikologi Cyberbullying, Agresi Verbal & Disinhibisi Online",
+          "tugas": "Desain Riset Perilaku Cyber"
+        },
+        {
+          "sesi": 13,
+          "tanggal": "2026-11-28",
+          "metode": "Offline",
+          "dosen_pengajar": "Dr. Novaria Maulina, S.I.Kom., M.I.Kom",
+          "topik": "Kesehatan Mental, Beban Informasi & Well-Being Digital",
+          "tugas": "-"
+        },
+        {
+          "sesi": 14,
+          "tanggal": "2026-12-05",
+          "metode": "Online",
+          "dosen_pengajar": "Dr. Novaria Maulina, S.I.Kom., M.I.Kom",
+          "topik": "Presentasi Kajian Kasus Psikologi Komunikasi (Sesi 1)",
+          "tugas": "Slide Presentasi Paper"
+        },
+        {
+          "sesi": 15,
+          "tanggal": "2026-12-12",
+          "metode": "Offline",
+          "dosen_pengajar": "Dr. Novaria Maulina, S.I.Kom., M.I.Kom",
+          "topik": "Presentasi Kajian Kasus Psikologi Komunikasi (Sesi 2)",
+          "tugas": "Revisi Final Paper"
+        },
+        {
+          "sesi": 16,
+          "tanggal": "2026-12-19",
+          "metode": "Online",
+          "dosen_pengajar": "Dr. Novaria Maulina, S.I.Kom., M.I.Kom",
+          "topik": "Ujian Akhir Semester (UAS)",
+          "tugas": "Pengumpulan Artikel Akhir UAS"
         }
       ]
     },
@@ -709,6 +533,181 @@
       ]
     },
     {
+      "id": "MK-04",
+      "hari": "Sabtu",
+      "jam_mulai": "19.00",
+      "jam_selesai": "21:30",
+      "mata_kuliah": "Perspektif dan Teori Komunikasi",
+      "dosen_pengajar_aktif": "Dr. Fahrianoor, S.IP., M.Si",
+      "tim_pengajar": [
+        {
+          "nama": "Prof. Dr. H. Bachruddin Ali Ahmad, M.Si",
+          "no_hp": "628125103033",
+          "peran": "Koordinator Tim"
+        },
+        {
+          "nama": "Dr. Fahrianoor, S.IP., M.Si",
+          "no_hp": "6281223198491",
+          "peran": "Anggota Tim"
+        },
+        {
+          "nama": "Dr. Siswanto, S.Sos., M.Si",
+          "no_hp": "6281218591982",
+          "peran": "Anggota Tim"
+        }
+      ],
+      "tanggal_offline": [
+        "2026-09-05",
+        "2026-10-02",
+        "2026-10-17",
+        "2026-10-31",
+        "2026-11-14",
+        "2026-11-28",
+        "2026-12-12"
+      ],
+      "tanggal_online": [
+        "2026-09-12",
+        "2026-09-19",
+        "2026-09-25",
+        "2026-10-10",
+        "2026-10-24",
+        "2026-11-07",
+        "2026-11-21",
+        "2026-12-05",
+        "2026-12-19"
+      ],
+      "pertemuan": [
+        {
+          "sesi": 1,
+          "tanggal": "2026-10-10",
+          "metode": "Online",
+          "dosen_pengajar": "Dr. Fahrianoor, S.IP., M.Si",
+          "topik": "Teori Komunikasi Politik: Agenda Setting, Framing, & Priming",
+          "tugas": "-"
+        },
+        {
+          "sesi": 2,
+          "tanggal": "2026-09-12",
+          "metode": "Online",
+          "dosen_pengajar": "Prof. Dr. H. Bachruddin Ali Ahmad, M.Si",
+          "topik": "Tradisi Retorika & Semiotika dalam Komunikasi Massa",
+          "tugas": "Analisis Semiotika Media"
+        },
+        {
+          "sesi": 3,
+          "tanggal": "2026-09-19",
+          "metode": "Online",
+          "dosen_pengajar": "Prof. Dr. H. Bachruddin Ali Ahmad, M.Si",
+          "topik": "Tradisi Fenomenologi & Sibernetika Sistem Informasi",
+          "tugas": "-"
+        },
+        {
+          "sesi": 4,
+          "tanggal": "2026-10-10",
+          "metode": "Online",
+          "dosen_pengajar": "Dr. Fahrianoor, S.IP., M.Si",
+          "topik": "Teori Komunikasi Politik: Agenda Setting, Framing, & Priming",
+          "tugas": "Studi Dinamika Kelompok"
+        },
+        {
+          "sesi": 5,
+          "tanggal": "2026-10-02",
+          "metode": "Offline",
+          "dosen_pengajar": "Dr. Fahrianoor, S.IP., M.Si",
+          "topik": "Tradisi Kritis: Frankfurt School & Hegemoni Budaya",
+          "tugas": "-"
+        },
+        {
+          "sesi": 6,
+          "tanggal": "2026-10-10",
+          "metode": "Online",
+          "dosen_pengajar": "Dr. Fahrianoor, S.IP., M.Si",
+          "topik": "Teori Komunikasi Politik: Agenda Setting, Framing, & Priming",
+          "tugas": "Analisis Framing Berita"
+        },
+        {
+          "sesi": 7,
+          "tanggal": "2026-10-17",
+          "metode": "Offline",
+          "dosen_pengajar": "Dr. Fahrianoor, S.IP., M.Si",
+          "topik": "Ruang Publik (Public Sphere) & Demokrasi Deliberatif",
+          "tugas": "Persiapan Ujian Tengah Semester"
+        },
+        {
+          "sesi": 8,
+          "tanggal": "2026-10-24",
+          "metode": "Online",
+          "dosen_pengajar": "Dr. Fahrianoor, S.IP., M.Si",
+          "topik": "Ujian Tengah Semester (UTS)",
+          "tugas": "Submit Naskah UTS"
+        },
+        {
+          "sesi": 9,
+          "tanggal": "2026-10-31",
+          "metode": "Offline",
+          "dosen_pengajar": "Dr. Fahrianoor, S.IP., M.Si",
+          "topik": "Teori Spiral of Silence & Diskursus Opini Publik Digital",
+          "tugas": "-"
+        },
+        {
+          "sesi": 10,
+          "tanggal": "2026-11-07",
+          "metode": "Online",
+          "dosen_pengajar": "Dr. Fahrianoor, S.IP., M.Si",
+          "topik": "Teori Konstruksi Sosial atas Realitas di Media Baru",
+          "tugas": "Resume Konstruksi Sosial"
+        },
+        {
+          "sesi": 11,
+          "tanggal": "2026-11-14",
+          "metode": "Offline",
+          "dosen_pengajar": "Dr. Siswanto, S.Sos., M.Si",
+          "topik": "Network Society Theory (Manuel Castells) & Algoritma",
+          "tugas": "-"
+        },
+        {
+          "sesi": 12,
+          "tanggal": "2026-11-21",
+          "metode": "Online",
+          "dosen_pengajar": "Dr. Siswanto, S.Sos., M.Si",
+          "topik": "Mediatization Theory & Ekologi Media Kontemporer",
+          "tugas": "Draft Artikel Teori"
+        },
+        {
+          "sesi": 13,
+          "tanggal": "2026-11-28",
+          "metode": "Offline",
+          "dosen_pengajar": "Dr. Siswanto, S.Sos., M.Si",
+          "topik": "Teori Resepsi Audiens Aktif & Platformisasi Digital",
+          "tugas": "-"
+        },
+        {
+          "sesi": 14,
+          "tanggal": "2026-12-05",
+          "metode": "Online",
+          "dosen_pengajar": "Dr. Siswanto, S.Sos., M.Si",
+          "topik": "Bedah Matriks Teori & Kerangka Analisis Skripsi/Tesis",
+          "tugas": "Slide Paparan Teori"
+        },
+        {
+          "sesi": 15,
+          "tanggal": "2026-12-12",
+          "metode": "Offline",
+          "dosen_pengajar": "Dr. Siswanto, S.Sos., M.Si",
+          "topik": "Seminar Mini Proposal Teori Komunikasi",
+          "tugas": "Finalisasi Draft UAS"
+        },
+        {
+          "sesi": 16,
+          "tanggal": "2026-12-19",
+          "metode": "Online",
+          "dosen_pengajar": "Dr. Siswanto, S.Sos., M.Si",
+          "topik": "Ujian Akhir Semester (UAS)",
+          "tugas": "Pengumpulan Artikel Akhir UAS"
+        }
+      ]
+    },
+    {
       "id": "MK-03",
       "hari": "Jum'at",
       "jam_mulai": "16.30",
@@ -881,8 +880,8 @@
     {
       "id": "MK-02",
       "hari": "Jum'at",
-      "jam_mulai": "18.45",
-      "jam_selesai": "21.15",
+      "jam_mulai": "14.00",
+      "jam_selesai": "16.30",
       "mata_kuliah": "Perspektif Komunikasi Organisasi",
       "dosen_pengajar_aktif": "Prof. Dr. H. Bachruddin Ali Ahmad, M.Si",
       "tim_pengajar": [
@@ -920,10 +919,10 @@
       "pertemuan": [
         {
           "sesi": 1,
-          "tanggal": "2026-09-04",
-          "metode": "Offline",
+          "tanggal": "2026-10-09",
+          "metode": "Online",
           "dosen_pengajar": "Prof. Dr. H. Bachruddin Ali Ahmad, M.Si",
-          "topik": "Pengantar & Ruang Lingkup Komunikasi Organisasi S2",
+          "topik": "Dinamika Konflik, Negosiasi, dan Pengambilan Keputusan",
           "tugas": "-"
         },
         {
