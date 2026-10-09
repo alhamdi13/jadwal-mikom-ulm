@@ -190,8 +190,8 @@
     {
       "id": "MK-05",
       "hari": "Sabtu",
-      "jam_mulai": "11.00",
-      "jam_selesai": "13.30",
+      "jam_mulai": "14.00",
+      "jam_selesai": "16.30",
       "mata_kuliah": "Perspektif Psikologi Komunikasi",
       "dosen_pengajar_aktif": "Dr. Yuanita Setyastuti, S.IP., M.Si",
       "tim_pengajar": [
@@ -360,8 +360,8 @@
     {
       "id": "MK-06",
       "hari": "Sabtu",
-      "jam_mulai": "14.00",
-      "jam_selesai": "16.30",
+      "jam_mulai": "11.00",
+      "jam_selesai": "13.30",
       "mata_kuliah": "Media dan Teknologi Komunikasi",
       "dosen_pengajar_aktif": "Dr. Muhammad Alif, M.Si",
       "tim_pengajar": [
@@ -412,10 +412,10 @@
         },
         {
           "sesi": 2,
-          "tanggal": "2026-09-12",
+          "tanggal": "2026-10-10",
           "metode": "Online",
-          "dosen_pengajar": "Dr. Yuanita Setyastuti, S.IP., M.Si",
-          "topik": "Konvergensi Media & Transformasi Industri Informasi",
+          "dosen_pengajar": "Dr. Muhammad Alif, M.Si",
+          "topik": "Kecerdasan Buatan (Generative AI) dalam Jurnalisme & PR",
           "tugas": "Studi Kasus Konvergensi Media"
         },
         {
@@ -535,8 +535,8 @@
     {
       "id": "MK-02",
       "hari": "Jum'at",
-      "jam_mulai": "16.30",
-      "jam_selesai": "18.00",
+      "jam_mulai": "16.3",
+      "jam_selesai": "18",
       "mata_kuliah": "Perspektif Komunikasi Organisasi",
       "dosen_pengajar_aktif": "Prof. Dr. H. Bachruddin Ali Ahmad, M.Si",
       "tim_pengajar": [
@@ -705,8 +705,8 @@
     {
       "id": "MK-03",
       "hari": "Jum'at",
-      "jam_mulai": "14.00",
-      "jam_selesai": "16.30",
+      "jam_mulai": "14",
+      "jam_selesai": "16.3",
       "mata_kuliah": "CSR dan Komunikasi Pemberdayaan",
       "dosen_pengajar_aktif": "Dr. Muhammad Alif, M.Si",
       "tim_pengajar": [
@@ -876,7 +876,7 @@
       "id": "MK-04",
       "hari": "Sabtu",
       "jam_mulai": "19.00",
-      "jam_selesai": "21:30",
+      "jam_selesai": "21.30",
       "mata_kuliah": "Perspektif dan Teori Komunikasi",
       "dosen_pengajar_aktif": "Dr. Fahrianoor, S.IP., M.Si",
       "tim_pengajar": [
